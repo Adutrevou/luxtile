@@ -48,7 +48,11 @@ const CollectionsPage = () => {
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[2px] bg-border">
-          {filtered.map((col, i) => (
+          {filtered.length === 0 ? (
+            <div className="col-span-full bg-background py-20 text-center">
+              <p className="text-muted-foreground">No collections found in this category.</p>
+            </div>
+          ) : filtered.map((col, i) => (
             <SectionReveal key={col.id} delay={i * 0.1}>
               <div className="bg-background group relative overflow-hidden">
                 <div className="aspect-[3/4] overflow-hidden">

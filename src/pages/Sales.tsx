@@ -110,7 +110,7 @@ const SalesPage = () => {
       </section>
 
       {/* Dekton Brand Section */}
-      <section className="section-padding py-28 bg-secondary">
+      <section className="section-padding py-28 bg-background">
         <SectionReveal>
           <div className="flex items-center gap-6 mb-4">
             <p className="label-caps">Premium Partner</p>

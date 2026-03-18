@@ -116,7 +116,7 @@ const SalesPage = () => {
             <p className="label-caps">Premium Partner</p>
           </div>
           <div className="flex items-center gap-6 mb-6">
-            <img src={dektonLogo} alt="Dekton" className="h-14 md:h-20 object-contain" />
+            <img src={dektonLogo} alt="Dekton" className="h-10 md:h-14 object-contain" />
           </div>
           <p className="text-muted-foreground max-w-2xl mb-16">
             Ultra-compact surfaces engineered for unmatched durability and striking beauty. Available in large-format slabs up to 3200 × 1440mm.

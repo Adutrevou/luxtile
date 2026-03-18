@@ -43,7 +43,7 @@ const Index = () => {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="heading-display text-primary-foreground mb-4"
           >
-            Lumina Porcelain
+            Luxtile Installations
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

@@ -1,16 +1,192 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import PageTransition from '@/components/PageTransition';
+import SectionReveal from '@/components/SectionReveal';
+import QuoteModal from '@/components/QuoteModal';
+import heroImg from '@/assets/hero-calacatta.jpg';
+import { collections } from '@/lib/collections';
+import inspKitchen from '@/assets/insp-kitchen.jpg';
+import inspLiving from '@/assets/insp-living.jpg';
+import inspLobby from '@/assets/insp-lobby.jpg';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const featured = collections.slice(0, 3);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <PageTransition>
+      {/* Hero */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <motion.div
+          initial={{ scale: 1.1, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0"
+        >
+          <img src={heroImg} alt="Luxury Calacatta marble porcelain interior" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-foreground/30" />
+        </motion.div>
+        <div className="relative z-10 text-center text-primary-foreground section-padding max-w-4xl mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="label-caps mb-6 !text-primary-foreground/80"
+          >
+            Premium Porcelain Slabs
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="heading-display text-primary-foreground mb-4"
+          >
+            Lumina Porcelain
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display text-xl md:text-2xl text-primary-foreground/80 italic mb-4"
+          >
+            Where Stone Meets Perfection
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-primary-foreground/70 text-sm md:text-base max-w-xl mx-auto mb-10 font-body"
+          >
+            Extraordinary porcelain slab tiles crafted for spaces that demand nothing less than exceptional.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <button
+              onClick={() => setQuoteOpen(true)}
+              className="bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+            >
+              Request a Quote
+            </button>
+            <Link
+              to="/collections"
+              className="border border-primary-foreground/40 text-primary-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium hover:bg-primary-foreground/10 transition-all hover:tracking-[0.19em]"
+            >
+              Explore Collections
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Collections */}
+      <section className="section-padding py-28">
+        <SectionReveal>
+          <p className="label-caps mb-4">Signature Collections</p>
+          <h2 className="heading-section text-foreground mb-16">Curated Excellence</h2>
+        </SectionReveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          {featured.map((col, i) => (
+            <SectionReveal key={col.id} delay={i * 0.15}>
+              <Link to="/collections" className="group block relative overflow-hidden aspect-[3/4]">
+                <img
+                  src={col.image}
+                  alt={col.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8">
+                  <p className="text-primary-foreground font-display text-xl mb-1">{col.name}</p>
+                  <p className="text-primary-foreground/60 text-sm">{col.description}</p>
+                </div>
+              </Link>
+            </SectionReveal>
+          ))}
+        </div>
+        <SectionReveal className="mt-12 text-center">
+          <Link to="/collections" className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all">
+            View All Collections <ArrowRight size={16} />
+          </Link>
+        </SectionReveal>
+      </section>
+
+      {/* Sales Teaser */}
+      <section className="bg-surface-dark text-surface-dark-foreground">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          <div className="aspect-square lg:aspect-auto overflow-hidden">
+            <img src={collections[3].image} alt="Nero Marquina slab" className="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <SectionReveal className="section-padding py-20 lg:py-28 flex flex-col justify-center">
+            <p className="label-caps mb-4">Now Available Direct</p>
+            <h2 className="heading-section text-surface-dark-foreground mb-6">Acquire Excellence</h2>
+            <p className="text-surface-dark-foreground/60 mb-10 max-w-md">
+              Move beyond inspiration — secure your slabs today for flawless execution. Now available direct for South Africa's most ambitious projects.
+            </p>
+            <Link
+              to="/sales"
+              className="inline-block bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em] self-start"
+            >
+              Explore Direct Sales
+            </Link>
+          </SectionReveal>
+        </div>
+      </section>
+
+      {/* Difference Teaser */}
+      <section className="section-padding py-28">
+        <SectionReveal>
+          <p className="label-caps mb-4">Why Lumina</p>
+          <h2 className="heading-section text-foreground mb-16">The Difference</h2>
+        </SectionReveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {[
+            { title: 'Premium Quality', desc: 'Every slab rigorously tested to meet international standards.' },
+            { title: 'Large Format', desc: 'Sizes up to 1200×2400mm for seamless installations.' },
+            { title: 'Expert Guidance', desc: 'Specialists to help you choose the perfect tile for your vision.' },
+          ].map((item, i) => (
+            <SectionReveal key={item.title} delay={i * 0.15} className="border-l border-border pl-8">
+              <h3 className="font-display text-xl mb-3">{item.title}</h3>
+              <p className="text-muted-foreground text-sm">{item.desc}</p>
+            </SectionReveal>
+          ))}
+        </div>
+        <SectionReveal className="mt-12 text-center">
+          <Link to="/difference" className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all">
+            Learn More <ArrowRight size={16} />
+          </Link>
+        </SectionReveal>
+      </section>
+
+      {/* Inspiration Teaser */}
+      <section className="section-padding py-28 bg-secondary">
+        <SectionReveal>
+          <p className="label-caps mb-4">Inspiration</p>
+          <h2 className="heading-section text-foreground mb-16">Spaces Transformed</h2>
+        </SectionReveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          {[inspKitchen, inspLiving, inspLobby].map((img, i) => (
+            <SectionReveal key={i} delay={i * 0.1}>
+              <div className="aspect-[4/3] overflow-hidden">
+                <img src={img} alt="Inspiration" className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-700" loading="lazy" />
+              </div>
+            </SectionReveal>
+          ))}
+        </div>
+        <SectionReveal className="mt-12 text-center">
+          <Link to="/inspiration" className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all">
+            View Gallery <ArrowRight size={16} />
+          </Link>
+        </SectionReveal>
+      </section>
+
+      <QuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} />
+    </PageTransition>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;

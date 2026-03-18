@@ -7,12 +7,12 @@ const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Collections', href: '/collections' },
   { name: 'Sales', href: '/sales' },
-  { name: 'Difference', href: '/difference' },
+  { name: 'Why Us', href: '/why-us' },
   { name: 'Inspiration', href: '/inspiration' },
   { name: 'Contact', href: '/contact' },
 ];
 
-const darkPages = ['/difference'];
+const darkPages = ['/why-us'];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);

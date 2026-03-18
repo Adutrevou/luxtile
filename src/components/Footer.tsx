@@ -37,8 +37,8 @@ const Footer = () => (
           <p className="label-caps mb-6">Contact</p>
           <div className="text-surface-dark-foreground/60 text-sm space-y-2">
             <p>Johannesburg, Gauteng, South Africa</p>
-            <p>+27 (0) 11 000 0000</p>
-            <p>info@luxtileinstallations.co.za</p>
+            <p>+27 83 605 5551</p>
+            <p>Wesley@luxtile.co.za</p>
           </div>
         </div>
       </div>

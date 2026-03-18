@@ -36,7 +36,7 @@ const DifferencePage = () => (
         </p>
       </SectionReveal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-surface-dark-foreground/10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {cards.map((card, i) => (
           <SectionReveal key={card.title} delay={i * 0.15}>
             <div className="bg-surface-dark p-12 md:p-16 group">

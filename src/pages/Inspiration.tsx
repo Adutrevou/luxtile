@@ -8,25 +8,15 @@ import inspSpa from '@/assets/insp-spa.jpg';
 import inspTerrace from '@/assets/insp-terrace.jpg';
 import inspShower from '@/assets/insp-shower.jpg';
 import heroCalacatta from '@/assets/hero-calacatta.jpg';
-import slabCalacatta from '@/assets/slab-calacatta.jpg';
-import slabNero from '@/assets/slab-nero.jpg';
-import slabTravertino from '@/assets/slab-travertino.jpg';
-import slabOak from '@/assets/slab-oak.jpg';
-import slabGrigio from '@/assets/slab-grigio.jpg';
 
 const images = [
-  { src: inspKitchen, caption: 'Kitchen — Calacatta Marble Look', aspect: 'aspect-[4/3]' },
-  { src: inspLobby, caption: 'Hotel Lobby — Nero Marquina', aspect: 'aspect-[3/4]' },
-  { src: inspLiving, caption: 'Living Room — Urban Concrete', aspect: 'aspect-[4/3]' },
-  { src: inspSpa, caption: 'Spa Bathroom — Travertino Beige', aspect: 'aspect-[4/3]' },
-  { src: inspTerrace, caption: 'Terrace — Nordic Oak', aspect: 'aspect-[3/4]' },
-  { src: inspShower, caption: 'Walk-in Shower — Grigio Stone', aspect: 'aspect-[3/4]' },
-  { src: heroCalacatta, caption: 'Master Bath — Calacatta', aspect: 'aspect-[16/9]' },
-  { src: slabCalacatta, caption: 'Detail — Calacatta Veining', aspect: 'aspect-[3/4]' },
-  { src: slabNero, caption: 'Detail — Nero Marquina', aspect: 'aspect-[3/4]' },
-  { src: slabTravertino, caption: 'Detail — Travertino Surface', aspect: 'aspect-[3/4]' },
-  { src: slabOak, caption: 'Detail — Nordic Oak Grain', aspect: 'aspect-[3/4]' },
-  { src: slabGrigio, caption: 'Detail — Grigio Texture', aspect: 'aspect-[3/4]' },
+  { src: inspKitchen, caption: 'Kitchen — Marble Elegance' },
+  { src: inspLobby, caption: 'Hotel Lobby — Dark Luxury' },
+  { src: inspLiving, caption: 'Living Room — Contemporary' },
+  { src: inspSpa, caption: 'Spa Bathroom — Warm Stone' },
+  { src: inspTerrace, caption: 'Terrace — Natural Wood' },
+  { src: inspShower, caption: 'Walk-in Shower — Stone Finish' },
+  { src: heroCalacatta, caption: 'Master Bath — Timeless' },
 ];
 
 const InspirationPage = () => (

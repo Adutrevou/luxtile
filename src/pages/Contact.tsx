@@ -35,14 +35,14 @@ const ContactPage = () => {
                 <Phone size={20} className="text-accent mt-1 shrink-0" />
                 <div>
                   <p className="font-medium text-sm">Phone</p>
-                  <p className="text-muted-foreground text-sm">+27 (0) 11 000 0000</p>
+                  <p className="text-muted-foreground text-sm">+27 83 605 5551</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <Mail size={20} className="text-accent mt-1 shrink-0" />
                 <div>
                   <p className="font-medium text-sm">Email</p>
-                  <p className="text-muted-foreground text-sm">info@luxtileinstallations.co.za</p>
+                  <p className="text-muted-foreground text-sm">Wesley@luxtile.co.za</p>
                 </div>
               </div>
             </div>

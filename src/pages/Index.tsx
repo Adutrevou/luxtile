@@ -43,7 +43,7 @@ const Index = () => {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="heading-display text-primary-foreground mb-4"
           >
-            Lumina Porcelain
+            Luxtile Installations
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -69,7 +69,7 @@ const Index = () => {
           >
             <button
               onClick={() => setQuoteOpen(true)}
-              className="bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+              className="bg-accent text-accent-foreground px-10 py-5 text-base tracking-[0.15em] uppercase font-semibold gold-shine transition-all hover:tracking-[0.19em] shadow-lg"
             >
               Request a Quote
             </button>
@@ -140,7 +140,7 @@ const Index = () => {
       {/* Difference Teaser */}
       <section className="section-padding py-28">
         <SectionReveal>
-          <p className="label-caps mb-4">Why Lumina</p>
+          <p className="label-caps mb-4">Why Luxtile</p>
           <h2 className="heading-section text-foreground mb-16">The Difference</h2>
         </SectionReveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">

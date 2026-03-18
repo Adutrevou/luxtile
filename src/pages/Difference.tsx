@@ -30,13 +30,13 @@ const DifferencePage = () => (
     <section className="min-h-screen bg-surface-dark text-surface-dark-foreground pt-40 pb-28 section-padding">
       <SectionReveal>
         <p className="label-caps mb-4">Why Choose Us</p>
-        <h1 className="heading-display text-surface-dark-foreground mb-6">The Luxtile Difference</h1>
+        <h1 className="heading-display text-surface-dark-foreground mb-6">The Luxtile Installations Difference</h1>
         <p className="text-surface-dark-foreground/60 max-w-xl mb-20">
           We don't just supply porcelain — we deliver confidence in every slab.
         </p>
       </SectionReveal>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-surface-dark-foreground/10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {cards.map((card, i) => (
           <SectionReveal key={card.title} delay={i * 0.15}>
             <div className="bg-surface-dark p-12 md:p-16 group">

@@ -2,14 +2,11 @@ import { useState } from 'react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
-import { collections, categories } from '@/lib/collections';
+import { collections } from '@/lib/collections';
 
 const CollectionsPage = () => {
-  const [filter, setFilter] = useState('All');
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
-
-  const filtered = filter === 'All' ? collections : collections.filter(c => c.category === filter);
 
   const openQuote = (name: string) => {
     setSelectedCollection(name);
@@ -27,32 +24,9 @@ const CollectionsPage = () => {
           </p>
         </SectionReveal>
 
-        {/* Filter Bar */}
-        <SectionReveal className="mb-12">
-          <div className="flex flex-wrap gap-6">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className={`text-sm tracking-[0.1em] uppercase transition-all pb-1 ${
-                  filter === cat
-                    ? 'text-foreground border-b-2 border-accent'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </SectionReveal>
-
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[2px] bg-border">
-          {filtered.length === 0 ? (
-            <div className="col-span-full bg-background py-20 text-center">
-              <p className="text-muted-foreground">No collections found in this category.</p>
-            </div>
-          ) : filtered.map((col, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {collections.map((col, i) => (
             <SectionReveal key={col.id} delay={i * 0.1}>
               <div className="bg-background group relative overflow-hidden">
                 <div className="aspect-[3/4] overflow-hidden">

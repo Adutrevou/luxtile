@@ -44,7 +44,7 @@ const Footer = () => (
       </div>
       <div className="border-t border-surface-dark-foreground/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-surface-dark-foreground/40 text-xs">
-          © 2026 Lumina Porcelain. All rights reserved. Johannesburg, South Africa.
+          © 2026 Luxtile Installations. All rights reserved. Johannesburg, South Africa.
         </p>
         <p className="text-surface-dark-foreground/30 text-xs">
           Made with love in South Africa

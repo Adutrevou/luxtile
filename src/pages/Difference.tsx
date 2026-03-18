@@ -30,7 +30,7 @@ const DifferencePage = () => (
     <section className="min-h-screen bg-surface-dark text-surface-dark-foreground pt-40 pb-28 section-padding">
       <SectionReveal>
         <p className="label-caps mb-4">Why Choose Us</p>
-        <h1 className="heading-display text-surface-dark-foreground mb-6">The Luxtile Difference</h1>
+        <h1 className="heading-display text-surface-dark-foreground mb-6">The Luxtile Installations Difference</h1>
         <p className="text-surface-dark-foreground/60 max-w-xl mb-20">
           We don't just supply porcelain — we deliver confidence in every slab.
         </p>

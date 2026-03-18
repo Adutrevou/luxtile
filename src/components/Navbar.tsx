@@ -12,10 +12,15 @@ const navLinks = [
   { name: 'Contact', href: '/contact' },
 ];
 
+const darkPages = ['/difference'];
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+
+  const isDarkPage = darkPages.includes(location.pathname);
+  const useLight = isDarkPage && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -36,8 +41,13 @@ const Navbar = () => {
       }`}
     >
       <div className="section-padding flex items-center justify-between">
-        <Link to="/" className="font-display text-2xl tracking-wide text-foreground">
-          Luxtile
+        <Link
+          to="/"
+          className={`font-display text-2xl tracking-wide transition-colors duration-300 ${
+            useLight ? 'text-white' : 'text-foreground'
+          }`}
+        >
+          Luxtile Installations
         </Link>
 
         {/* Desktop Nav */}
@@ -49,7 +59,9 @@ const Navbar = () => {
               className={`text-sm tracking-[0.08em] uppercase transition-all duration-300 hover:tracking-[0.12em] ${
                 location.pathname === link.href
                   ? 'text-accent'
-                  : 'text-foreground/70 hover:text-foreground'
+                  : useLight
+                    ? 'text-white/70 hover:text-white'
+                    : 'text-foreground/70 hover:text-foreground'
               }`}
             >
               {link.name}
@@ -60,7 +72,9 @@ const Navbar = () => {
         {/* Mobile Toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden text-foreground p-2"
+          className={`lg:hidden p-2 transition-colors duration-300 ${
+            useLight ? 'text-white' : 'text-foreground'
+          }`}
           aria-label="Toggle menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}

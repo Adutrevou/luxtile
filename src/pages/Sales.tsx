@@ -5,6 +5,12 @@ import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import { collections } from '@/lib/collections';
 
+import dektonLogo from '@/assets/dekton-logo.png';
+import dektonMoone from '@/assets/dekton-moone.png';
+import dektonLucid from '@/assets/dekton-lucid.png';
+import dektonReverie from '@/assets/dekton-reverie.png';
+import dektonSomnia from '@/assets/dekton-somnia.png';
+
 const benefits = [
   'Competitive direct pricing',
   'No middlemen',
@@ -12,6 +18,37 @@ const benefits = [
   'Bulk project discounts available',
   'Samples on request',
   'Specialist delivery nationwide',
+];
+
+const dektonProducts = [
+  {
+    name: 'Moone',
+    finish: 'Smooth Matte',
+    thicknesses: '4 | 8 | 12 | 20mm',
+    size: '3200 x 1440mm',
+    image: dektonMoone,
+  },
+  {
+    name: 'Lucid',
+    finish: 'Polished Gloss',
+    thicknesses: '4 | 8 | 12 | 20mm',
+    size: '3200 x 1440mm',
+    image: dektonLucid,
+  },
+  {
+    name: 'Reverie',
+    finish: 'Velvet',
+    thicknesses: '4 | 8 | 12 | 20mm',
+    size: '3200 x 1440mm',
+    image: dektonReverie,
+  },
+  {
+    name: 'Somnia',
+    finish: 'Smooth Matte',
+    thicknesses: '4 | 8 | 12 | 20mm',
+    size: '3200 x 1440mm',
+    image: dektonSomnia,
+  },
 ];
 
 const SalesPage = () => {
@@ -62,6 +99,52 @@ const SalesPage = () => {
                   <button
                     onClick={() => { setSelectedCollection(col.name); setQuoteOpen(true); }}
                     className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
+                  >
+                    Request Quote
+                  </button>
+                </div>
+              </div>
+            </SectionReveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Dekton Brand Section */}
+      <section className="section-padding py-28 bg-secondary">
+        <SectionReveal>
+          <div className="flex items-center gap-6 mb-4">
+            <p className="label-caps">Premium Partner</p>
+          </div>
+          <div className="flex items-center gap-6 mb-6">
+            <img src={dektonLogo} alt="Dekton" className="h-8 md:h-10 object-contain" />
+          </div>
+          <p className="text-muted-foreground max-w-2xl mb-16">
+            Ultra-compact surfaces engineered for unmatched durability and striking beauty. Available in large-format slabs up to 3200 × 1440mm.
+          </p>
+        </SectionReveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
+          {dektonProducts.map((product, i) => (
+            <SectionReveal key={product.name} delay={i * 0.1}>
+              <div className="bg-background overflow-hidden">
+                <div className="aspect-[16/9] overflow-hidden">
+                  <img
+                    src={product.image}
+                    alt={`Dekton ${product.name}`}
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-8">
+                  <h3 className="font-display text-xl mb-2">{product.name}</h3>
+                  <div className="space-y-1 text-sm text-muted-foreground mb-4">
+                    <p>{product.finish}</p>
+                    <p>{product.thicknesses}</p>
+                    <p>{product.size}</p>
+                  </div>
+                  <button
+                    onClick={() => { setSelectedCollection(`Dekton ${product.name}`); setQuoteOpen(true); }}
+                    className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
                   >
                     Request Quote
                   </button>

@@ -82,6 +82,7 @@ const CollectionsPage = () => {
             </SectionReveal>
           ))}
         </div>
+
       </section>
 
       <QuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} collectionName={selectedCollection} />

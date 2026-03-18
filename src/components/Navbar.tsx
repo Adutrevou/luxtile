@@ -7,7 +7,7 @@ const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Collections', href: '/collections' },
   { name: 'Sales', href: '/sales' },
-  { name: 'Why Us', href: '/difference' },
+  { name: 'Difference', href: '/difference' },
   { name: 'Inspiration', href: '/inspiration' },
   { name: 'Contact', href: '/contact' },
 ];

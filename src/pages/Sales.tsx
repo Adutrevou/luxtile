@@ -110,7 +110,7 @@ const SalesPage = () => {
       </section>
 
       {/* Dekton Brand Section */}
-      <section className="section-padding py-28 bg-background">
+      <section className="section-padding py-28 bg-secondary">
         <SectionReveal>
           <div className="flex items-center gap-6 mb-4">
             <p className="label-caps">Premium Partner</p>
@@ -123,7 +123,7 @@ const SalesPage = () => {
           </p>
         </SectionReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
           {dektonProducts.map((product, i) => (
             <SectionReveal key={product.name} delay={i * 0.1}>
               <div className="bg-background overflow-hidden">

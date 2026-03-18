@@ -12,7 +12,7 @@ const navLinks = [
   { name: 'Contact', href: '/contact' },
 ];
 
-const darkPages = ['/difference'];
+const darkPages = ['/why-us'];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);

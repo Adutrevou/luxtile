@@ -123,7 +123,7 @@ const SalesPage = () => {
           </p>
         </SectionReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px]">
           {dektonProducts.map((product, i) => (
             <SectionReveal key={product.name} delay={i * 0.1}>
               <div className="bg-background overflow-hidden">

@@ -14,7 +14,7 @@ const Footer = () => (
     <div className="section-padding py-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
         <div>
-          <h3 className="font-display text-3xl mb-4">Lumina</h3>
+          <h3 className="font-display text-3xl mb-4">Luxtile</h3>
           <p className="text-surface-dark-foreground/60 text-sm leading-relaxed max-w-xs">
             Extraordinary porcelain slab tiles crafted for spaces that demand nothing less than exceptional.
           </p>

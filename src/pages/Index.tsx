@@ -140,7 +140,7 @@ const Index = () => {
       {/* Difference Teaser */}
       <section className="section-padding py-28">
         <SectionReveal>
-          <p className="label-caps mb-4">Why Lumina</p>
+          <p className="label-caps mb-4">Why Luxtile</p>
           <h2 className="heading-section text-foreground mb-16">The Difference</h2>
         </SectionReveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">

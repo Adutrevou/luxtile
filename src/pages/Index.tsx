@@ -69,7 +69,7 @@ const Index = () => {
           >
             <button
               onClick={() => setQuoteOpen(true)}
-              className="bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+              className="bg-accent text-accent-foreground px-10 py-5 text-base tracking-[0.15em] uppercase font-semibold gold-shine transition-all hover:tracking-[0.19em] shadow-lg"
             >
               Request a Quote
             </button>

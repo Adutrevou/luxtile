@@ -42,7 +42,7 @@ const ContactPage = () => {
                 <Mail size={20} className="text-accent mt-1 shrink-0" />
                 <div>
                   <p className="font-medium text-sm">Email</p>
-                  <p className="text-muted-foreground text-sm">info@luxtileinstallations.co.za</p>
+                  <p className="text-muted-foreground text-sm">Wesley@luxtile.co.za</p>
                 </div>
               </div>
             </div>

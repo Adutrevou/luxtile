@@ -37,7 +37,7 @@ const Navbar = () => {
     >
       <div className="section-padding flex items-center justify-between">
         <Link to="/" className="font-display text-2xl tracking-wide text-foreground">
-          Lumina
+          Luxtile
         </Link>
 
         {/* Desktop Nav */}

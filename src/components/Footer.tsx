@@ -16,7 +16,7 @@ const Footer = () => (
         <div>
           <h3 className="font-display text-3xl mb-4">Luxtile</h3>
           <p className="text-surface-dark-foreground/60 text-sm leading-relaxed max-w-xs">
-            Extraordinary porcelain slab tiles crafted for spaces that demand nothing less than exceptional.
+            Premium porcelain slab installations for spaces that demand nothing less than exceptional.
           </p>
         </div>
         <div>

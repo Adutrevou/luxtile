@@ -46,7 +46,7 @@ const Navbar = () => {
           <img
             src={luxtileLogo}
             alt="Luxtile Installations"
-            className={`h-10 md:h-12 w-auto object-contain transition-all duration-300 ${
+            className={`h-12 md:h-16 w-auto object-contain transition-all duration-300 ${
               useLight ? 'brightness-0 invert' : ''
             }`}
           />

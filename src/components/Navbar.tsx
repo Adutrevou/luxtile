@@ -42,13 +42,14 @@ const Navbar = () => {
       }`}
     >
       <div className="section-padding flex items-center justify-between">
-        <Link
-          to="/"
-          className={`font-display text-2xl tracking-wide transition-colors duration-300 ${
-            useLight ? 'text-white' : 'text-foreground'
-          }`}
-        >
-          Luxtile Installations
+        <Link to="/" className="transition-opacity duration-300 hover:opacity-80">
+          <img
+            src={luxtileLogo}
+            alt="Luxtile Installations"
+            className={`h-10 md:h-12 w-auto object-contain transition-all duration-300 ${
+              useLight ? 'brightness-0 invert' : ''
+            }`}
+          />
         </Link>
 
         {/* Desktop Nav */}

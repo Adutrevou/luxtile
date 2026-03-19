@@ -41,7 +41,7 @@ const Index = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="heading-hero text-primary-foreground mb-4"
+            className="heading-display text-primary-foreground mb-4"
           >
             Luxtile Installations
           </motion.h1>

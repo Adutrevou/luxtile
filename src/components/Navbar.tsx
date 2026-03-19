@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import luxtileLogo from '@/assets/luxtile-logo.png';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -42,14 +41,13 @@ const Navbar = () => {
       }`}
     >
       <div className="section-padding flex items-center justify-between">
-        <Link to="/" className="block">
-          <img
-            src={luxtileLogo}
-            alt="Luxtile Installations"
-            className={`h-8 md:h-10 w-auto transition-all duration-300 ${
-              useLight ? 'brightness-0 invert' : ''
-            }`}
-          />
+        <Link
+          to="/"
+          className={`font-display text-2xl tracking-wide transition-colors duration-300 ${
+            useLight ? 'text-white' : 'text-foreground'
+          }`}
+        >
+          Luxtile Installations
         </Link>
 
         {/* Desktop Nav */}

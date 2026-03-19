@@ -6,6 +6,7 @@ import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import heroImg from '@/assets/hero-calacatta.jpg';
+import luxtileLogo from '@/assets/luxtile-logo.png';
 import { collections } from '@/lib/collections';
 import inspKitchen from '@/assets/insp-kitchen.jpg';
 import inspLiving from '@/assets/insp-living.jpg';

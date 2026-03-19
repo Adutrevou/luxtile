@@ -7,7 +7,6 @@ import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import heroImg from '@/assets/hero-calacatta.jpg';
 import { collections } from '@/lib/collections';
-import { collections } from '@/lib/collections';
 import inspKitchen from '@/assets/insp-kitchen.jpg';
 import inspLiving from '@/assets/insp-living.jpg';
 import inspLobby from '@/assets/insp-lobby.jpg';

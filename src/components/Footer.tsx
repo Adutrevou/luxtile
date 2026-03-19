@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import luxtileLogoWhite from '@/assets/luxtile-logo-white.png';
 
 const footerLinks = [
   { name: 'Home', href: '/' },

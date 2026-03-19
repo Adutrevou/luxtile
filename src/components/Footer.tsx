@@ -18,7 +18,7 @@ const Footer = () => (
           <img
             src={luxtileLogo}
             alt="Luxtile Installations"
-            className="h-10 w-auto brightness-0 invert mb-4"
+            className="h-16 md:h-20 w-auto brightness-0 invert mb-6"
           />
           <p className="text-surface-dark-foreground/60 text-sm leading-relaxed max-w-xs">
             Premium porcelain slab installations for spaces that demand nothing less than exceptional.

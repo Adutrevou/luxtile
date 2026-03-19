@@ -6,7 +6,6 @@ import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import heroImg from '@/assets/hero-calacatta.jpg';
-import luxtileLogo from '@/assets/luxtile-logo.png';
 import { collections } from '@/lib/collections';
 import inspKitchen from '@/assets/insp-kitchen.jpg';
 import inspLiving from '@/assets/insp-living.jpg';
@@ -38,18 +37,14 @@ const Index = () => {
           >
             Premium Porcelain Slabs
           </motion.p>
-          <motion.div
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-4 flex justify-center"
+            className="heading-hero text-primary-foreground mb-4"
           >
-            <img
-              src={luxtileLogo}
-              alt="Luxtile Installations"
-              className="h-16 md:h-24 w-auto brightness-0 invert"
-            />
-          </motion.div>
+            Luxtile Installations
+          </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, ChevronRight, ChevronLeft, Check, Upload, X } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Upload, X } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
+import VisionPreview from '@/components/VisionPreview';
 import { Progress } from '@/components/ui/progress';
 
 const STEPS = [
@@ -57,7 +58,7 @@ const ContactPage = () => {
   const canNext = () => {
     if (step === 0) return !!projectType;
     if (step === 1) return !!style;
-    if (step === 2) return true; // optional
+    if (step === 2) return true;
     if (step === 3) return !!budget;
     if (step === 4) return name.trim() && email.trim();
     return false;
@@ -89,45 +90,14 @@ const ContactPage = () => {
     <PageTransition>
       <section className="pt-40 pb-28 section-padding min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-          {/* Left — Info */}
+          {/* Left — Vision Preview */}
           <SectionReveal>
-            <p className="label-caps mb-4">Begin Your Journey</p>
-            <h1 className="heading-display text-foreground mb-6">
-              Ready to Transform<br />Your Space?
-            </h1>
-            <p className="text-muted-foreground mb-12 max-w-md">
-              Our consultants are ready to help you select the perfect slab for your vision.
-              Complete our brief consultation form and we'll craft a tailored recommendation.
-            </p>
-
-            <div className="space-y-8">
-              <div className="flex items-start gap-4">
-                <MapPin size={20} className="text-accent mt-1 shrink-0" />
-                <div>
-                  <p className="font-medium text-sm">Location</p>
-                  <p className="text-muted-foreground text-sm">Johannesburg, Gauteng, South Africa</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <Phone size={20} className="text-accent mt-1 shrink-0" />
-                <div>
-                  <p className="font-medium text-sm">Phone</p>
-                  <p className="text-muted-foreground text-sm">+27 83 605 5551</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <Mail size={20} className="text-accent mt-1 shrink-0" />
-                <div>
-                  <p className="font-medium text-sm">Email</p>
-                  <p className="text-muted-foreground text-sm">Wesley@luxtile.co.za</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-16 inline-flex items-center gap-3 border border-accent/30 px-8 py-4">
-              <span className="font-display text-3xl text-accent">10+</span>
-              <span className="text-muted-foreground text-sm tracking-[0.1em] uppercase">Years of Excellence</span>
-            </div>
+            <VisionPreview
+              projectType={projectType}
+              style={style}
+              budget={budget}
+              step={step}
+            />
           </SectionReveal>
 
           {/* Right — Multi-step form */}
@@ -173,7 +143,6 @@ const ContactPage = () => {
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                         className="w-full"
                       >
-                        {/* Step 0: Project Type */}
                         {step === 0 && (
                           <div>
                             <h3 className="font-display text-xl mb-2">What are you designing?</h3>
@@ -202,7 +171,6 @@ const ContactPage = () => {
                           </div>
                         )}
 
-                        {/* Step 1: Style */}
                         {step === 1 && (
                           <div>
                             <h3 className="font-display text-xl mb-2">Select your style</h3>
@@ -234,7 +202,6 @@ const ContactPage = () => {
                           </div>
                         )}
 
-                        {/* Step 2: Inspiration Upload */}
                         {step === 2 && (
                           <div>
                             <h3 className="font-display text-xl mb-2">Share your inspiration</h3>
@@ -269,7 +236,6 @@ const ContactPage = () => {
                           </div>
                         )}
 
-                        {/* Step 3: Budget */}
                         {step === 3 && (
                           <div>
                             <h3 className="font-display text-xl mb-2">What's your budget range?</h3>
@@ -303,7 +269,6 @@ const ContactPage = () => {
                           </div>
                         )}
 
-                        {/* Step 4: Contact Details */}
                         {step === 4 && (
                           <div>
                             <h3 className="font-display text-xl mb-2">Your details</h3>

@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
 
@@ -38,8 +39,10 @@ const CollectionsPage = () => {
         </SectionReveal>
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
           </div>
         ) : products.length === 0 ? (
           <p className="text-muted-foreground text-center py-20">No collections available yet.</p>

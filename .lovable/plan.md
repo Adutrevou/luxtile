@@ -1,135 +1,83 @@
 
 
-## Plan: Full Product Management System with Lovable Cloud Backend
+## Plan: Enhanced Display Section Controls + Show Existing Products in Admin
 
-The current system stores admin products in `localStorage` — this means data is lost if the browser cache is cleared and never syncs to the frontend for other users. We need to move to a real database with Lovable Cloud (Supabase).
+### What's Changing
 
----
+1. **Granular display section options** in admin product form — replace the current simple "Sale" / "Collection" toggles with more specific sub-sections
+2. **Show existing static products** (from `collections.ts` and Dekton) in the admin product list so they can be edited/removed
+3. **Landing page "Signature Collections"** pulls from products marked `featured` in the database
 
-### What We're Building
+### Display Section Structure
 
-A database-backed product management system where products added in the admin panel automatically appear on the Collections and Sales pages. The admin can assign products to "Sale", "Collection", or both via a `displaySection` field.
+The current `display_section` field (text array) will use these values:
 
----
+| Value | Where it appears |
+|-------|-----------------|
+| `Collection` | Collections page — main grid |
+| `Best Sellers` | Sales page — Best Sellers section |
+| `On Sale` | Sales page — On Sale section |
+| `Dekton Partner` | Sales page — Dekton partner section |
 
-### Step 1: Enable Lovable Cloud & Create Database Schema
+The `featured` boolean toggle determines if a product appears in the **Signature Collections** section on the landing page.
 
-Create a `products` table with migration:
+### Step 1: Update Admin Form — Section Picker
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid (PK) | auto-generated |
-| name | text | required |
-| description | text | required |
-| price | numeric | nullable |
-| category | text | e.g. Marble, Stone, Concrete |
-| tags | text[] | optional array |
-| sizes | text[] | e.g. ['600×1200mm'] |
-| display_section | text[] | e.g. ['Sale', 'Collection'] |
-| images | text[] | storage URLs |
-| cover_index | integer | default 0 |
-| status | text | 'active' or 'inactive', default 'active' |
-| featured | boolean | default false |
-| sort_order | integer | for manual ordering |
-| created_at | timestamptz | auto |
-| updated_at | timestamptz | auto |
+**File:** `src/pages/AdminDashboard.tsx`
 
-Create a `product_images` storage bucket for image uploads (replacing base64 in localStorage).
+Replace the current `SECTIONS = ['Sale', 'Collection']` with a two-level picker:
+- First: choose page(s) — **Collection** and/or **Sales**
+- If Sales is selected, show sub-options: **Best Sellers**, **On Sale**, **Dekton Partner**
+- If Collection is selected, product goes to Collections page
+- The `featured` toggle already exists — this controls the landing page Signature section
 
-RLS policies:
-- Public SELECT for active products (no auth needed)
-- Full CRUD for authenticated admin users (using `has_role` pattern)
+Update `SECTIONS` constant to `['Collection', 'Best Sellers', 'On Sale', 'Dekton Partner']` and update the toggle UI to group them logically.
 
-### Step 2: Set Up Admin Auth with Supabase
+### Step 2: Seed Existing Products into Database
 
-Replace the current hardcoded localStorage auth (`useAdminAuth.tsx`) with Supabase authentication:
-- Create the admin user in Supabase (admin@intergrai.co.za)
-- Create `user_roles` table with `admin` role
-- Update `useAdminAuth` to use `supabase.auth.signInWithPassword`
-- Update `RequireAdmin` to check the `user_roles` table
+Create a one-time seed that inserts the 6 static collections and 4 Dekton products into the `products` table so they appear in the admin panel and can be edited/deleted. Each will be inserted with appropriate `display_section` values:
+- Static collections → `['Collection']` with first 3 also `featured: true`
+- Dekton products → `['Dekton Partner']`
+- Best sellers (Calacatta, Nero Marquina, Travertino) → also get `['Best Sellers']`
 
-### Step 3: Create Product API Hook (`src/hooks/useProducts.ts`)
+This will be done via database insert statements.
 
-A new hook for frontend consumption using React Query + Supabase:
-- `useProducts(section?: string)` — fetches active products, optionally filtered by `display_section`
-- `useProductsBySection('Sale')` for the Sales page
-- `useProductsBySection('Collection')` for the Collections page
-- Auto-refetch with React Query's `staleTime` and `refetchOnWindowFocus`
+### Step 3: Update Sales Page Sections
 
-### Step 4: Upgrade Admin Dashboard
+**File:** `src/pages/Sales.tsx`
 
-Enhance `AdminDashboard.tsx` with:
-- **New fields**: price, tags, displaySection (multi-select: Sale/Collection), status toggle
-- **Image upload**: Upload to Supabase Storage instead of base64, with drag-to-reorder
-- **Search/filter/sort**: Text search by name, filter by category/section/status, sort by date/name
-- **Delete confirmation**: Dialog prompt before deletion
-- **Toast feedback**: Success/error notifications on all CRUD operations
-- **Product list**: Show status badge, section badges, thumbnail, price
+Replace the hardcoded `bestSellers` and `dektonProducts` arrays with dynamic queries:
+- `useProductsBySection('Best Sellers')` for Best Sellers
+- `useProductsBySection('On Sale')` for On Sale section (new)
+- `useProductsBySection('Dekton Partner')` for Dekton partner section
+- Remove static imports and hardcoded arrays
 
-### Step 5: Update Admin Product CRUD (`src/hooks/useAdminProducts.tsx`)
+### Step 4: Update Collections Page
 
-Replace localStorage operations with Supabase client calls:
-- `addProduct` → `supabase.from('products').insert()`
-- `updateProduct` → `supabase.from('products').update()`
-- `deleteProduct` → `supabase.from('products').delete()`
-- Image upload → `supabase.storage.from('product_images').upload()`
-- Use React Query mutations with cache invalidation
+**File:** `src/pages/Collections.tsx`
 
-### Step 6: Update Frontend Pages
+Replace the static `collections` import with `useProductsBySection('Collection')` to render all products dynamically from the database.
 
-**Collections.tsx:**
-- Keep existing static collections as fallback
-- Fetch admin products where `display_section` contains 'Collection'
-- Merge and render using a shared `ProductCard` component
+### Step 5: Update Landing Page Signature Section
 
-**Sales.tsx:**
-- Keep existing Dekton section as-is (hardcoded brand feature)
-- Add a dynamic section below for admin products where `display_section` contains 'Sale'
-- Use same `ProductCard` component
+**File:** `src/pages/Index.tsx`
 
-### Step 7: Create Reusable ProductCard Component
+Replace `collections.slice(0, 3)` with a query for products where `featured = true` to dynamically show signature collection items.
 
-`src/components/ProductCard.tsx` — shared card used across Collections and Sales:
-- Product image with hover zoom
-- Name, price, category badge
-- "Add to Quote" button integrated with existing QuoteBasket context
-- Consistent styling matching current design
+### Step 6: Update useProducts Hook
 
-### Step 8: Update Product Source Layer
+**File:** `src/hooks/useProducts.ts`
 
-Update `src/lib/productSource.ts` to fetch from Supabase instead of localStorage, maintaining the unified `Product` interface for backward compatibility.
+Add a `useFeaturedProducts()` export that filters by `featured = true`.
 
----
+### Files Modified
 
-### Files Created/Modified
-
-| File | Action |
+| File | Change |
 |------|--------|
-| `supabase/migrations/001_products.sql` | Create — products table, RLS, storage bucket |
-| `supabase/migrations/002_user_roles.sql` | Create — admin roles table |
-| `src/hooks/useAdminAuth.tsx` | Modify — Supabase auth |
-| `src/hooks/useAdminProducts.tsx` | Modify — Supabase CRUD |
-| `src/hooks/useProducts.ts` | Create — frontend product fetching |
-| `src/components/ProductCard.tsx` | Create — reusable card |
-| `src/components/admin/RequireAdmin.tsx` | Modify — role-based check |
-| `src/pages/AdminDashboard.tsx` | Modify — new fields, search/filter, confirmations |
-| `src/pages/Collections.tsx` | Modify — dynamic product rendering |
-| `src/pages/Sales.tsx` | Modify — dynamic product rendering |
-| `src/lib/productSource.ts` | Modify — Supabase data source |
-| `src/integrations/supabase/client.ts` | Create — Supabase client setup |
-
-### Architecture
-
-```text
-┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
-│ Admin Panel  │────▶│  Supabase DB │◀────│  Frontend Pages │
-│ (CRUD + UI)  │     │  + Storage   │     │  (React Query)  │
-└─────────────┘     └──────────────┘     └─────────────────┘
-       │                                          │
-       └── Auth via Supabase ──────── RLS Policies ┘
-```
-
-### Prerequisites
-
-Lovable Cloud must be enabled to provision the Supabase backend. This will be done first before any code changes.
+| `src/pages/AdminDashboard.tsx` | Granular section picker UI |
+| `src/pages/Sales.tsx` | Dynamic product rendering from DB |
+| `src/pages/Collections.tsx` | Dynamic product rendering from DB |
+| `src/pages/Index.tsx` | Featured products from DB |
+| `src/hooks/useProducts.ts` | Add `useFeaturedProducts` |
+| Database | Insert existing products as seed data |
 

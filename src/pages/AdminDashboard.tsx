@@ -1,72 +1,80 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { useAdminProducts, type AdminProduct } from '@/hooks/useAdminProducts';
-import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft } from 'lucide-react';
+import { useAdminProducts } from '@/hooks/useAdminProducts';
+import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, Filter, ToggleLeft, ToggleRight } from 'lucide-react';
+import { toast } from 'sonner';
 import luxtileLogo from '@/assets/luxtile-logo.png';
 
 type View = 'list' | 'form';
 
 const CATEGORIES = ['Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
+const SECTIONS = ['Sale', 'Collection'];
 
 const AdminDashboard = () => {
   const { signOut } = useAdminAuth();
   const navigate = useNavigate();
-  const { products, addProduct, updateProduct, deleteProduct } = useAdminProducts();
+  const { products, isLoading: productsLoading, addProduct, updateProduct, deleteProduct, uploadImage, isAdding, isUpdating } = useAdminProducts();
   const [view, setView] = useState<View>('list');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Search/filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('All');
+  const [filterSection, setFilterSection] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'price'>('date');
 
   // Form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [sizes, setSizes] = useState('');
+  const [tags, setTags] = useState('');
+  const [price, setPrice] = useState('');
+  const [displaySection, setDisplaySection] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [coverIndex, setCoverIndex] = useState(0);
   const [featured, setFeatured] = useState(false);
+  const [status, setStatus] = useState<'active' | 'inactive'>('active');
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
-    setName('');
-    setDescription('');
-    setCategory(CATEGORIES[0]);
-    setSizes('');
-    setImages([]);
-    setCoverIndex(0);
-    setFeatured(false);
-    setEditingId(null);
+    setName(''); setDescription(''); setCategory(CATEGORIES[0]); setSizes('');
+    setTags(''); setPrice(''); setDisplaySection([]); setImages([]);
+    setCoverIndex(0); setFeatured(false); setStatus('active'); setEditingId(null);
   };
 
-  const openAdd = () => {
-    resetForm();
-    setView('form');
+  const openAdd = () => { resetForm(); setView('form'); };
+
+  const openEdit = (p: typeof products[0]) => {
+    setName(p.name); setDescription(p.description); setCategory(p.category);
+    setSizes(p.sizes.join(', ')); setTags(p.tags.join(', '));
+    setPrice(p.price != null ? String(p.price) : '');
+    setDisplaySection(p.display_section); setImages(p.images);
+    setCoverIndex(p.cover_index); setFeatured(p.featured);
+    setStatus(p.status as 'active' | 'inactive'); setEditingId(p.id); setView('form');
   };
 
-  const openEdit = (p: AdminProduct) => {
-    setName(p.name);
-    setDescription(p.description);
-    setCategory(p.category);
-    setSizes(p.sizes.join(', '));
-    setImages(p.images);
-    setCoverIndex(p.coverIndex);
-    setFeatured(p.featured);
-    setEditingId(p.id);
-    setView('form');
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setImages((prev) => [...prev, reader.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-    e.target.value = '';
+    setUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadImage(file);
+        urls.push(url);
+      }
+      setImages((prev) => [...prev, ...urls]);
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
   };
 
   const removeImage = (idx: number) => {
@@ -74,32 +82,76 @@ const AdminDashboard = () => {
     if (coverIndex >= idx && coverIndex > 0) setCoverIndex((c) => c - 1);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const toggleSection = (section: string) => {
+    setDisplaySection((prev) =>
+      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
       name,
       description,
       category,
       sizes: sizes.split(',').map((s) => s.trim()).filter(Boolean),
+      tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+      price: price ? Number(price) : null,
+      display_section: displaySection,
       images,
-      coverIndex,
+      cover_index: coverIndex,
       featured,
+      status,
+      sort_order: 0,
     };
-    if (editingId) {
-      updateProduct(editingId, data);
-    } else {
-      addProduct(data);
+    try {
+      if (editingId) {
+        await updateProduct(editingId, data);
+      } else {
+        await addProduct(data);
+      }
+      resetForm();
+      setView('list');
+    } catch {
+      // toast handled in hook
     }
-    resetForm();
-    setView('list');
   };
 
-  const handleSignOut = () => {
-    signOut();
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteProduct(id);
+    } catch {
+      // toast handled in hook
+    }
+    setDeleteConfirmId(null);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
     navigate('/admin/login');
   };
 
-  const uniqueCategories = [...new Set(products.map((p) => p.category))];
+  const handleToggleStatus = async (id: string, current: string) => {
+    const newStatus = current === 'active' ? 'inactive' : 'active';
+    await updateProduct(id, { status: newStatus });
+  };
+
+  // Filtering & sorting
+  const filtered = products
+    .filter((p) => {
+      if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filterCategory !== 'All' && p.category !== filterCategory) return false;
+      if (filterSection !== 'All' && !p.display_section.includes(filterSection)) return false;
+      if (filterStatus !== 'All' && p.status !== filterStatus.toLowerCase()) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'price') return (a.price || 0) - (b.price || 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+  const uniqueCategories = ['All', ...new Set(products.map((p) => p.category))];
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white">
@@ -118,41 +170,67 @@ const AdminDashboard = () => {
         {view === 'list' ? (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-              <div className="border border-white/10 p-5">
-                <p className="text-white/50 text-xs tracking-[0.15em] uppercase mb-1">Total Products</p>
-                <p className="text-3xl font-display">{products.length}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <StatCard label="Total Products" value={products.length} />
+              <StatCard label="Active" value={products.filter((p) => p.status === 'active').length} />
+              <StatCard label="Categories" value={[...new Set(products.map((p) => p.category))].length} />
+              <StatCard label="Featured" value={products.filter((p) => p.featured).length} />
+            </div>
+
+            {/* Search & Filters */}
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex-1 relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full bg-white/5 border border-white/10 text-white pl-10 pr-4 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+                />
               </div>
-              <div className="border border-white/10 p-5">
-                <p className="text-white/50 text-xs tracking-[0.15em] uppercase mb-1">Categories</p>
-                <p className="text-3xl font-display">{uniqueCategories.length}</p>
-              </div>
-              <div className="border border-white/10 p-5">
-                <p className="text-white/50 text-xs tracking-[0.15em] uppercase mb-1">Featured</p>
-                <p className="text-3xl font-display">{products.filter((p) => p.featured).length}</p>
-              </div>
+              <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm outline-none">
+                {uniqueCategories.map((c) => <option key={c} value={c} className="bg-[#0F0F0F]">{c}</option>)}
+              </select>
+              <select value={filterSection} onChange={(e) => setFilterSection(e.target.value)} className="bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm outline-none">
+                <option value="All" className="bg-[#0F0F0F]">All Sections</option>
+                {SECTIONS.map((s) => <option key={s} value={s} className="bg-[#0F0F0F]">{s}</option>)}
+              </select>
+              <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm outline-none">
+                <option value="All" className="bg-[#0F0F0F]">All Status</option>
+                <option value="Active" className="bg-[#0F0F0F]">Active</option>
+                <option value="Inactive" className="bg-[#0F0F0F]">Inactive</option>
+              </select>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm outline-none">
+                <option value="date" className="bg-[#0F0F0F]">Newest</option>
+                <option value="name" className="bg-[#0F0F0F]">Name</option>
+                <option value="price" className="bg-[#0F0F0F]">Price</option>
+              </select>
             </div>
 
             {/* Actions */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-xl">Products</h2>
+              <h2 className="font-display text-xl">Products ({filtered.length})</h2>
               <button onClick={openAdd} className="flex items-center gap-2 bg-accent text-accent-foreground px-5 py-2.5 text-sm tracking-[0.1em] uppercase font-medium hover:tracking-[0.14em] transition-all">
                 <Plus size={16} /> Add Product
               </button>
             </div>
 
             {/* Product List */}
-            {products.length === 0 ? (
+            {productsLoading ? (
+              <div className="border border-white/10 p-12 text-center">
+                <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="border border-white/10 p-12 text-center">
                 <Package size={40} className="mx-auto text-white/20 mb-4" />
-                <p className="text-white/50">No products yet. Add your first product.</p>
+                <p className="text-white/50">{products.length === 0 ? 'No products yet. Add your first product.' : 'No products match your filters.'}</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {products.map((p) => (
+                {filtered.map((p) => (
                   <div key={p.id} className="border border-white/10 p-4 flex items-center gap-4 group hover:border-white/20 transition-colors">
-                    {p.images[p.coverIndex] ? (
-                      <img src={p.images[p.coverIndex]} alt={p.name} className="w-16 h-16 object-cover shrink-0" />
+                    {p.images[p.cover_index] ? (
+                      <img src={p.images[p.cover_index]} alt={p.name} className="w-16 h-16 object-cover shrink-0" />
                     ) : (
                       <div className="w-16 h-16 bg-white/5 flex items-center justify-center shrink-0">
                         <Image size={20} className="text-white/20" />
@@ -160,19 +238,48 @@ const AdminDashboard = () => {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{p.name}</p>
-                      <p className="text-white/40 text-sm">{p.category} · {p.sizes.join(', ')}</p>
+                      <p className="text-white/40 text-sm">
+                        {p.category}
+                        {p.price != null && ` · R${p.price.toLocaleString()}`}
+                        {p.sizes.length > 0 && ` · ${p.sizes.join(', ')}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {p.display_section.map((s) => (
+                        <span key={s} className="text-[10px] tracking-[0.1em] uppercase text-white/50 border border-white/20 px-2 py-0.5">{s}</span>
+                      ))}
                     </div>
                     {p.featured && (
-                      <span className="text-xs tracking-[0.1em] uppercase text-accent border border-accent/30 px-2 py-0.5">Featured</span>
+                      <span className="text-xs tracking-[0.1em] uppercase text-accent border border-accent/30 px-2 py-0.5 shrink-0">Featured</span>
                     )}
-                    <button onClick={() => openEdit(p)} className="text-white/30 hover:text-white transition-colors">
+                    <span className={`text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 shrink-0 ${p.status === 'active' ? 'text-green-400 border border-green-400/30' : 'text-red-400 border border-red-400/30'}`}>
+                      {p.status}
+                    </span>
+                    <button onClick={() => handleToggleStatus(p.id, p.status)} className="text-white/30 hover:text-white transition-colors shrink-0" title="Toggle status">
+                      {p.status === 'active' ? <ToggleRight size={18} className="text-green-400" /> : <ToggleLeft size={18} />}
+                    </button>
+                    <button onClick={() => openEdit(p)} className="text-white/30 hover:text-white transition-colors shrink-0">
                       <Edit2 size={16} />
                     </button>
-                    <button onClick={() => deleteProduct(p.id)} className="text-white/30 hover:text-red-400 transition-colors">
+                    <button onClick={() => setDeleteConfirmId(p.id)} className="text-white/30 hover:text-red-400 transition-colors shrink-0">
                       <Trash2 size={16} />
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Delete Confirmation */}
+            {deleteConfirmId && (
+              <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setDeleteConfirmId(null)}>
+                <div className="bg-[#1a1a1a] border border-white/10 p-8 max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+                  <h3 className="font-display text-lg mb-2">Delete Product</h3>
+                  <p className="text-white/60 text-sm mb-6">Are you sure? This action cannot be undone.</p>
+                  <div className="flex gap-3">
+                    <button onClick={() => setDeleteConfirmId(null)} className="flex-1 border border-white/20 py-2.5 text-sm hover:border-white/40 transition-colors">Cancel</button>
+                    <button onClick={() => handleDelete(deleteConfirmId)} className="flex-1 bg-red-500 text-white py-2.5 text-sm hover:bg-red-600 transition-colors">Delete</button>
+                  </div>
+                </div>
               </div>
             )}
           </>
@@ -185,31 +292,53 @@ const AdminDashboard = () => {
             <h2 className="font-display text-xl mb-8">{editingId ? 'Edit Product' : 'Add Product'}</h2>
 
             <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-              <div>
-                <label className="text-white/60 text-xs tracking-[0.15em] uppercase block mb-2">Product Name</label>
+              <FormField label="Product Name">
                 <input required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
-              </div>
-              <div>
-                <label className="text-white/60 text-xs tracking-[0.15em] uppercase block mb-2">Description</label>
+              </FormField>
+              <FormField label="Description">
                 <textarea required value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors resize-none" />
-              </div>
+              </FormField>
+
               <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="text-white/60 text-xs tracking-[0.15em] uppercase block mb-2">Category</label>
+                <FormField label="Category">
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors">
                     {CATEGORIES.map((c) => <option key={c} value={c} className="bg-[#0F0F0F]">{c}</option>)}
                   </select>
-                </div>
-                <div>
-                  <label className="text-white/60 text-xs tracking-[0.15em] uppercase block mb-2">Sizes (comma-separated)</label>
-                  <input value={sizes} onChange={(e) => setSizes(e.target.value)} placeholder="e.g. 1200×600, 600×600" className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
-                </div>
+                </FormField>
+                <FormField label="Price (ZAR)">
+                  <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Optional" className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
+                </FormField>
               </div>
 
+              <div className="grid grid-cols-2 gap-6">
+                <FormField label="Sizes (comma-separated)">
+                  <input value={sizes} onChange={(e) => setSizes(e.target.value)} placeholder="e.g. 1200×600, 600×600" className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
+                </FormField>
+                <FormField label="Tags (comma-separated)">
+                  <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="e.g. new, premium" className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
+                </FormField>
+              </div>
+
+              {/* Display Section */}
+              <FormField label="Display Section">
+                <div className="flex gap-4 pt-2">
+                  {SECTIONS.map((s) => (
+                    <label key={s} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={displaySection.includes(s)}
+                        onChange={() => toggleSection(s)}
+                        className="accent-accent"
+                      />
+                      <span className="text-sm text-white/80">{s}</span>
+                    </label>
+                  ))}
+                </div>
+              </FormField>
+
               {/* Images */}
-              <div>
-                <label className="text-white/60 text-xs tracking-[0.15em] uppercase block mb-3">Product Images</label>
-                <div className="flex flex-wrap gap-3 mb-3">
+              <FormField label="Product Images">
+                <div className="flex flex-wrap gap-3 mb-3 pt-2">
                   {images.map((img, idx) => (
                     <div key={idx} className={`relative w-24 h-24 border-2 ${idx === coverIndex ? 'border-accent' : 'border-white/10'} cursor-pointer group`} onClick={() => setCoverIndex(idx)}>
                       <img src={img} alt="" className="w-full h-full object-cover" />
@@ -219,22 +348,31 @@ const AdminDashboard = () => {
                       </button>
                     </div>
                   ))}
-                  <button type="button" onClick={() => fileRef.current?.click()} className="w-24 h-24 border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-white/30 hover:text-white/60 hover:border-white/40 transition-colors">
-                    <Plus size={20} />
-                    <span className="text-[10px] mt-1">Upload</span>
+                  <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className="w-24 h-24 border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-white/30 hover:text-white/60 hover:border-white/40 transition-colors disabled:opacity-50">
+                    {uploading ? <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" /> : <><Plus size={20} /><span className="text-[10px] mt-1">Upload</span></>}
                   </button>
                 </div>
                 <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+              </FormField>
+
+              {/* Toggles */}
+              <div className="flex items-center gap-8">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="accent-accent" />
+                  <span className="text-white/60 text-sm">Featured product</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={status === 'active'} onChange={(e) => setStatus(e.target.checked ? 'active' : 'inactive')} className="accent-accent" />
+                  <span className="text-white/60 text-sm">Active (visible on site)</span>
+                </label>
               </div>
 
-              {/* Featured */}
-              <div className="flex items-center gap-3">
-                <input type="checkbox" id="featured" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="accent-accent" />
-                <label htmlFor="featured" className="text-white/60 text-sm">Mark as featured product</label>
-              </div>
-
-              <button type="submit" className="bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium hover:tracking-[0.19em] transition-all">
-                {editingId ? 'Update Product' : 'Add Product'}
+              <button
+                type="submit"
+                disabled={isAdding || isUpdating}
+                className="bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium hover:tracking-[0.19em] transition-all disabled:opacity-50"
+              >
+                {isAdding || isUpdating ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
               </button>
             </form>
           </>
@@ -243,5 +381,19 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
+const StatCard = ({ label, value }: { label: string; value: number }) => (
+  <div className="border border-white/10 p-5">
+    <p className="text-white/50 text-xs tracking-[0.15em] uppercase mb-1">{label}</p>
+    <p className="text-3xl font-display">{value}</p>
+  </div>
+);
+
+const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <label className="text-white/60 text-xs tracking-[0.15em] uppercase block mb-2">{label}</label>
+    {children}
+  </div>
+);
 
 export default AdminDashboard;

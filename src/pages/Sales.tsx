@@ -3,16 +3,10 @@ import { Check as CheckIcon } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
-import ProductCard from '@/components/ProductCard';
-import { collections } from '@/lib/collections';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
-import { useProductsBySection } from '@/hooks/useProducts';
+import { useProductsBySection, Product } from '@/hooks/useProducts';
 
 import dektonLogo from '@/assets/dekton-logo.png';
-import dektonMoone from '@/assets/dekton-moone.png';
-import dektonLucid from '@/assets/dekton-lucid.png';
-import dektonReverie from '@/assets/dekton-reverie.png';
-import dektonSomnia from '@/assets/dekton-somnia.png';
 
 const benefits = [
   'Competitive direct pricing',
@@ -23,19 +17,107 @@ const benefits = [
   'Specialist delivery nationwide',
 ];
 
-const dektonProducts = [
-  { id: 'dekton-moone', name: 'Moone', finish: 'Smooth Matte', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonMoone },
-  { id: 'dekton-lucid', name: 'Lucid', finish: 'Polished Gloss', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonLucid },
-  { id: 'dekton-reverie', name: 'Reverie', finish: 'Velvet', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonReverie },
-  { id: 'dekton-somnia', name: 'Somnia', finish: 'Smooth Matte', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonSomnia },
-];
-
 const SalesPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
-  const bestSellers = [collections[0], collections[3], collections[4]];
   const { addItem, isInBasket } = useQuoteBasket();
-  const { data: saleProducts = [] } = useProductsBySection('Sale');
+
+  const { data: bestSellers = [] } = useProductsBySection('Best Sellers');
+  const { data: saleProducts = [] } = useProductsBySection('On Sale');
+  const { data: dektonProducts = [] } = useProductsBySection('Dekton Partner');
+
+  const openQuote = (name: string) => {
+    setSelectedCollection(name);
+    setQuoteOpen(true);
+  };
+
+  const handleAdd = (p: Product) => {
+    addItem({ id: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category });
+  };
+
+  const ProductOverlayCard = ({ product, index }: { product: Product; index: number }) => {
+    const inBasket = isInBasket(product.id);
+    const coverImg = product.images[product.cover_index] || product.images[0] || '';
+    return (
+      <SectionReveal delay={index * 0.15}>
+        <div className="group relative overflow-hidden aspect-[3/4]">
+          {coverImg ? (
+            <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" loading="lazy" />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <h3 className="text-primary-foreground font-display text-2xl mb-2">{product.name}</h3>
+            <p className="text-primary-foreground/60 text-sm mb-4">{product.description}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleAdd(product)}
+                disabled={inBasket}
+                className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                  inBasket
+                    ? 'bg-accent/30 text-accent-foreground cursor-default'
+                    : 'border border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10'
+                }`}
+              >
+                {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
+              </button>
+              <button
+                onClick={() => openQuote(product.name)}
+                className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
+              >
+                Request Quote
+              </button>
+            </div>
+          </div>
+        </div>
+      </SectionReveal>
+    );
+  };
+
+  const DektonCard = ({ product, index }: { product: Product; index: number }) => {
+    const inBasket = isInBasket(product.id);
+    const coverImg = product.images[product.cover_index] || product.images[0] || '';
+    return (
+      <SectionReveal delay={index * 0.1}>
+        <div className="bg-background overflow-hidden">
+          <div className="aspect-[16/9] overflow-hidden">
+            {coverImg ? (
+              <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
+            ) : (
+              <div className="w-full h-full bg-muted" />
+            )}
+          </div>
+          <div className="p-8">
+            <h3 className="font-display text-xl mb-2">{product.name}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
+            {product.sizes.length > 0 && (
+              <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleAdd(product)}
+                disabled={inBasket}
+                className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                  inBasket
+                    ? 'bg-accent/20 text-accent cursor-default'
+                    : 'border border-border text-foreground hover:border-accent hover:text-accent'
+                }`}
+              >
+                {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
+              </button>
+              <button
+                onClick={() => openQuote(product.name)}
+                className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+              >
+                Request Quote
+              </button>
+            </div>
+          </div>
+        </div>
+      </SectionReveal>
+    );
+  };
 
   return (
     <PageTransition>
@@ -63,60 +145,31 @@ const SalesPage = () => {
       </section>
 
       {/* Best Sellers */}
-      <section className="section-padding pb-28">
-        <SectionReveal>
-          <p className="label-caps mb-4">Featured</p>
-          <h2 className="heading-section text-foreground mb-16">Best Sellers</h2>
-        </SectionReveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-          {bestSellers.map((col, i) => {
-            const inBasket = isInBasket(col.id);
-            return (
-              <SectionReveal key={col.id} delay={i * 0.15}>
-                <div className="group relative overflow-hidden aspect-[3/4]">
-                  <img src={col.image} alt={col.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-8">
-                    <h3 className="text-primary-foreground font-display text-2xl mb-2">{col.name}</h3>
-                    <p className="text-primary-foreground/60 text-sm mb-4">{col.description}</p>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => addItem({ id: col.id, name: col.name, image: col.image, category: col.category })}
-                        disabled={inBasket}
-                        className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
-                          inBasket
-                            ? 'bg-accent/30 text-accent-foreground cursor-default'
-                            : 'border border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10'
-                        }`}
-                      >
-                        {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
-                      </button>
-                      <button
-                        onClick={() => { setSelectedCollection(col.name); setQuoteOpen(true); }}
-                        className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
-                      >
-                        Request Quote
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </SectionReveal>
-            );
-          })}
-        </div>
-      </section>
+      {bestSellers.length > 0 && (
+        <section className="section-padding pb-28">
+          <SectionReveal>
+            <p className="label-caps mb-4">Featured</p>
+            <h2 className="heading-section text-foreground mb-16">Best Sellers</h2>
+          </SectionReveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+            {bestSellers.map((product, i) => (
+              <ProductOverlayCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Admin-Managed Sale Products */}
+      {/* On Sale Products */}
       {saleProducts.length > 0 && (
         <section className="section-padding pb-28">
           <SectionReveal>
-            <p className="label-caps mb-4">On Sale</p>
-            <h2 className="heading-section text-foreground mb-16">Sale Products</h2>
+            <p className="label-caps mb-4">Limited Time</p>
+            <h2 className="heading-section text-foreground mb-16">On Sale</h2>
           </SectionReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {saleProducts.map((product, i) => (
               <SectionReveal key={product.id} delay={i * 0.1}>
-                <ProductCard product={product} onRequestQuote={(name) => { setSelectedCollection(name); setQuoteOpen(true); }} />
+                <DektonCard product={product} index={i} />
               </SectionReveal>
             ))}
           </div>
@@ -124,61 +177,27 @@ const SalesPage = () => {
       )}
 
       {/* Dekton Brand Section */}
-      <section className="section-padding py-28 bg-secondary">
-        <SectionReveal>
-          <div className="flex items-center gap-6 mb-4">
-            <p className="label-caps">Premium Partner</p>
-          </div>
-          <div className="flex items-center gap-6 mb-6">
-            <img src={dektonLogo} alt="Dekton" className="h-10 md:h-14 object-contain" />
-          </div>
-          <p className="text-muted-foreground max-w-2xl mb-16">
-            Ultra-compact surfaces engineered for unmatched durability and striking beauty. Available in large-format slabs up to 3200 × 1440mm.
-          </p>
-        </SectionReveal>
+      {dektonProducts.length > 0 && (
+        <section className="section-padding py-28 bg-secondary">
+          <SectionReveal>
+            <div className="flex items-center gap-6 mb-4">
+              <p className="label-caps">Premium Partner</p>
+            </div>
+            <div className="flex items-center gap-6 mb-6">
+              <img src={dektonLogo} alt="Dekton" className="h-10 md:h-14 object-contain" />
+            </div>
+            <p className="text-muted-foreground max-w-2xl mb-16">
+              Ultra-compact surfaces engineered for unmatched durability and striking beauty. Available in large-format slabs up to 3200 × 1440mm.
+            </p>
+          </SectionReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
-          {dektonProducts.map((product, i) => {
-            const inBasket = isInBasket(product.id);
-            return (
-              <SectionReveal key={product.name} delay={i * 0.1}>
-                <div className="bg-background overflow-hidden">
-                  <div className="aspect-[16/9] overflow-hidden">
-                    <img src={product.image} alt={`Dekton ${product.name}`} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
-                  </div>
-                  <div className="p-8">
-                    <h3 className="font-display text-xl mb-2">{product.name}</h3>
-                    <div className="space-y-1 text-sm text-muted-foreground mb-4">
-                      <p>{product.finish}</p>
-                      <p>{product.thicknesses}</p>
-                      <p>{product.size}</p>
-                    </div>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => addItem({ id: product.id, name: `Dekton ${product.name}`, image: product.image, category: 'Dekton' })}
-                        disabled={inBasket}
-                        className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
-                          inBasket
-                            ? 'bg-accent/20 text-accent cursor-default'
-                            : 'border border-border text-foreground hover:border-accent hover:text-accent'
-                        }`}
-                      >
-                        {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
-                      </button>
-                      <button
-                        onClick={() => { setSelectedCollection(`Dekton ${product.name}`); setQuoteOpen(true); }}
-                        className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
-                      >
-                        Request Quote
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </SectionReveal>
-            );
-          })}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
+            {dektonProducts.map((product, i) => (
+              <DektonCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="bg-surface-dark text-surface-dark-foreground section-padding py-28 text-center">

@@ -64,3 +64,21 @@ export const useProducts = (section?: string) => {
 };
 
 export const useProductsBySection = (section: string) => useProducts(section);
+
+export const useFeaturedProducts = () => {
+  return useQuery({
+    queryKey: ['products', 'featured'],
+    queryFn: async (): Promise<Product[]> => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'active')
+        .eq('featured', true)
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return (data || []).map(mapProduct);
+    },
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
+};

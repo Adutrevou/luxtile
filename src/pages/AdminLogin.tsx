@@ -29,9 +29,10 @@ const AdminLogin = () => {
         setLoading(false);
         return;
       }
-      // Check admin role directly
+      // Small delay to let auth state settle before RPC
+      await new Promise(r => setTimeout(r, 500));
       if (data.user) {
-        const { data: isAdminRole } = await supabase.rpc('has_role', { _user_id: data.user.id, _role: 'admin' });
+        const { data: isAdminRole } = await supabase.rpc('has_role', { _user_id: data.user.id, _role: 'admin' as const });
         if (isAdminRole) {
           navigate('/admin', { replace: true });
         } else {

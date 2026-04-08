@@ -3,13 +3,16 @@ import { Check } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
+import ProductCard from '@/components/ProductCard';
 import { collections } from '@/lib/collections';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
+import { useProductsBySection } from '@/hooks/useProducts';
 
 const CollectionsPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
   const { addItem, isInBasket } = useQuoteBasket();
+  const { data: adminProducts = [] } = useProductsBySection('Collection');
 
   const openQuote = (name: string) => {
     setSelectedCollection(name);
@@ -36,7 +39,7 @@ const CollectionsPage = () => {
           </p>
         </SectionReveal>
 
-        {/* Grid */}
+        {/* Static Collections Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {collections.map((col, i) => {
             const inBasket = isInBasket(col.id);
@@ -85,6 +88,21 @@ const CollectionsPage = () => {
           })}
         </div>
 
+        {/* Admin-Managed Collection Products */}
+        {adminProducts.length > 0 && (
+          <div className="mt-16">
+            <SectionReveal>
+              <h2 className="heading-section text-foreground mb-12">More Collections</h2>
+            </SectionReveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adminProducts.map((product, i) => (
+                <SectionReveal key={product.id} delay={i * 0.1}>
+                  <ProductCard product={product} onRequestQuote={openQuote} />
+                </SectionReveal>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       <QuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} collectionName={selectedCollection} />

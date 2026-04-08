@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Check } from 'lucide-react';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import type { Product } from '@/hooks/useProducts';
@@ -76,4 +77,4 @@ const ProductCard = ({ product, onRequestQuote }: ProductCardProps) => {
   );
 };
 
-export default ProductCard;
+export default memo(ProductCard);

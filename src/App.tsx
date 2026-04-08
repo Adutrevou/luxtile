@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,18 +11,30 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import QuoteBasketIndicator from "@/components/QuoteBasketIndicator";
 import QuoteModal from "@/components/QuoteModal";
-import Index from "./pages/Index.tsx";
-import CollectionsPage from "./pages/Collections.tsx";
-import SalesPage from "./pages/Sales.tsx";
-import DifferencePage from "./pages/Difference.tsx";
-import InspirationPage from "./pages/Inspiration.tsx";
-import ContactPage from "./pages/Contact.tsx";
-import NotFound from "./pages/NotFound.tsx";
-import AdminLogin from "./pages/AdminLogin.tsx";
-import AdminDashboard from "./pages/AdminDashboard.tsx";
-import RequireAdmin from "./components/admin/RequireAdmin.tsx";
+import PageSkeleton from "@/components/PageSkeleton";
 
-const queryClient = new QueryClient();
+// Lazy-loaded pages for code splitting
+const Index = lazy(() => import("./pages/Index.tsx"));
+const CollectionsPage = lazy(() => import("./pages/Collections.tsx"));
+const SalesPage = lazy(() => import("./pages/Sales.tsx"));
+const DifferencePage = lazy(() => import("./pages/Difference.tsx"));
+const InspirationPage = lazy(() => import("./pages/Inspiration.tsx"));
+const ContactPage = lazy(() => import("./pages/Contact.tsx"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
+const RequireAdmin = lazy(() => import("./components/admin/RequireAdmin.tsx"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 /** Renders the global QuoteModal bound to basket context state */
 const GlobalQuoteModal = () => {
@@ -38,32 +51,40 @@ const App = () => (
         <QuoteBasketProvider>
           <BrowserRouter>
             <ScrollToTop />
-            <Routes>
-              {/* Admin routes — no Navbar/Footer */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+            <Suspense fallback={<PageSkeleton />}>
+              <Routes>
+                {/* Admin routes — no Navbar/Footer */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={
+                  <Suspense fallback={<PageSkeleton />}>
+                    <RequireAdmin><AdminDashboard /></RequireAdmin>
+                  </Suspense>
+                } />
 
-              {/* Public routes */}
-              <Route path="*" element={
-                <>
-                  <Navbar />
-                  <main>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/collections" element={<CollectionsPage />} />
-                      <Route path="/sales" element={<SalesPage />} />
-                      <Route path="/why-us" element={<DifferencePage />} />
-                      <Route path="/inspiration" element={<InspirationPage />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                  <QuoteBasketIndicator />
-                  <GlobalQuoteModal />
-                </>
-              } />
-            </Routes>
+                {/* Public routes */}
+                <Route path="*" element={
+                  <>
+                    <Navbar />
+                    <main>
+                      <Suspense fallback={<PageSkeleton />}>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/collections" element={<CollectionsPage />} />
+                          <Route path="/sales" element={<SalesPage />} />
+                          <Route path="/why-us" element={<DifferencePage />} />
+                          <Route path="/inspiration" element={<InspirationPage />} />
+                          <Route path="/contact" element={<ContactPage />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </main>
+                    <Footer />
+                    <QuoteBasketIndicator />
+                    <GlobalQuoteModal />
+                  </>
+                } />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </QuoteBasketProvider>
       </AdminAuthProvider>

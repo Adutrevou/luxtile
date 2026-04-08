@@ -58,8 +58,9 @@ export const useProducts = (section?: string) => {
   return useQuery({
     queryKey: ['products', section || 'all'],
     queryFn: () => fetchProducts(section),
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -78,7 +79,8 @@ export const useFeaturedProducts = () => {
       if (error) throw error;
       return (data || []).map(mapProduct);
     },
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 };

@@ -1,13 +1,13 @@
-import { Link } from 'react-router-dom';
-import luxtileLogoWhite from '@/assets/luxtile-logo-white.png';
+import { Link } from "react-router-dom";
+import luxtileLogoWhite from "@/assets/luxtile-logo-white.png";
 
 const footerLinks = [
-  { name: 'Home', href: '/' },
-  { name: 'Collections', href: '/collections' },
-  { name: 'Sales', href: '/sales' },
-  { name: 'Why Us', href: '/why-us' },
-  { name: 'Inspiration', href: '/inspiration' },
-  { name: 'Contact', href: '/contact' },
+  { name: "Home", href: "/" },
+  { name: "Collections", href: "/collections" },
+  { name: "Sales", href: "/sales" },
+  { name: "Why Us", href: "/why-us" },
+  { name: "Inspiration", href: "/inspiration" },
+  { name: "Contact", href: "/contact" },
 ];
 
 const Footer = () => (
@@ -39,7 +39,7 @@ const Footer = () => (
           <div className="text-surface-dark-foreground/60 text-sm space-y-2">
             <p>Johannesburg, Gauteng, South Africa</p>
             <p>+27 83 605 5551</p>
-            <p>Wesley@luxtile.co.za</p>
+            <p>Sales@luxtile.co.za</p>
           </div>
         </div>
       </div>
@@ -47,9 +47,7 @@ const Footer = () => (
         <p className="text-surface-dark-foreground/40 text-xs">
           © 2026 Luxtile Installations. All rights reserved. Johannesburg, South Africa.
         </p>
-        <p className="text-surface-dark-foreground/30 text-xs">
-          Made with love in South Africa
-        </p>
+        <p className="text-surface-dark-foreground/30 text-xs">Made with love in South Africa</p>
       </div>
     </div>
   </footer>

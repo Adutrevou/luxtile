@@ -29,17 +29,20 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    let resolved = false;
 
-    const resolve = () => {
-      if (!resolved && mounted) {
-        resolved = true;
-        setIsLoading(false);
+    // Restore session first, then listen for changes
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserId(session.user.id);
+        const admin = await checkAdmin(session.user.id);
+        if (mounted) setIsAdmin(admin);
       }
-    };
-
-    // Safety timeout — never stay loading forever
-    const timeout = setTimeout(resolve, 3000);
+      if (mounted) setIsLoading(false);
+    }).catch(() => {
+      if (mounted) setIsLoading(false);
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
@@ -53,26 +56,11 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAdmin(false);
         setUserId(null);
       }
-      resolve();
-    });
-
-    // Also try getSession as backup
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      if (session?.user) {
-        setIsAuthenticated(true);
-        setUserId(session.user.id);
-        const admin = await checkAdmin(session.user.id);
-        if (mounted) setIsAdmin(admin);
-      }
-      resolve();
-    }).catch(() => {
-      resolve();
+      if (mounted) setIsLoading(false);
     });
 
     return () => {
       mounted = false;
-      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, [checkAdmin]);

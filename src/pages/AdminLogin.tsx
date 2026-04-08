@@ -8,8 +8,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated, isAdmin, isLoading } = useAdminAuth();
-  const { signIn } = useAdminAuth();
+  const { isAuthenticated, isAdmin, isLoading, signIn } = useAdminAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,11 +23,10 @@ const AdminLogin = () => {
     setLoading(true);
     const result = await signIn(email, password);
     setLoading(false);
-    if (result.success) {
-      navigate('/admin', { replace: true });
-    } else {
+    if (!result.success) {
       setError(result.error || 'Invalid credentials');
     }
+    // Don't navigate here — the useEffect will handle it once isAdmin resolves
   };
 
   if (isLoading) {

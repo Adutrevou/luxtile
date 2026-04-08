@@ -6,6 +6,7 @@ import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import heroImg from '@/assets/hero-calacatta.jpg';
+import slabNero from '@/assets/slab-nero.jpg';
 import { useFeaturedProducts } from '@/hooks/useProducts';
 import inspKitchen from '@/assets/insp-kitchen.jpg';
 import inspLiving from '@/assets/insp-living.jpg';
@@ -125,7 +126,7 @@ const Index = () => {
       <section className="bg-surface-dark text-surface-dark-foreground">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="aspect-square lg:aspect-auto overflow-hidden">
-            <img src={collections[3].image} alt="Nero Marquina slab" className="w-full h-full object-cover" loading="lazy" />
+            <img src={slabNero} alt="Nero Marquina slab" className="w-full h-full object-cover" loading="lazy" />
           </div>
           <SectionReveal className="section-padding py-20 lg:py-28 flex flex-col justify-center">
             <p className="label-caps mb-4">Now Available Direct</p>

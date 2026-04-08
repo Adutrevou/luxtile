@@ -9,7 +9,7 @@ import luxtileLogo from '@/assets/luxtile-logo.png';
 type View = 'list' | 'form';
 
 const CATEGORIES = ['Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
-const SECTIONS = ['Sale', 'Collection'];
+const SECTIONS = ['Collection', 'Best Sellers', 'On Sale', 'Dekton Partner'];
 
 const AdminDashboard = () => {
   const { signOut } = useAdminAuth();
@@ -321,18 +321,27 @@ const AdminDashboard = () => {
 
               {/* Display Section */}
               <FormField label="Display Section">
-                <div className="flex gap-4 pt-2">
-                  {SECTIONS.map((s) => (
-                    <label key={s} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={displaySection.includes(s)}
-                        onChange={() => toggleSection(s)}
-                        className="accent-accent"
-                      />
-                      <span className="text-sm text-white/80">{s}</span>
-                    </label>
-                  ))}
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Pages</p>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={displaySection.includes('Collection')} onChange={() => toggleSection('Collection')} className="accent-accent" />
+                        <span className="text-sm text-white/80">Collections Page</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Sales Page Sections</p>
+                    <div className="flex gap-4">
+                      {['Best Sellers', 'On Sale', 'Dekton Partner'].map((s) => (
+                        <label key={s} className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={displaySection.includes(s)} onChange={() => toggleSection(s)} className="accent-accent" />
+                          <span className="text-sm text-white/80">{s}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </FormField>
 

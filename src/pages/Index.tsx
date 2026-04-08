@@ -6,14 +6,14 @@ import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import heroImg from '@/assets/hero-calacatta.jpg';
-import { collections } from '@/lib/collections';
+import { useFeaturedProducts } from '@/hooks/useProducts';
 import inspKitchen from '@/assets/insp-kitchen.jpg';
 import inspLiving from '@/assets/insp-living.jpg';
 import inspLobby from '@/assets/insp-lobby.jpg';
 
 const Index = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
-  const featured = collections.slice(0, 3);
+  const { data: featured = [] } = useFeaturedProducts();
 
   return (
     <PageTransition>
@@ -89,25 +89,31 @@ const Index = () => {
           <p className="label-caps mb-4">Signature Collections</p>
           <h2 className="heading-section text-foreground mb-16">Curated Excellence</h2>
         </SectionReveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-          {featured.map((col, i) => (
-            <SectionReveal key={col.id} delay={i * 0.15}>
-              <Link to="/collections" className="group block relative overflow-hidden aspect-[3/4]">
-                <img
-                  src={col.image}
-                  alt={col.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <p className="text-primary-foreground font-display text-xl mb-1">{col.name}</p>
-                  <p className="text-primary-foreground/60 text-sm">{col.description}</p>
-                </div>
-              </Link>
-            </SectionReveal>
-          ))}
-        </div>
+        {featured.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+            {featured.map((col, i) => {
+              const coverImg = col.images[col.cover_index] || col.images[0] || '';
+              return (
+                <SectionReveal key={col.id} delay={i * 0.15}>
+                  <Link to="/collections" className="group block relative overflow-hidden aspect-[3/4]">
+                    {coverImg ? (
+                      <img src={coverImg} alt={col.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full bg-muted" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-8">
+                      <p className="text-primary-foreground font-display text-xl mb-1">{col.name}</p>
+                      <p className="text-primary-foreground/60 text-sm">{col.description}</p>
+                    </div>
+                  </Link>
+                </SectionReveal>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">Loading collections...</div>
+        )}
         <SectionReveal className="mt-12 text-center">
           <Link to="/collections" className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all">
             View All Collections <ArrowRight size={16} />

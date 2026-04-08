@@ -3,8 +3,10 @@ import { Check as CheckIcon } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
+import ProductCard from '@/components/ProductCard';
 import { collections } from '@/lib/collections';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
+import { useProductsBySection } from '@/hooks/useProducts';
 
 import dektonLogo from '@/assets/dekton-logo.png';
 import dektonMoone from '@/assets/dekton-moone.png';
@@ -22,38 +24,10 @@ const benefits = [
 ];
 
 const dektonProducts = [
-  {
-    id: 'dekton-moone',
-    name: 'Moone',
-    finish: 'Smooth Matte',
-    thicknesses: '4 | 8 | 12 | 20mm',
-    size: '3200 x 1440mm',
-    image: dektonMoone,
-  },
-  {
-    id: 'dekton-lucid',
-    name: 'Lucid',
-    finish: 'Polished Gloss',
-    thicknesses: '4 | 8 | 12 | 20mm',
-    size: '3200 x 1440mm',
-    image: dektonLucid,
-  },
-  {
-    id: 'dekton-reverie',
-    name: 'Reverie',
-    finish: 'Velvet',
-    thicknesses: '4 | 8 | 12 | 20mm',
-    size: '3200 x 1440mm',
-    image: dektonReverie,
-  },
-  {
-    id: 'dekton-somnia',
-    name: 'Somnia',
-    finish: 'Smooth Matte',
-    thicknesses: '4 | 8 | 12 | 20mm',
-    size: '3200 x 1440mm',
-    image: dektonSomnia,
-  },
+  { id: 'dekton-moone', name: 'Moone', finish: 'Smooth Matte', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonMoone },
+  { id: 'dekton-lucid', name: 'Lucid', finish: 'Polished Gloss', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonLucid },
+  { id: 'dekton-reverie', name: 'Reverie', finish: 'Velvet', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonReverie },
+  { id: 'dekton-somnia', name: 'Somnia', finish: 'Smooth Matte', thicknesses: '4 | 8 | 12 | 20mm', size: '3200 x 1440mm', image: dektonSomnia },
 ];
 
 const SalesPage = () => {
@@ -61,6 +35,7 @@ const SalesPage = () => {
   const [selectedCollection, setSelectedCollection] = useState('');
   const bestSellers = [collections[0], collections[3], collections[4]];
   const { addItem, isInBasket } = useQuoteBasket();
+  const { data: saleProducts = [] } = useProductsBySection('Sale');
 
   return (
     <PageTransition>
@@ -131,6 +106,23 @@ const SalesPage = () => {
         </div>
       </section>
 
+      {/* Admin-Managed Sale Products */}
+      {saleProducts.length > 0 && (
+        <section className="section-padding pb-28">
+          <SectionReveal>
+            <p className="label-caps mb-4">On Sale</p>
+            <h2 className="heading-section text-foreground mb-16">Sale Products</h2>
+          </SectionReveal>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {saleProducts.map((product, i) => (
+              <SectionReveal key={product.id} delay={i * 0.1}>
+                <ProductCard product={product} onRequestQuote={(name) => { setSelectedCollection(name); setQuoteOpen(true); }} />
+              </SectionReveal>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Dekton Brand Section */}
       <section className="section-padding py-28 bg-secondary">
         <SectionReveal>
@@ -152,12 +144,7 @@ const SalesPage = () => {
               <SectionReveal key={product.name} delay={i * 0.1}>
                 <div className="bg-background overflow-hidden">
                   <div className="aspect-[16/9] overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={`Dekton ${product.name}`}
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
-                      loading="lazy"
-                    />
+                    <img src={product.image} alt={`Dekton ${product.name}`} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
                   </div>
                   <div className="p-8">
                     <h3 className="font-display text-xl mb-2">{product.name}</h3>

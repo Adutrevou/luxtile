@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAdminAuth();
+  const { isAuthenticated, isAdmin, isLoading } = useAdminAuth();
 
   if (isLoading) {
     return (
@@ -12,7 +12,7 @@ const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
+  if (!isAuthenticated || !isAdmin) return <Navigate to="/admin/login" replace />;
 
   return <>{children}</>;
 };

@@ -1,90 +1,135 @@
 
 
-## Plan: Luxtile Admin Panel + Quote Basket Fix
+## Plan: Full Product Management System with Lovable Cloud Backend
 
-This plan covers two things: (1) building a fully independent admin panel for Luxtile product management, and (2) fixing the quote basket indicator so clicking it opens the quote modal.
-
----
-
-### Part 1: Fix Quote Basket Click → Opens Quote Modal
-
-**Problem:** The floating basket button calls `openQuoteModal()` which sets `isQuoteOpen = true` in context, but no component reads that state. The QuoteModal instances on Collections/Sales pages use their own local state.
-
-**Fix:** Add a global QuoteModal in `App.tsx` that reads `isQuoteOpen` / `closeQuoteModal` from the QuoteBasketContext. This way clicking the basket indicator from any page opens the quote modal.
-
-**File:** `src/App.tsx` — Add a wrapper component inside `QuoteBasketProvider` that renders `<QuoteModal>` bound to context state.
+The current system stores admin products in `localStorage` — this means data is lost if the browser cache is cleared and never syncs to the frontend for other users. We need to move to a real database with Lovable Cloud (Supabase).
 
 ---
 
-### Part 2: Luxtile Admin Panel
+### What We're Building
 
-Following the ChariotsCars structure as a reference, build an isolated admin panel with local authentication (no Supabase dependency, since the project currently has none). Product data will be stored in localStorage for persistence, keeping the system fully independent.
+A database-backed product management system where products added in the admin panel automatically appear on the Collections and Sales pages. The admin can assign products to "Sale", "Collection", or both via a `displaySection` field.
 
-#### 2a. Admin Authentication (`src/hooks/useAdminAuth.tsx`)
-- Context-based auth with hardcoded credential validation (admin@intergrai.co.za / Admin,123)
-- Session persisted in localStorage with a token
-- `AdminAuthProvider`, `useAdminAuth` hook, `isAuthenticated` state
-- `signIn(email, password)` and `signOut()` methods
+---
 
-#### 2b. Admin Route Guard (`src/components/admin/RequireAdmin.tsx`)
-- Checks `useAdminAuth` for authentication
-- Redirects to `/admin/login` if not authenticated
-- Shows loading spinner while checking
+### Step 1: Enable Lovable Cloud & Create Database Schema
 
-#### 2c. Admin Login Page (`src/pages/AdminLogin.tsx`)
-- Clean login form styled to match Luxtile's aesthetic (dark background, accent colors)
-- Email + password fields, error handling
-- Redirects to `/admin` on success
-- Uses Luxtile logo
+Create a `products` table with migration:
 
-#### 2d. Admin Dashboard (`src/pages/AdminDashboard.tsx`)
-- Sidebar navigation with tabs: Products, Activity
-- **Products tab:**
-  - Stats cards (total products, categories)
-  - Product list with edit/delete actions
-  - Add/Edit product form with fields: name, description, category, sizes, images (multiple), featured toggle
-  - Image upload supporting multiple files (stored as base64/data URLs in localStorage)
-  - Image reordering and cover image selection
-- Responsive: sidebar on desktop, dropdown menu on mobile
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid (PK) | auto-generated |
+| name | text | required |
+| description | text | required |
+| price | numeric | nullable |
+| category | text | e.g. Marble, Stone, Concrete |
+| tags | text[] | optional array |
+| sizes | text[] | e.g. ['600×1200mm'] |
+| display_section | text[] | e.g. ['Sale', 'Collection'] |
+| images | text[] | storage URLs |
+| cover_index | integer | default 0 |
+| status | text | 'active' or 'inactive', default 'active' |
+| featured | boolean | default false |
+| sort_order | integer | for manual ordering |
+| created_at | timestamptz | auto |
+| updated_at | timestamptz | auto |
 
-#### 2e. Product Data Store (`src/hooks/useAdminProducts.tsx`)
-- CRUD operations for admin-managed products
-- localStorage persistence
-- React Query integration for cache/state management
-- Product interface matching the existing `Product` type from `productSource.ts`
+Create a `product_images` storage bucket for image uploads (replacing base64 in localStorage).
 
-#### 2f. Product Source Integration (`src/lib/productSource.ts`)
-- Update `getProducts()` to merge local collections with admin-managed products
-- Admin products marked with `source: 'admin'`
-- No changes to how the frontend consumes products
+RLS policies:
+- Public SELECT for active products (no auth needed)
+- Full CRUD for authenticated admin users (using `has_role` pattern)
 
-#### 2g. Route Registration (`src/App.tsx`)
-- Add `/admin/login` and `/admin` routes
-- Admin routes render WITHOUT Navbar/Footer (isolated experience)
-- Wrap admin dashboard in `RequireAdmin` guard
-- Wrap app in `AdminAuthProvider`
+### Step 2: Set Up Admin Auth with Supabase
 
-#### Files Created/Modified
+Replace the current hardcoded localStorage auth (`useAdminAuth.tsx`) with Supabase authentication:
+- Create the admin user in Supabase (admin@intergrai.co.za)
+- Create `user_roles` table with `admin` role
+- Update `useAdminAuth` to use `supabase.auth.signInWithPassword`
+- Update `RequireAdmin` to check the `user_roles` table
+
+### Step 3: Create Product API Hook (`src/hooks/useProducts.ts`)
+
+A new hook for frontend consumption using React Query + Supabase:
+- `useProducts(section?: string)` — fetches active products, optionally filtered by `display_section`
+- `useProductsBySection('Sale')` for the Sales page
+- `useProductsBySection('Collection')` for the Collections page
+- Auto-refetch with React Query's `staleTime` and `refetchOnWindowFocus`
+
+### Step 4: Upgrade Admin Dashboard
+
+Enhance `AdminDashboard.tsx` with:
+- **New fields**: price, tags, displaySection (multi-select: Sale/Collection), status toggle
+- **Image upload**: Upload to Supabase Storage instead of base64, with drag-to-reorder
+- **Search/filter/sort**: Text search by name, filter by category/section/status, sort by date/name
+- **Delete confirmation**: Dialog prompt before deletion
+- **Toast feedback**: Success/error notifications on all CRUD operations
+- **Product list**: Show status badge, section badges, thumbnail, price
+
+### Step 5: Update Admin Product CRUD (`src/hooks/useAdminProducts.tsx`)
+
+Replace localStorage operations with Supabase client calls:
+- `addProduct` → `supabase.from('products').insert()`
+- `updateProduct` → `supabase.from('products').update()`
+- `deleteProduct` → `supabase.from('products').delete()`
+- Image upload → `supabase.storage.from('product_images').upload()`
+- Use React Query mutations with cache invalidation
+
+### Step 6: Update Frontend Pages
+
+**Collections.tsx:**
+- Keep existing static collections as fallback
+- Fetch admin products where `display_section` contains 'Collection'
+- Merge and render using a shared `ProductCard` component
+
+**Sales.tsx:**
+- Keep existing Dekton section as-is (hardcoded brand feature)
+- Add a dynamic section below for admin products where `display_section` contains 'Sale'
+- Use same `ProductCard` component
+
+### Step 7: Create Reusable ProductCard Component
+
+`src/components/ProductCard.tsx` — shared card used across Collections and Sales:
+- Product image with hover zoom
+- Name, price, category badge
+- "Add to Quote" button integrated with existing QuoteBasket context
+- Consistent styling matching current design
+
+### Step 8: Update Product Source Layer
+
+Update `src/lib/productSource.ts` to fetch from Supabase instead of localStorage, maintaining the unified `Product` interface for backward compatibility.
+
+---
+
+### Files Created/Modified
 
 | File | Action |
 |------|--------|
-| `src/hooks/useAdminAuth.tsx` | Create — auth context |
-| `src/components/admin/RequireAdmin.tsx` | Create — route guard |
-| `src/pages/AdminLogin.tsx` | Create — login page |
-| `src/pages/AdminDashboard.tsx` | Create — dashboard |
-| `src/hooks/useAdminProducts.tsx` | Create — product CRUD |
-| `src/lib/productSource.ts` | Modify — merge admin products |
-| `src/App.tsx` | Modify — add routes + global QuoteModal |
+| `supabase/migrations/001_products.sql` | Create — products table, RLS, storage bucket |
+| `supabase/migrations/002_user_roles.sql` | Create — admin roles table |
+| `src/hooks/useAdminAuth.tsx` | Modify — Supabase auth |
+| `src/hooks/useAdminProducts.tsx` | Modify — Supabase CRUD |
+| `src/hooks/useProducts.ts` | Create — frontend product fetching |
+| `src/components/ProductCard.tsx` | Create — reusable card |
+| `src/components/admin/RequireAdmin.tsx` | Modify — role-based check |
+| `src/pages/AdminDashboard.tsx` | Modify — new fields, search/filter, confirmations |
+| `src/pages/Collections.tsx` | Modify — dynamic product rendering |
+| `src/pages/Sales.tsx` | Modify — dynamic product rendering |
+| `src/lib/productSource.ts` | Modify — Supabase data source |
+| `src/integrations/supabase/client.ts` | Create — Supabase client setup |
 
----
+### Architecture
 
-### Security Note
+```text
+┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
+│ Admin Panel  │────▶│  Supabase DB │◀────│  Frontend Pages │
+│ (CRUD + UI)  │     │  + Storage   │     │  (React Query)  │
+└─────────────┘     └──────────────┘     └─────────────────┘
+       │                                          │
+       └── Auth via Supabase ──────── RLS Policies ┘
+```
 
-The admin credentials are hardcoded as requested. This is a client-side-only auth system suitable for internal use. For production-grade security, a backend auth system (Supabase/Lovable Cloud) would be recommended as a future enhancement.
+### Prerequisites
 
-### No Impact on Existing UI
-
-- All admin pages live under `/admin/*` routes with no Navbar/Footer
-- Existing pages, styling, and flows remain completely untouched
-- The product source layer merges data transparently
+Lovable Cloud must be enabled to provision the Supabase backend. This will be done first before any code changes.
 

@@ -2,11 +2,11 @@
  * Product Source Integration Layer
  * 
  * Unified product interface that abstracts the data source.
- * Merges local collections with admin-managed products.
+ * Now fetches from Supabase via the useProducts hook.
+ * Static collections remain for backward compatibility.
  */
 
 import { collections, type Collection } from './collections';
-import { getAdminProducts, type AdminProduct } from '@/hooks/useAdminProducts';
 
 export interface Product {
   id: string;
@@ -15,8 +15,9 @@ export interface Product {
   image: string;
   category: string;
   sizes: string[];
+  price?: number | null;
   source?: 'local' | 'admin';
-  adminMetadata?: Record<string, unknown>;
+  displaySection?: string[];
 }
 
 const collectionToProduct = (col: Collection): Product => ({
@@ -29,22 +30,9 @@ const collectionToProduct = (col: Collection): Product => ({
   source: 'local',
 });
 
-const adminToProduct = (ap: AdminProduct): Product => ({
-  id: ap.id,
-  name: ap.name,
-  description: ap.description,
-  image: ap.images[ap.coverIndex] || '',
-  category: ap.category,
-  sizes: ap.sizes,
-  source: 'admin',
-});
+/** Get static local products (for backward compatibility) */
+export const getLocalProducts = (): Product[] => collections.map(collectionToProduct);
 
-/** Get all available products from all sources */
-export const getProducts = (): Product[] => [
-  ...collections.map(collectionToProduct),
-  ...getAdminProducts().map(adminToProduct),
-];
-
-/** Get a product by ID */
+/** Get a local product by ID */
 export const getProductById = (id: string): Product | undefined =>
-  getProducts().find((p) => p.id === id);
+  getLocalProducts().find((p) => p.id === id);

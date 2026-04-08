@@ -1,44 +1,68 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AdminAuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => boolean;
-  signOut: () => void;
+  isAdmin: boolean;
+  userId: string | null;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signOut: () => Promise<void>;
 }
-
-const ADMIN_EMAIL = 'admin@intergrai.co.za';
-const ADMIN_PASSWORD = 'Admin,123';
-const AUTH_KEY = 'luxtile_admin_session';
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const checkAdmin = useCallback(async (uid: string) => {
+    const { data } = await supabase.rpc('has_role', { _user_id: uid, _role: 'admin' });
+    return !!data;
+  }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem(AUTH_KEY);
-    if (token === 'authenticated') setIsAuthenticated(true);
-    setIsLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserId(session.user.id);
+        const admin = await checkAdmin(session.user.id);
+        setIsAdmin(admin);
+      } else {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        setUserId(null);
+      }
+      setIsLoading(false);
+    });
+
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserId(session.user.id);
+        const admin = await checkAdmin(session.user.id);
+        setIsAdmin(admin);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [checkAdmin]);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { success: false, error: error.message };
+    return { success: true };
   }, []);
 
-  const signIn = useCallback((email: string, password: string) => {
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      localStorage.setItem(AUTH_KEY, 'authenticated');
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
-  }, []);
-
-  const signOut = useCallback(() => {
-    localStorage.removeItem(AUTH_KEY);
-    setIsAuthenticated(false);
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
   }, []);
 
   return (
-    <AdminAuthContext.Provider value={{ isAuthenticated, isLoading, signIn, signOut }}>
+    <AdminAuthContext.Provider value={{ isAuthenticated, isLoading, isAdmin, userId, signIn, signOut }}>
       {children}
     </AdminAuthContext.Provider>
   );

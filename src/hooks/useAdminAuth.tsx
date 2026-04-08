@@ -18,37 +18,55 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  const checkAdmin = useCallback(async (uid: string) => {
-    const { data } = await supabase.rpc('has_role', { _user_id: uid, _role: 'admin' });
-    return !!data;
+  const checkAdmin = useCallback(async (uid: string): Promise<boolean> => {
+    try {
+      const { data } = await supabase.rpc('has_role', { _user_id: uid, _role: 'admin' });
+      return !!data;
+    } catch {
+      return false;
+    }
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
+    const init = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        if (session?.user) {
+          setIsAuthenticated(true);
+          setUserId(session.user.id);
+          const admin = await checkAdmin(session.user.id);
+          if (mounted) setIsAdmin(admin);
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    init();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
       if (session?.user) {
         setIsAuthenticated(true);
         setUserId(session.user.id);
         const admin = await checkAdmin(session.user.id);
-        setIsAdmin(admin);
+        if (mounted) setIsAdmin(admin);
       } else {
         setIsAuthenticated(false);
         setIsAdmin(false);
         setUserId(null);
       }
-      setIsLoading(false);
     });
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        setIsAuthenticated(true);
-        setUserId(session.user.id);
-        const admin = await checkAdmin(session.user.id);
-        setIsAdmin(admin);
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [checkAdmin]);
 
   const signIn = useCallback(async (email: string, password: string) => {

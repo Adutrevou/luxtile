@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
+import { useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
 
 interface QuoteModalProps {
   open: boolean;
@@ -11,15 +12,25 @@ interface QuoteModalProps {
 
 const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteModalProps) => {
   const [submitted, setSubmitted] = useState(false);
+  const { items, removeItem, clearBasket } = useQuoteBasket();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
+      clearBasket();
       onClose();
     }, 2000);
   };
+
+  const handleClose = () => {
+    onClose();
+  };
+
+  // Combine standalone collectionName (legacy) with basket items
+  const displayItems: QuoteBasketItem[] = [...items];
+  const hasStandalone = collectionName && !items.some((i) => i.name === collectionName);
 
   return (
     <AnimatePresence>
@@ -30,7 +41,7 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-[100]"
-            onClick={onClose}
+            onClick={handleClose}
           />
           <motion.div
             initial={{ opacity: 0, x: 40 }}
@@ -42,7 +53,7 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
             <div className="p-8 md:p-12">
               <div className="flex items-center justify-between mb-10">
                 <h2 className="font-display text-2xl">Request a Quote</h2>
-                <button onClick={onClose} className="text-foreground/50 hover:text-foreground transition-colors">
+                <button onClick={handleClose} className="text-foreground/50 hover:text-foreground transition-colors">
                   <X size={24} />
                 </button>
               </div>
@@ -54,12 +65,53 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {collectionName && (
+                  {/* Basket items */}
+                  {(displayItems.length > 0 || hasStandalone) && (
+                    <div>
+                      <label className="label-caps block mb-3">Selected Products</label>
+                      <div className="space-y-2">
+                        {displayItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center gap-3 border border-border p-3 group"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-12 h-12 object-cover shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.name}</p>
+                              <p className="text-xs text-muted-foreground">{item.category}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.id)}
+                              className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                              aria-label={`Remove ${item.name}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        {hasStandalone && (
+                          <div className="flex items-center gap-3 border border-border p-3">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{collectionName}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {!displayItems.length && !hasStandalone && collectionName && (
                     <div>
                       <label className="label-caps block mb-2">Collection</label>
                       <p className="text-foreground font-display text-lg">{collectionName}</p>
                     </div>
                   )}
+
                   <div>
                     <label className="label-caps block mb-2">Name</label>
                     <input required type="text" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
@@ -106,7 +158,7 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
                     type="submit"
                     className="w-full bg-accent text-accent-foreground py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine mt-4 transition-all hover:tracking-[0.19em]"
                   >
-                    Submit Request
+                    Submit Request{displayItems.length > 1 ? ` (${displayItems.length} Products)` : ''}
                   </button>
                 </form>
               )}

@@ -1,36 +1,30 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, ChevronRight, ChevronLeft, Check, Upload, X } from 'lucide-react';
-import PageTransition from '@/components/PageTransition';
-import SectionReveal from '@/components/SectionReveal';
-import { Progress } from '@/components/ui/progress';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Phone, Mail, ChevronRight, ChevronLeft, Check, Upload, X } from "lucide-react";
+import PageTransition from "@/components/PageTransition";
+import SectionReveal from "@/components/SectionReveal";
+import { Progress } from "@/components/ui/progress";
 
-const STEPS = [
-  'Project Type',
-  'Style',
-  'Inspiration',
-  'Budget',
-  'Details',
-];
+const STEPS = ["Project Type", "Style", "Inspiration", "Budget", "Details"];
 
 const PROJECT_TYPES = [
-  { id: 'kitchen', label: 'Kitchen', icon: '🍳' },
-  { id: 'bathroom', label: 'Bathroom', icon: '🛁' },
-  { id: 'feature-wall', label: 'Feature Wall', icon: '🧱' },
-  { id: 'custom', label: 'Custom', icon: '✨' },
+  { id: "kitchen", label: "Kitchen", icon: "🍳" },
+  { id: "bathroom", label: "Bathroom", icon: "🛁" },
+  { id: "feature-wall", label: "Feature Wall", icon: "🧱" },
+  { id: "custom", label: "Custom", icon: "✨" },
 ];
 
 const STYLES = [
-  { id: 'minimal', label: 'Minimal', desc: 'Clean lines, understated elegance' },
-  { id: 'luxury', label: 'Luxury', desc: 'Rich textures, opulent finishes' },
-  { id: 'bold', label: 'Bold', desc: 'Dramatic contrasts, statement pieces' },
-  { id: 'natural', label: 'Natural', desc: 'Organic tones, earthy warmth' },
+  { id: "minimal", label: "Minimal", desc: "Clean lines, understated elegance" },
+  { id: "luxury", label: "Luxury", desc: "Rich textures, opulent finishes" },
+  { id: "bold", label: "Bold", desc: "Dramatic contrasts, statement pieces" },
+  { id: "natural", label: "Natural", desc: "Organic tones, earthy warmth" },
 ];
 
 const BUDGETS = [
-  { id: 'under-50k', label: 'Under R50k', desc: 'Essential elegance' },
-  { id: '50k-150k', label: 'R50k – R150k', desc: 'Premium selections' },
-  { id: '150k-plus', label: 'R150k+', desc: 'Bespoke luxury' },
+  { id: "under-50k", label: "Under R50k", desc: "Essential elegance" },
+  { id: "50k-150k", label: "R50k – R150k", desc: "Premium selections" },
+  { id: "150k-plus", label: "R150k+", desc: "Bespoke luxury" },
 ];
 
 const stepVariants = {
@@ -44,13 +38,13 @@ const ContactPage = () => {
   const [dir, setDir] = useState(1);
   const [submitted, setSubmitted] = useState(false);
 
-  const [projectType, setProjectType] = useState('');
-  const [style, setStyle] = useState('');
-  const [budget, setBudget] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [projectType, setProjectType] = useState("");
+  const [style, setStyle] = useState("");
+  const [budget, setBudget] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
@@ -83,7 +77,7 @@ const ContactPage = () => {
     if (file) setFileName(file.name);
   };
 
-  const removeFile = () => setFileName('');
+  const removeFile = () => setFileName("");
 
   return (
     <PageTransition>
@@ -93,11 +87,13 @@ const ContactPage = () => {
           <SectionReveal>
             <p className="label-caps mb-4">Begin Your Journey</p>
             <h1 className="heading-display text-foreground mb-6">
-              Ready to Transform<br />Your Space?
+              Ready to Transform
+              <br />
+              Your Space?
             </h1>
             <p className="text-muted-foreground mb-12 max-w-md">
-              Our consultants are ready to help you select the perfect slab for your vision.
-              Complete our brief consultation form and we'll craft a tailored recommendation.
+              Our consultants are ready to help you select the perfect slab for your vision. Complete our brief
+              consultation form and we'll craft a tailored recommendation.
             </p>
 
             <div className="space-y-8">
@@ -119,7 +115,7 @@ const ContactPage = () => {
                 <Mail size={20} className="text-accent mt-1 shrink-0" />
                 <div>
                   <p className="font-medium text-sm">Email</p>
-                  <p className="text-muted-foreground text-sm">Wesley@luxtile.co.za</p>
+                  <p className="text-muted-foreground text-sm">Sales@luxtile.co.za</p>
                 </div>
               </div>
             </div>
@@ -186,14 +182,16 @@ const ContactPage = () => {
                                   onClick={() => setProjectType(t.id)}
                                   className={`border p-6 text-left transition-all duration-300 hover:border-accent/60 group ${
                                     projectType === t.id
-                                      ? 'border-accent bg-accent/5'
-                                      : 'border-border/60 bg-transparent'
+                                      ? "border-accent bg-accent/5"
+                                      : "border-border/60 bg-transparent"
                                   }`}
                                 >
                                   <span className="text-2xl block mb-2">{t.icon}</span>
-                                  <span className={`text-sm font-medium tracking-wide ${
-                                    projectType === t.id ? 'text-accent' : 'text-foreground'
-                                  }`}>
+                                  <span
+                                    className={`text-sm font-medium tracking-wide ${
+                                      projectType === t.id ? "text-accent" : "text-foreground"
+                                    }`}
+                                  >
                                     {t.label}
                                   </span>
                                 </button>
@@ -214,15 +212,15 @@ const ContactPage = () => {
                                   type="button"
                                   onClick={() => setStyle(s.id)}
                                   className={`w-full border p-5 text-left transition-all duration-300 hover:border-accent/60 flex items-center justify-between ${
-                                    style === s.id
-                                      ? 'border-accent bg-accent/5'
-                                      : 'border-border/60 bg-transparent'
+                                    style === s.id ? "border-accent bg-accent/5" : "border-border/60 bg-transparent"
                                   }`}
                                 >
                                   <div>
-                                    <span className={`text-sm font-medium tracking-wide block ${
-                                      style === s.id ? 'text-accent' : 'text-foreground'
-                                    }`}>
+                                    <span
+                                      className={`text-sm font-medium tracking-wide block ${
+                                        style === s.id ? "text-accent" : "text-foreground"
+                                      }`}
+                                    >
                                       {s.label}
                                     </span>
                                     <span className="text-xs text-muted-foreground">{s.desc}</span>
@@ -247,23 +245,25 @@ const ContactPage = () => {
                                   <Upload size={18} className="text-accent" />
                                   <span className="text-sm text-foreground truncate max-w-[200px]">{fileName}</span>
                                 </div>
-                                <button type="button" onClick={removeFile} className="text-muted-foreground hover:text-foreground transition-colors">
+                                <button
+                                  type="button"
+                                  onClick={removeFile}
+                                  className="text-muted-foreground hover:text-foreground transition-colors"
+                                >
                                   <X size={16} />
                                 </button>
                               </div>
                             ) : (
                               <label className="border-2 border-dashed border-border/60 hover:border-accent/40 transition-colors p-12 flex flex-col items-center justify-center cursor-pointer group">
-                                <Upload size={28} className="text-muted-foreground group-hover:text-accent transition-colors mb-3" />
+                                <Upload
+                                  size={28}
+                                  className="text-muted-foreground group-hover:text-accent transition-colors mb-3"
+                                />
                                 <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                                   Click to upload an image
                                 </span>
                                 <span className="text-xs text-muted-foreground/60 mt-1">PNG, JPG up to 10MB</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleFileChange}
-                                  className="hidden"
-                                />
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                               </label>
                             )}
                           </div>
@@ -283,15 +283,15 @@ const ContactPage = () => {
                                   type="button"
                                   onClick={() => setBudget(b.id)}
                                   className={`w-full border p-5 text-left transition-all duration-300 hover:border-accent/60 flex items-center justify-between ${
-                                    budget === b.id
-                                      ? 'border-accent bg-accent/5'
-                                      : 'border-border/60 bg-transparent'
+                                    budget === b.id ? "border-accent bg-accent/5" : "border-border/60 bg-transparent"
                                   }`}
                                 >
                                   <div>
-                                    <span className={`text-sm font-medium tracking-wide block ${
-                                      budget === b.id ? 'text-accent' : 'text-foreground'
-                                    }`}>
+                                    <span
+                                      className={`text-sm font-medium tracking-wide block ${
+                                        budget === b.id ? "text-accent" : "text-foreground"
+                                      }`}
+                                    >
                                       {b.label}
                                     </span>
                                     <span className="text-xs text-muted-foreground">{b.desc}</span>
@@ -373,11 +373,11 @@ const ContactPage = () => {
                       disabled={!canNext()}
                       className={`flex items-center gap-2 px-8 py-3 text-sm tracking-[0.12em] uppercase font-medium transition-all gold-shine ${
                         canNext()
-                          ? 'bg-accent text-accent-foreground hover:tracking-[0.16em]'
-                          : 'bg-muted text-muted-foreground cursor-not-allowed'
+                          ? "bg-accent text-accent-foreground hover:tracking-[0.16em]"
+                          : "bg-muted text-muted-foreground cursor-not-allowed"
                       }`}
                     >
-                      {step === 4 ? 'Submit' : 'Continue'}
+                      {step === 4 ? "Submit" : "Continue"}
                       {step < 4 && <ChevronRight size={16} />}
                     </button>
                   </div>

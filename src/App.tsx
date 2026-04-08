@@ -3,9 +3,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QuoteBasketProvider } from "@/context/QuoteBasketContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import QuoteBasketIndicator from "@/components/QuoteBasketIndicator";
 import Index from "./pages/Index.tsx";
 import CollectionsPage from "./pages/Collections.tsx";
 import SalesPage from "./pages/Sales.tsx";
@@ -21,22 +23,25 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Navbar />
-        <main>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/collections" element={<CollectionsPage />} />
-            <Route path="/sales" element={<SalesPage />} />
-            <Route path="/why-us" element={<DifferencePage />} />
-            <Route path="/inspiration" element={<InspirationPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
-      </BrowserRouter>
+      <QuoteBasketProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Navbar />
+          <main>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/collections" element={<CollectionsPage />} />
+              <Route path="/sales" element={<SalesPage />} />
+              <Route path="/why-us" element={<DifferencePage />} />
+              <Route path="/inspiration" element={<InspirationPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <Footer />
+          <QuoteBasketIndicator />
+        </BrowserRouter>
+      </QuoteBasketProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

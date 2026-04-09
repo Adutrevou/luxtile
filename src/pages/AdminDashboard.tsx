@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useAdminProducts } from '@/hooks/useAdminProducts';
-import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, Filter, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore } from 'lucide-react';
 import { toast } from 'sonner';
 import luxtileLogo from '@/assets/luxtile-logo.png';
 
@@ -14,7 +14,11 @@ const SECTIONS = ['Collection', 'Best Sellers', 'On Sale', 'Dekton Partner'];
 const AdminDashboard = () => {
   const { signOut } = useAdminAuth();
   const navigate = useNavigate();
-  const { products, isLoading: productsLoading, addProduct, updateProduct, deleteProduct, uploadImage, isAdding, isUpdating } = useAdminProducts();
+  const {
+    products, isLoading: productsLoading, error: productsError, refetch,
+    addProduct, updateProduct, deleteProduct, uploadImages,
+    isAdding, isUpdating,
+  } = useAdminProducts();
   const [view, setView] = useState<View>('list');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -58,17 +62,15 @@ const AdminDashboard = () => {
     setStatus(p.status as 'active' | 'inactive'); setEditingId(p.id); setView('form');
   };
 
+  // Parallel upload with compression
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
     setUploading(true);
     try {
-      const urls: string[] = [];
-      for (const file of Array.from(files)) {
-        const url = await uploadImage(file);
-        urls.push(url);
-      }
+      const urls = await uploadImages(Array.from(files));
       setImages((prev) => [...prev, ...urls]);
+      toast.success(`${urls.length} image(s) uploaded`);
     } catch (err: any) {
       toast.error(err.message || 'Upload failed');
     } finally {
@@ -90,6 +92,10 @@ const AdminDashboard = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) {
+      toast.error('Please wait for images to finish uploading');
+      return;
+    }
     const data = {
       name,
       description,
@@ -117,6 +123,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Archive instead of delete
   const handleDelete = async (id: string) => {
     try {
       await deleteProduct(id);
@@ -124,6 +131,15 @@ const AdminDashboard = () => {
       // toast handled in hook
     }
     setDeleteConfirmId(null);
+  };
+
+  // Restore archived product
+  const handleRestore = async (id: string) => {
+    try {
+      await updateProduct(id, { status: 'active' });
+    } catch {
+      // toast handled in hook
+    }
   };
 
   const handleSignOut = async () => {
@@ -173,7 +189,7 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <StatCard label="Total Products" value={products.length} />
               <StatCard label="Active" value={products.filter((p) => p.status === 'active').length} />
-              <StatCard label="Categories" value={[...new Set(products.map((p) => p.category))].length} />
+              <StatCard label="Archived" value={products.filter((p) => p.status === 'inactive').length} />
               <StatCard label="Featured" value={products.filter((p) => p.featured).length} />
             </div>
 
@@ -210,10 +226,25 @@ const AdminDashboard = () => {
             {/* Actions */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-xl">Products ({filtered.length})</h2>
-              <button onClick={openAdd} className="flex items-center gap-2 bg-accent text-accent-foreground px-5 py-2.5 text-sm tracking-[0.1em] uppercase font-medium hover:tracking-[0.14em] transition-all">
-                <Plus size={16} /> Add Product
-              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => refetch()} className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors border border-white/10 px-4 py-2.5">
+                  <RefreshCw size={14} /> Refresh
+                </button>
+                <button onClick={openAdd} className="flex items-center gap-2 bg-accent text-accent-foreground px-5 py-2.5 text-sm tracking-[0.1em] uppercase font-medium hover:tracking-[0.14em] transition-all">
+                  <Plus size={16} /> Add Product
+                </button>
+              </div>
             </div>
+
+            {/* Error State */}
+            {productsError && (
+              <div className="border border-red-400/30 bg-red-400/5 p-6 mb-6 text-center">
+                <p className="text-red-400 mb-3">Failed to load products</p>
+                <button onClick={() => refetch()} className="text-sm text-white/60 hover:text-white border border-white/20 px-4 py-2 transition-colors">
+                  Retry
+                </button>
+              </div>
+            )}
 
             {/* Product List */}
             {productsLoading ? (
@@ -228,7 +259,7 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {filtered.map((p) => (
-                  <div key={p.id} className="border border-white/10 p-4 flex items-center gap-4 group hover:border-white/20 transition-colors">
+                  <div key={p.id} className={`border p-4 flex items-center gap-4 group transition-colors ${p.status === 'inactive' ? 'border-white/5 opacity-60' : 'border-white/10 hover:border-white/20'}`}>
                     {p.images[p.cover_index] ? (
                       <img src={p.images[p.cover_index]} alt={p.name} className="w-16 h-16 object-cover shrink-0" />
                     ) : (
@@ -255,6 +286,11 @@ const AdminDashboard = () => {
                     <span className={`text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 shrink-0 ${p.status === 'active' ? 'text-green-400 border border-green-400/30' : 'text-red-400 border border-red-400/30'}`}>
                       {p.status}
                     </span>
+                    {p.status === 'inactive' && (
+                      <button onClick={() => handleRestore(p.id)} className="text-white/30 hover:text-green-400 transition-colors shrink-0" title="Restore product">
+                        <ArchiveRestore size={16} />
+                      </button>
+                    )}
                     <button onClick={() => handleToggleStatus(p.id, p.status)} className="text-white/30 hover:text-white transition-colors shrink-0" title="Toggle status">
                       {p.status === 'active' ? <ToggleRight size={18} className="text-green-400" /> : <ToggleLeft size={18} />}
                     </button>
@@ -269,15 +305,15 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {/* Delete Confirmation */}
+            {/* Delete Confirmation — now archives */}
             {deleteConfirmId && (
               <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setDeleteConfirmId(null)}>
                 <div className="bg-[#1a1a1a] border border-white/10 p-8 max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
-                  <h3 className="font-display text-lg mb-2">Delete Product</h3>
-                  <p className="text-white/60 text-sm mb-6">Are you sure? This action cannot be undone.</p>
+                  <h3 className="font-display text-lg mb-2">Archive Product</h3>
+                  <p className="text-white/60 text-sm mb-6">This will hide the product from the website. You can restore it later from the admin panel.</p>
                   <div className="flex gap-3">
                     <button onClick={() => setDeleteConfirmId(null)} className="flex-1 border border-white/20 py-2.5 text-sm hover:border-white/40 transition-colors">Cancel</button>
-                    <button onClick={() => handleDelete(deleteConfirmId)} className="flex-1 bg-red-500 text-white py-2.5 text-sm hover:bg-red-600 transition-colors">Delete</button>
+                    <button onClick={() => handleDelete(deleteConfirmId)} className="flex-1 bg-red-500 text-white py-2.5 text-sm hover:bg-red-600 transition-colors">Archive</button>
                   </div>
                 </div>
               </div>
@@ -362,6 +398,7 @@ const AdminDashboard = () => {
                   </button>
                 </div>
                 <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+                {uploading && <p className="text-accent text-xs">Uploading images...</p>}
               </FormField>
 
               {/* Toggles */}
@@ -378,10 +415,10 @@ const AdminDashboard = () => {
 
               <button
                 type="submit"
-                disabled={isAdding || isUpdating}
+                disabled={isAdding || isUpdating || uploading}
                 className="bg-accent text-accent-foreground px-8 py-4 text-sm tracking-[0.15em] uppercase font-medium hover:tracking-[0.19em] transition-all disabled:opacity-50"
               >
-                {isAdding || isUpdating ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
+                {uploading ? 'Waiting for upload...' : isAdding || isUpdating ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
               </button>
             </form>
           </>

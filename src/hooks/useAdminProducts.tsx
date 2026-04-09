@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -42,10 +42,43 @@ const mapRow = (row: any): AdminProduct => ({
   updated_at: row.updated_at,
 });
 
+// Client-side image compression before upload
+const compressImage = (file: File, maxWidth = 1600, quality = 0.85): Promise<Blob> => {
+  return new Promise((resolve) => {
+    // Skip non-image or already small files
+    if (!file.type.startsWith('image/') || file.size < 100_000) {
+      resolve(file);
+      return;
+    }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxWidth / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => resolve(blob || file),
+        'image/jpeg',
+        quality,
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+    img.src = url;
+  });
+};
+
 export const useAdminProducts = () => {
   const queryClient = useQueryClient();
 
-  const { data: products = [], isLoading, error } = useQuery({
+  // Admin fetches ALL products (including inactive)
+  const { data: products = [], isLoading, error, refetch } = useQuery({
     queryKey: ['admin-products'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -68,8 +101,11 @@ export const useAdminProducts = () => {
       if (error) throw error;
       return mapRow(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    onSuccess: (newProduct) => {
+      // Optimistic: add to cache immediately
+      queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
+        old ? [newProduct, ...old] : [newProduct]
+      );
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Product added successfully');
     },
@@ -78,48 +114,71 @@ export const useAdminProducts = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ProductUpdate }) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('products')
         .update(updates)
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
       if (error) throw error;
+      return mapRow(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    onSuccess: (updated) => {
+      // Optimistic: update in cache immediately
+      queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
+        old ? old.map((p) => (p.id === updated.id ? updated : p)) : [updated]
+      );
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Product updated successfully');
     },
     onError: (err: any) => toast.error(err.message || 'Failed to update product'),
   });
 
-  const deleteMutation = useMutation({
+  // Soft delete: archive instead of hard delete
+  const archiveMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('products')
-        .delete()
+        .update({ status: 'inactive' })
         .eq('id', id);
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    onSuccess: (id) => {
+      queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
+        old ? old.map((p) => (p.id === id ? { ...p, status: 'inactive' } : p)) : []
+      );
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('Product deleted successfully');
+      toast.success('Product archived (hidden from site)');
     },
-    onError: (err: any) => toast.error(err.message || 'Failed to delete product'),
+    onError: (err: any) => toast.error(err.message || 'Failed to archive product'),
   });
 
   const addProduct = useCallback((product: ProductInsert) => addMutation.mutateAsync(product), [addMutation]);
   const updateProduct = useCallback((id: string, updates: ProductUpdate) => updateMutation.mutateAsync({ id, updates }), [updateMutation]);
-  const deleteProduct = useCallback((id: string) => deleteMutation.mutateAsync(id), [deleteMutation]);
+  const deleteProduct = useCallback((id: string) => archiveMutation.mutateAsync(id), [archiveMutation]);
 
-  const uploadImage = useCallback(async (file: File): Promise<string> => {
-    const ext = file.name.split('.').pop();
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
-    const { error } = await supabase.storage.from('product_images').upload(path, file);
-    if (error) throw error;
-    const { data } = supabase.storage.from('product_images').getPublicUrl(path);
-    return data.publicUrl;
+  // Parallel image upload with compression
+  const uploadImages = useCallback(async (files: File[]): Promise<string[]> => {
+    const uploads = files.map(async (file) => {
+      const compressed = await compressImage(file);
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+      const { error } = await supabase.storage.from('product_images').upload(path, compressed, {
+        contentType: 'image/jpeg',
+      });
+      if (error) throw error;
+      const { data } = supabase.storage.from('product_images').getPublicUrl(path);
+      return data.publicUrl;
+    });
+    return Promise.all(uploads);
   }, []);
+
+  // Keep single upload for backward compat
+  const uploadImage = useCallback(async (file: File): Promise<string> => {
+    const [url] = await uploadImages([file]);
+    return url;
+  }, [uploadImages]);
 
   const deleteImage = useCallback(async (url: string) => {
     const path = url.split('/product_images/')[1];
@@ -132,13 +191,15 @@ export const useAdminProducts = () => {
     products,
     isLoading,
     error,
+    refetch,
     addProduct,
     updateProduct,
     deleteProduct,
     uploadImage,
+    uploadImages,
     deleteImage,
     isAdding: addMutation.isPending,
     isUpdating: updateMutation.isPending,
-    isDeleting: deleteMutation.isPending,
+    isDeleting: archiveMutation.isPending,
   };
 };

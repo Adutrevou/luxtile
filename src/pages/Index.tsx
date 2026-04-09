@@ -14,7 +14,7 @@ import inspLobby from '@/assets/insp-lobby.jpg';
 
 const Index = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
-  const { data: featured = [] } = useFeaturedProducts();
+  const { data: featured = [], isError: featErr, refetch: featRefetch } = useFeaturedProducts();
 
   return (
     <PageTransition>
@@ -112,6 +112,8 @@ const Index = () => {
               );
             })}
           </div>
+        ) : featErr ? (
+          <div className="text-center py-12 text-muted-foreground cursor-pointer" onClick={() => featRefetch()}>Something went wrong — tap to retry</div>
         ) : (
           <div className="text-center py-12 text-muted-foreground">Loading collections...</div>
         )}

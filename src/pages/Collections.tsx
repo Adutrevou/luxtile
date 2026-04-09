@@ -11,7 +11,7 @@ const CollectionsPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
   const { addItem, isInBasket } = useQuoteBasket();
-  const { data: products = [], isLoading } = useProductsBySection('Collection');
+  const { data: products = [], isLoading, isError, refetch } = useProductsBySection('Collection');
 
   const openQuote = (name: string) => {
     setSelectedCollection(name);
@@ -44,6 +44,8 @@ const CollectionsPage = () => {
               <ProductCardSkeleton key={i} />
             ))}
           </div>
+        ) : isError ? (
+          <p className="text-muted-foreground text-center py-20 cursor-pointer" onClick={() => refetch()}>Something went wrong — tap to retry</p>
         ) : products.length === 0 ? (
           <p className="text-muted-foreground text-center py-20">No collections available yet.</p>
         ) : (

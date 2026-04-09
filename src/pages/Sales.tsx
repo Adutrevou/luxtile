@@ -202,7 +202,7 @@ const SalesPage = () => {
           {dkErr ? (
             <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => dkRefetch()}>Something went wrong — tap to retry</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border auto-rows-fr">
               {dektonProducts.map((product, i) => (
                 <DektonCard key={product.id} product={product} index={i} />
               ))}

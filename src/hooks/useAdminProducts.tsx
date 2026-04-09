@@ -102,6 +102,9 @@ export const useAdminProducts = () => {
       if (error) throw error;
       return (data || []).map(mapRow);
     },
+    staleTime: 0,          // Always refetch on mount — admin needs fresh data
+    gcTime: 2 * 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const addMutation = useMutation({

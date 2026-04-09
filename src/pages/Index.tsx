@@ -165,7 +165,7 @@ const Index = () => {
           ))}
         </div>
         <SectionReveal className="mt-12 text-center">
-          <Link to="/difference" className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all">
+          <Link to="/why-us" className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all">
             Learn More <ArrowRight size={16} />
           </Link>
         </SectionReveal>

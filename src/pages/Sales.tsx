@@ -47,14 +47,14 @@ const SalesPage = () => {
             <div className="w-full h-full bg-muted" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <h3 className="text-primary-foreground font-display text-2xl mb-2">{product.name}</h3>
-            <p className="text-primary-foreground/60 text-sm mb-4">{product.description}</p>
-            <div className="flex gap-3">
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+            <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
+            <p className="text-primary-foreground/60 text-sm mb-4 line-clamp-3">{product.description}</p>
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleAdd(product)}
                 disabled={inBasket}
-                className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
                     ? 'bg-accent/30 text-accent-foreground cursor-default'
                     : 'border border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10'
@@ -64,7 +64,7 @@ const SalesPage = () => {
               </button>
               <button
                 onClick={() => openQuote(product.name)}
-                className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
+                className="bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
               >
                 Request Quote
               </button>

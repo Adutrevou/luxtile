@@ -50,7 +50,11 @@ const fetchProducts = async (section?: string): Promise<Product[]> => {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
+  if (error) {
+    console.error('[useProducts] fetch failed', section, error);
+    throw error;
+  }
+  console.log('[useProducts]', section || 'all', 'returned', data?.length, 'rows');
   return (data || []).map(mapProduct);
 };
 

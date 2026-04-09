@@ -22,9 +22,9 @@ const SalesPage = () => {
   const [selectedCollection, setSelectedCollection] = useState('');
   const { addItem, isInBasket } = useQuoteBasket();
 
-  const { data: bestSellers = [] } = useProductsBySection('Best Sellers');
-  const { data: saleProducts = [] } = useProductsBySection('On Sale');
-  const { data: dektonProducts = [] } = useProductsBySection('Dekton Partner');
+  const { data: bestSellers = [], isError: bsErr, refetch: bsRefetch } = useProductsBySection('Best Sellers');
+  const { data: saleProducts = [], isError: spErr, refetch: spRefetch } = useProductsBySection('On Sale');
+  const { data: dektonProducts = [], isError: dkErr, refetch: dkRefetch } = useProductsBySection('Dekton Partner');
 
   const openQuote = (name: string) => {
     setSelectedCollection(name);
@@ -145,39 +145,47 @@ const SalesPage = () => {
       </section>
 
       {/* Best Sellers */}
-      {bestSellers.length > 0 && (
+      {(bestSellers.length > 0 || bsErr) && (
         <section className="section-padding pb-28">
           <SectionReveal>
             <p className="label-caps mb-4">Featured</p>
             <h2 className="heading-section text-foreground mb-16">Best Sellers</h2>
           </SectionReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-            {bestSellers.map((product, i) => (
-              <ProductOverlayCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
+          {bsErr ? (
+            <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => bsRefetch()}>Something went wrong — tap to retry</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+              {bestSellers.map((product, i) => (
+                <ProductOverlayCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
+          )}
         </section>
       )}
 
       {/* On Sale Products */}
-      {saleProducts.length > 0 && (
+      {(saleProducts.length > 0 || spErr) && (
         <section className="section-padding pb-28">
           <SectionReveal>
             <p className="label-caps mb-4">Limited Time</p>
             <h2 className="heading-section text-foreground mb-16">On Sale</h2>
           </SectionReveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {saleProducts.map((product, i) => (
-              <SectionReveal key={product.id} delay={i * 0.1}>
-                <DektonCard product={product} index={i} />
-              </SectionReveal>
-            ))}
-          </div>
+          {spErr ? (
+            <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => spRefetch()}>Something went wrong — tap to retry</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {saleProducts.map((product, i) => (
+                <SectionReveal key={product.id} delay={i * 0.1}>
+                  <DektonCard product={product} index={i} />
+                </SectionReveal>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
       {/* Dekton Brand Section */}
-      {dektonProducts.length > 0 && (
+      {(dektonProducts.length > 0 || dkErr) && (
         <section className="section-padding py-28 bg-secondary">
           <SectionReveal>
             <div className="flex items-center gap-6 mb-4">
@@ -191,11 +199,15 @@ const SalesPage = () => {
             </p>
           </SectionReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
-            {dektonProducts.map((product, i) => (
-              <DektonCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
+          {dkErr ? (
+            <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => dkRefetch()}>Something went wrong — tap to retry</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
+              {dektonProducts.map((product, i) => (
+                <DektonCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
+          )}
         </section>
       )}
 

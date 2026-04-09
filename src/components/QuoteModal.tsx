@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2 } from 'lucide-react';
 import { useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
@@ -10,7 +10,7 @@ interface QuoteModalProps {
   showSalesFields?: boolean;
 }
 
-const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteModalProps) => {
+const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(({ open, onClose, collectionName, showSalesFields }, ref) => {
   const [submitted, setSubmitted] = useState(false);
   const { items, removeItem, clearBasket } = useQuoteBasket();
 
@@ -168,6 +168,8 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
       )}
     </AnimatePresence>
   );
-};
+});
+
+QuoteModal.displayName = 'QuoteModal';
 
 export default QuoteModal;

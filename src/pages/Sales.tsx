@@ -47,14 +47,14 @@ const SalesPage = () => {
             <div className="w-full h-full bg-muted" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <h3 className="text-primary-foreground font-display text-2xl mb-2">{product.name}</h3>
-            <p className="text-primary-foreground/60 text-sm mb-4">{product.description}</p>
-            <div className="flex gap-3">
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+            <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
+            <p className="text-primary-foreground/60 text-sm mb-4 line-clamp-3">{product.description}</p>
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleAdd(product)}
                 disabled={inBasket}
-                className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
                     ? 'bg-accent/30 text-accent-foreground cursor-default'
                     : 'border border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10'
@@ -64,7 +64,7 @@ const SalesPage = () => {
               </button>
               <button
                 onClick={() => openQuote(product.name)}
-                className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
+                className="bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine"
               >
                 Request Quote
               </button>
@@ -80,7 +80,7 @@ const SalesPage = () => {
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
     return (
       <SectionReveal delay={index * 0.1}>
-        <div className="bg-background overflow-hidden">
+        <div className="bg-background overflow-hidden h-full flex flex-col">
           <div className="aspect-[16/9] overflow-hidden">
             {coverImg ? (
               <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
@@ -88,17 +88,17 @@ const SalesPage = () => {
               <div className="w-full h-full bg-muted" />
             )}
           </div>
-          <div className="p-8">
-            <h3 className="font-display text-xl mb-2">{product.name}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
+          <div className="p-6 md:p-8 flex flex-col flex-1">
+            <h3 className="font-display text-lg md:text-xl mb-2">{product.name}</h3>
+            <p className="text-sm text-muted-foreground mb-4 line-clamp-4 flex-1">{product.description}</p>
             {product.sizes.length > 0 && (
               <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
             )}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleAdd(product)}
                 disabled={inBasket}
-                className={`px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
                     ? 'bg-accent/20 text-accent cursor-default'
                     : 'border border-border text-foreground hover:border-accent hover:text-accent'
@@ -108,7 +108,7 @@ const SalesPage = () => {
               </button>
               <button
                 onClick={() => openQuote(product.name)}
-                className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+                className="bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
               >
                 Request Quote
               </button>
@@ -202,7 +202,7 @@ const SalesPage = () => {
           {dkErr ? (
             <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => dkRefetch()}>Something went wrong — tap to retry</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border auto-rows-fr">
               {dektonProducts.map((product, i) => (
                 <DektonCard key={product.id} product={product} index={i} />
               ))}

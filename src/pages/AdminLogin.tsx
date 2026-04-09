@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { supabase } from '@/integrations/supabase/client';
 import luxtileLogo from '@/assets/luxtile-logo.png';
 
 const AdminLogin = () => {
@@ -9,7 +8,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated, isAdmin, isLoading } = useAdminAuth();
+  const { isAuthenticated, isAdmin, isLoading, signIn } = useAdminAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,21 +22,16 @@ const AdminLogin = () => {
     setError('');
     setLoading(true);
     try {
-      const { error: authError, data } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) {
-        setError(authError.message);
-        setLoading(false);
+      const result = await signIn(email, password);
+      if (!result.success) {
+        setError(result.error || 'Sign in failed');
         return;
       }
-      if (data.user) {
-        const { data: isAdminRole } = await supabase.rpc('has_role', { _user_id: data.user.id, _role: 'admin' as const });
-        if (isAdminRole) {
-          navigate('/admin', { replace: true });
-        } else {
-          setError('You do not have admin access.');
-          await supabase.auth.signOut();
-        }
+      if (!result.isAdmin) {
+        setError('You do not have admin access.');
+        return;
       }
+      navigate('/admin', { replace: true });
     } catch (err: any) {
       setError(err.message || 'Sign in failed');
     } finally {

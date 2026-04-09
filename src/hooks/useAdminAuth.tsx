@@ -6,7 +6,7 @@ interface AdminAuthContextType {
   isLoading: boolean;
   isAdmin: boolean;
   userId: string | null;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string; isAdmin?: boolean }>;
   signOut: () => Promise<void>;
 }
 
@@ -27,22 +27,29 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // Single initialization: getSession first, then listen for changes
   useEffect(() => {
     let mounted = true;
 
-    // Restore session first, then listen for changes
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      if (session?.user) {
-        setIsAuthenticated(true);
-        setUserId(session.user.id);
-        const admin = await checkAdmin(session.user.id);
-        if (mounted) setIsAdmin(admin);
+    const init = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        if (session?.user) {
+          const admin = await checkAdmin(session.user.id);
+          if (!mounted) return;
+          setIsAuthenticated(true);
+          setUserId(session.user.id);
+          setIsAdmin(admin);
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-      if (mounted) setIsLoading(false);
-    }).catch(() => {
-      if (mounted) setIsLoading(false);
-    });
+    };
+
+    init();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
@@ -56,7 +63,6 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAdmin(false);
         setUserId(null);
       }
-      if (mounted) setIsLoading(false);
     });
 
     return () => {
@@ -65,11 +71,17 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [checkAdmin]);
 
+  // signIn returns admin status directly so AdminLogin doesn't need a second RPC call
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { success: false, error: error.message };
-    return { success: true };
-  }, []);
+    if (data.user) {
+      const admin = await checkAdmin(data.user.id);
+      // State will be set by onAuthStateChange, but return result immediately
+      return { success: true, isAdmin: admin };
+    }
+    return { success: true, isAdmin: false };
+  }, [checkAdmin]);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();

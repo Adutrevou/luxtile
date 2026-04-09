@@ -72,7 +72,13 @@ const AdminDashboard = () => {
       setImages((prev) => [...prev, ...urls]);
       toast.success(`${urls.length} image(s) uploaded`);
     } catch (err: any) {
-      toast.error(err.message || 'Upload failed');
+      const msg = err.message || 'Upload failed';
+      if (msg.includes('session') || msg.includes('sign in')) {
+        toast.error('Session expired — please sign in again');
+        navigate('/admin/login');
+        return;
+      }
+      toast.error(msg);
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -118,8 +124,12 @@ const AdminDashboard = () => {
       }
       resetForm();
       setView('list');
-    } catch {
-      // toast handled in hook
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('session') || msg.includes('sign in')) {
+        toast.error('Session expired — please sign in again');
+        navigate('/admin/login');
+      }
     }
   };
 

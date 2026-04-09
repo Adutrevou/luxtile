@@ -49,7 +49,7 @@ const SalesPage = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
-            <p className="text-primary-foreground/60 text-sm mb-4 line-clamp-3">{product.description}</p>
+            <p className="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-3">{product.description}</p>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleAdd(product)}
@@ -90,7 +90,7 @@ const SalesPage = () => {
           </div>
           <div className="p-6 md:p-8 flex flex-col flex-1">
             <h3 className="font-display text-lg md:text-xl mb-2">{product.name}</h3>
-            <p className="text-sm text-muted-foreground mb-4 line-clamp-4 flex-1">{product.description}</p>
+            <p className="text-sm text-muted-foreground mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-4">{product.description}</p>
             {product.sizes.length > 0 && (
               <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
             )}

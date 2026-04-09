@@ -41,9 +41,19 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(true);
           setUserId(session.user.id);
           setIsAdmin(admin);
+        } else {
+          // Clear any stale tokens from localStorage
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          setUserId(null);
         }
       } catch {
-        // ignore
+        // Clear state on error (e.g. invalid refresh token)
+        if (mounted) {
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          setUserId(null);
+        }
       } finally {
         if (mounted) setIsLoading(false);
       }

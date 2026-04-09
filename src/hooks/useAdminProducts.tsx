@@ -42,10 +42,23 @@ const mapRow = (row: any): AdminProduct => ({
   updated_at: row.updated_at,
 });
 
+/** Ensure we have a valid auth session, refreshing if needed */
+const ensureSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error || !session) {
+    // Try to refresh
+    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError || !refreshData.session) {
+      throw new Error('Your session has expired. Please sign in again.');
+    }
+    return refreshData.session;
+  }
+  return session;
+};
+
 // Client-side image compression before upload
 const compressImage = (file: File, maxWidth = 1600, quality = 0.85): Promise<Blob> => {
   return new Promise((resolve) => {
-    // Skip non-image or already small files
     if (!file.type.startsWith('image/') || file.size < 100_000) {
       resolve(file);
       return;
@@ -77,10 +90,10 @@ const compressImage = (file: File, maxWidth = 1600, quality = 0.85): Promise<Blo
 export const useAdminProducts = () => {
   const queryClient = useQueryClient();
 
-  // Admin fetches ALL products (including inactive)
   const { data: products = [], isLoading, error, refetch } = useQuery({
     queryKey: ['admin-products'],
     queryFn: async () => {
+      await ensureSession();
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -93,6 +106,7 @@ export const useAdminProducts = () => {
 
   const addMutation = useMutation({
     mutationFn: async (product: ProductInsert) => {
+      await ensureSession();
       const { data, error } = await supabase
         .from('products')
         .insert(product)
@@ -102,7 +116,6 @@ export const useAdminProducts = () => {
       return mapRow(data);
     },
     onSuccess: (newProduct) => {
-      // Optimistic: add to cache immediately
       queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
         old ? [newProduct, ...old] : [newProduct]
       );
@@ -114,6 +127,7 @@ export const useAdminProducts = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ProductUpdate }) => {
+      await ensureSession();
       const { data, error } = await supabase
         .from('products')
         .update(updates)
@@ -124,7 +138,6 @@ export const useAdminProducts = () => {
       return mapRow(data);
     },
     onSuccess: (updated) => {
-      // Optimistic: update in cache immediately
       queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
         old ? old.map((p) => (p.id === updated.id ? updated : p)) : [updated]
       );
@@ -134,9 +147,9 @@ export const useAdminProducts = () => {
     onError: (err: any) => toast.error(err.message || 'Failed to update product'),
   });
 
-  // Soft delete: archive instead of hard delete
   const archiveMutation = useMutation({
     mutationFn: async (id: string) => {
+      await ensureSession();
       const { error } = await supabase
         .from('products')
         .update({ status: 'inactive' })
@@ -158,14 +171,16 @@ export const useAdminProducts = () => {
   const updateProduct = useCallback((id: string, updates: ProductUpdate) => updateMutation.mutateAsync({ id, updates }), [updateMutation]);
   const deleteProduct = useCallback((id: string) => archiveMutation.mutateAsync(id), [archiveMutation]);
 
-  // Parallel image upload with compression
+  // Parallel image upload with compression — always outputs .jpg
   const uploadImages = useCallback(async (files: File[]): Promise<string[]> => {
+    await ensureSession();
     const uploads = files.map(async (file) => {
       const compressed = await compressImage(file);
-      const ext = file.name.split('.').pop() || 'jpg';
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+      // Always use .jpg since compressImage converts to JPEG
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
       const { error } = await supabase.storage.from('product_images').upload(path, compressed, {
         contentType: 'image/jpeg',
+        cacheControl: '3600',
       });
       if (error) throw error;
       const { data } = supabase.storage.from('product_images').getPublicUrl(path);
@@ -174,7 +189,6 @@ export const useAdminProducts = () => {
     return Promise.all(uploads);
   }, []);
 
-  // Keep single upload for backward compat
   const uploadImage = useCallback(async (file: File): Promise<string> => {
     const [url] = await uploadImages([file]);
     return url;

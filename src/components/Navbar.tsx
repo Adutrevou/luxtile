@@ -98,7 +98,7 @@ const Navbar = () => {
                   key={link.href}
                   to={link.href}
                   className={`text-lg font-display ${
-                    location.pathname === link.href ? 'text-accent' : 'text-foreground/70'
+                    location.pathname === link.href ? 'text-accent' : 'text-primary-foreground'
                   }`}
                 >
                   {link.name}

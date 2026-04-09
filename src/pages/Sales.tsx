@@ -80,7 +80,7 @@ const SalesPage = () => {
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
     return (
       <SectionReveal delay={index * 0.1}>
-        <div className="bg-background overflow-hidden h-full flex flex-col">
+        <div className="bg-background overflow-hidden h-full flex flex-col group">
           <div className="aspect-[16/9] overflow-hidden">
             {coverImg ? (
               <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />

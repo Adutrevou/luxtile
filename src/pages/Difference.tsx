@@ -1,27 +1,27 @@
-import { Shield, Maximize2, Truck, Users } from 'lucide-react';
-import PageTransition from '@/components/PageTransition';
-import SectionReveal from '@/components/SectionReveal';
+import { Shield, Maximize2, Truck, Users } from "lucide-react";
+import PageTransition from "@/components/PageTransition";
+import SectionReveal from "@/components/SectionReveal";
 
 const cards = [
   {
     icon: Shield,
-    title: 'Premium Quality',
-    desc: 'Every slab is rigorously tested to meet international standards for hardness, absorption, and aesthetics.',
+    title: "Premium Quality",
+    desc: "Every slab is rigorously tested to meet international standards for hardness, absorption, and aesthetics.",
   },
   {
     icon: Maximize2,
-    title: 'Large Format Slabs',
-    desc: 'Offering sizes up to 1200×2400mm for seamless, grout-minimal installations.',
+    title: "Large Format Slabs",
+    desc: "Offering sizes up to 1200×2400mm for seamless, grout-minimal installations.",
   },
   {
     icon: Truck,
-    title: 'Nationwide Delivery',
-    desc: 'Specialist handling and delivery ensures your slabs arrive intact and on schedule.',
+    title: "Nationwide Delivery",
+    desc: "Specialist handling and delivery ensures your slabs arrive intact and on schedule.",
   },
   {
     icon: Users,
-    title: 'Expert Guidance',
-    desc: 'Our specialists help you choose the perfect tile for your vision, budget, and project type.',
+    title: "Expert Guidance",
+    desc: "Our specialists help you choose the perfect tile for your vision, budget, and project type.",
   },
 ];
 
@@ -32,7 +32,7 @@ const DifferencePage = () => (
         <p className="label-caps mb-4">Why Choose Us</p>
         <h1 className="heading-display text-surface-dark-foreground mb-6">Why Choose Luxtile Installations</h1>
         <p className="text-surface-dark-foreground/60 max-w-xl mb-20">
-          We don't just supply porcelain — we deliver confidence in every slab.
+          We don't just supply porcelain. We deliver confidence in every slab.
         </p>
       </SectionReveal>
 
@@ -51,7 +51,9 @@ const DifferencePage = () => (
       <SectionReveal className="mt-20 text-center">
         <div className="inline-flex items-center gap-3 border border-accent/30 px-8 py-4">
           <span className="font-display text-3xl text-accent">10+</span>
-          <span className="text-surface-dark-foreground/60 text-sm tracking-[0.1em] uppercase">Years of Excellence</span>
+          <span className="text-surface-dark-foreground/60 text-sm tracking-[0.1em] uppercase">
+            Years of Excellence
+          </span>
         </div>
       </SectionReveal>
     </section>

@@ -41,7 +41,7 @@ const Navbar = () => {
           : 'bg-transparent py-6'
       }`}
     >
-      <div className="section-padding flex items-center justify-between">
+      <div className="section-padding flex items-center justify-start gap-16">
         <Link to="/" className="transition-opacity duration-300 hover:opacity-80">
           <img
             src={luxtileLogo}
@@ -53,7 +53,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-10">
+        <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}

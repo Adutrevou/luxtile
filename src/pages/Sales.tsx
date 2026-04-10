@@ -9,10 +9,8 @@ import { usePartners } from '@/hooks/usePartners';
 
 const benefits = [
   'Competitive direct pricing',
-  'No middlemen',
   'Fast-track quotes',
   'Bulk project discounts available',
-  'Samples on request',
   'Specialist delivery nationwide',
 ];
 
@@ -30,13 +28,14 @@ const SalesPage = () => {
     setQuoteOpen(true);
   };
 
-  const handleAdd = (p: Product) => {
-    addItem({ id: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category });
+  const handleAdd = (p: Product, area?: string) => {
+    addItem({ id: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category, estimatedArea: area || undefined });
   };
 
   const ProductOverlayCard = ({ product, index }: { product: Product; index: number }) => {
     const inBasket = isInBasket(product.id);
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
+    const [area, setArea] = useState('');
     return (
       <SectionReveal delay={index * 0.15}>
         <div className="group relative overflow-hidden aspect-[3/4]">
@@ -49,9 +48,16 @@ const SalesPage = () => {
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
             <p className="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-3">{product.description}</p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-end gap-3">
+              <input
+                type="text"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="Area (m²)"
+                className="w-24 bg-transparent border-b border-primary-foreground/40 text-primary-foreground text-xs py-2 outline-none placeholder:text-primary-foreground/40 focus:border-accent transition-colors"
+              />
               <button
-                onClick={() => handleAdd(product)}
+                onClick={() => handleAdd(product, area)}
                 disabled={inBasket}
                 className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
@@ -77,6 +83,7 @@ const SalesPage = () => {
   const PartnerProductCard = ({ product, index }: { product: Product; index: number }) => {
     const inBasket = isInBasket(product.id);
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
+    const [area, setArea] = useState('');
     return (
       <SectionReveal delay={index * 0.1}>
         <div className="bg-background overflow-hidden h-full flex flex-col group">
@@ -93,9 +100,16 @@ const SalesPage = () => {
             {product.sizes.length > 0 && (
               <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
             )}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-end gap-3 mt-auto">
+              <input
+                type="text"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="Area (m²)"
+                className="w-24 bg-transparent border-b border-border text-foreground text-xs py-2 outline-none placeholder:text-muted-foreground focus:border-accent transition-colors"
+              />
               <button
-                onClick={() => handleAdd(product)}
+                onClick={() => handleAdd(product, area)}
                 disabled={inBasket}
                 className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
@@ -132,7 +146,7 @@ const SalesPage = () => {
 
         {/* Benefits */}
         <SectionReveal className="mb-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {benefits.map((b, i) => (
               <div key={i} className="flex items-start gap-3 border-l border-accent pl-6 py-2">
                 <CheckIcon size={16} className="text-accent mt-0.5 shrink-0" />
@@ -225,7 +239,7 @@ const PartnerSection = ({
 }: {
   partner: { id: string; name: string; logo_url: string | null; display_section_value: string; description: string };
   openQuote: (name: string) => void;
-  handleAdd: (p: Product) => void;
+  handleAdd: (p: Product, area?: string) => void;
   isInBasket: (id: string) => boolean;
 }) => {
   const { data: products = [], isError, refetch } = useProductsBySection(partner.display_section_value);
@@ -258,48 +272,84 @@ const PartnerSection = ({
             const inBasket = isInBasket(product.id);
             const coverImg = product.images[product.cover_index] || product.images[0] || '';
             return (
-              <SectionReveal key={product.id} delay={i * 0.1}>
-                <div className="bg-background overflow-hidden h-full flex flex-col group">
-                  <div className="aspect-[16/9] overflow-hidden">
-                    {coverImg ? (
-                      <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
-                    ) : (
-                      <div className="w-full h-full bg-muted" />
-                    )}
-                  </div>
-                  <div className="p-6 md:p-8 flex flex-col flex-1">
-                    <h3 className="font-display text-lg md:text-xl mb-2">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-4">{product.description}</p>
-                    {product.sizes.length > 0 && (
-                      <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
-                    )}
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        onClick={() => handleAdd(product)}
-                        disabled={inBasket}
-                        className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
-                          inBasket
-                            ? 'bg-accent/20 text-accent cursor-default'
-                            : 'border border-border text-foreground hover:border-accent hover:text-accent'
-                        }`}
-                      >
-                        {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
-                      </button>
-                      <button
-                        onClick={() => openQuote(product.name)}
-                        className="bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
-                      >
-                        Request Quote
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </SectionReveal>
+              <PartnerInlineCard
+                key={product.id}
+                product={product}
+                index={i}
+                inBasket={inBasket}
+                coverImg={coverImg}
+                handleAdd={handleAdd}
+                openQuote={openQuote}
+              />
             );
           })}
         </div>
       )}
     </section>
+  );
+};
+
+const PartnerInlineCard = ({
+  product,
+  index,
+  inBasket,
+  coverImg,
+  handleAdd,
+  openQuote,
+}: {
+  product: Product;
+  index: number;
+  inBasket: boolean;
+  coverImg: string;
+  handleAdd: (p: Product, area?: string) => void;
+  openQuote: (name: string) => void;
+}) => {
+  const [area, setArea] = useState('');
+  return (
+    <SectionReveal delay={index * 0.1}>
+      <div className="bg-background overflow-hidden h-full flex flex-col group">
+        <div className="aspect-[16/9] overflow-hidden">
+          {coverImg ? (
+            <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
+        </div>
+        <div className="p-6 md:p-8 flex flex-col flex-1">
+          <h3 className="font-display text-lg md:text-xl mb-2">{product.name}</h3>
+          <p className="text-sm text-muted-foreground mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-4">{product.description}</p>
+          {product.sizes.length > 0 && (
+            <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
+          )}
+          <div className="flex flex-wrap items-end gap-3 mt-auto">
+            <input
+              type="text"
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              placeholder="Area (m²)"
+              className="w-24 bg-transparent border-b border-border text-foreground text-xs py-2 outline-none placeholder:text-muted-foreground focus:border-accent transition-colors"
+            />
+            <button
+              onClick={() => handleAdd(product, area)}
+              disabled={inBasket}
+              className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                inBasket
+                  ? 'bg-accent/20 text-accent cursor-default'
+                  : 'border border-border text-foreground hover:border-accent hover:text-accent'
+              }`}
+            >
+              {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
+            </button>
+            <button
+              onClick={() => openQuote(product.name)}
+              className="bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+            >
+              Request Quote
+            </button>
+          </div>
+        </div>
+      </div>
+    </SectionReveal>
   );
 };
 

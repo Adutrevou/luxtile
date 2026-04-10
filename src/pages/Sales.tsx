@@ -28,14 +28,13 @@ const SalesPage = () => {
     setQuoteOpen(true);
   };
 
-  const handleAdd = (p: Product, area?: string) => {
-    addItem({ id: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category, estimatedArea: area || undefined });
+  const handleAdd = (p: Product) => {
+    addItem({ id: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category });
   };
 
   const ProductOverlayCard = ({ product, index }: { product: Product; index: number }) => {
     const inBasket = isInBasket(product.id);
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
-    const [area, setArea] = useState('');
     return (
       <SectionReveal delay={index * 0.15}>
         <div className="group relative overflow-hidden aspect-[3/4]">
@@ -49,15 +48,8 @@ const SalesPage = () => {
             <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
             <p className="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-3">{product.description}</p>
             <div className="flex flex-wrap items-end gap-3">
-              <input
-                type="text"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                placeholder="Area (m²)"
-                className="w-24 bg-transparent border-b border-primary-foreground/40 text-primary-foreground text-xs py-2 outline-none placeholder:text-primary-foreground/40 focus:border-accent transition-colors"
-              />
               <button
-                onClick={() => handleAdd(product, area)}
+                onClick={() => handleAdd(product)}
                 disabled={inBasket}
                 className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
@@ -83,7 +75,6 @@ const SalesPage = () => {
   const PartnerProductCard = ({ product, index }: { product: Product; index: number }) => {
     const inBasket = isInBasket(product.id);
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
-    const [area, setArea] = useState('');
     return (
       <SectionReveal delay={index * 0.1}>
         <div className="bg-background overflow-hidden h-full flex flex-col group">
@@ -101,15 +92,8 @@ const SalesPage = () => {
               <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
             )}
             <div className="flex flex-wrap items-end gap-3 mt-auto">
-              <input
-                type="text"
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                placeholder="Area (m²)"
-                className="w-24 bg-transparent border-b border-border text-foreground text-xs py-2 outline-none placeholder:text-muted-foreground focus:border-accent transition-colors"
-              />
               <button
-                onClick={() => handleAdd(product, area)}
+                onClick={() => handleAdd(product)}
                 disabled={inBasket}
                 className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                   inBasket
@@ -239,7 +223,7 @@ const PartnerSection = ({
 }: {
   partner: { id: string; name: string; logo_url: string | null; display_section_value: string; description: string };
   openQuote: (name: string) => void;
-  handleAdd: (p: Product, area?: string) => void;
+  handleAdd: (p: Product) => void;
   isInBasket: (id: string) => boolean;
 }) => {
   const { data: products = [], isError, refetch } = useProductsBySection(partner.display_section_value);
@@ -301,10 +285,10 @@ const PartnerInlineCard = ({
   index: number;
   inBasket: boolean;
   coverImg: string;
-  handleAdd: (p: Product, area?: string) => void;
+  handleAdd: (p: Product) => void;
   openQuote: (name: string) => void;
 }) => {
-  const [area, setArea] = useState('');
+  
   return (
     <SectionReveal delay={index * 0.1}>
       <div className="bg-background overflow-hidden h-full flex flex-col group">
@@ -321,16 +305,9 @@ const PartnerInlineCard = ({
           {product.sizes.length > 0 && (
             <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
           )}
-          <div className="flex flex-wrap items-end gap-3 mt-auto">
-            <input
-              type="text"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              placeholder="Area (m²)"
-              className="w-24 bg-transparent border-b border-border text-foreground text-xs py-2 outline-none placeholder:text-muted-foreground focus:border-accent transition-colors"
-            />
-            <button
-              onClick={() => handleAdd(product, area)}
+            <div className="flex flex-wrap items-end gap-3 mt-auto">
+              <button
+                onClick={() => handleAdd(product)}
               disabled={inBasket}
               className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
                 inBasket

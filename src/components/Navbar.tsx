@@ -41,7 +41,7 @@ const Navbar = () => {
           : 'bg-transparent py-6'
       }`}
     >
-      <div className="section-padding flex items-center justify-between">
+      <div className="section-padding flex items-center justify-start gap-16">
         <Link to="/" className="transition-opacity duration-300 hover:opacity-80">
           <img
             src={luxtileLogo}

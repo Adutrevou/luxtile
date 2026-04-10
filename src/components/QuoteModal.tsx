@@ -137,18 +137,14 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
                       <option>Other</option>
                     </select>
                   </div>
-                  {showSalesFields && (
-                    <>
-                      <div>
-                        <label className="label-caps block mb-2">Quantity (m²)</label>
-                        <input type="text" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="Estimated area" />
-                      </div>
-                      <div>
-                        <label className="label-caps block mb-2">Delivery Location</label>
-                        <input type="text" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="City / Province" />
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <label className="label-caps block mb-2">Quantity (m²)</label>
+                    <input type="text" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="Estimated area" />
+                  </div>
+                  <div>
+                    <label className="label-caps block mb-2">Delivery Location</label>
+                    <input type="text" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="City / Province" />
+                  </div>
                   <div>
                     <label className="label-caps block mb-2">Message</label>
                     <textarea maxLength={1000} rows={4} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors resize-none" />

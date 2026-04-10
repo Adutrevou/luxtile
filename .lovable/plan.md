@@ -1,39 +1,18 @@
 
 
-## Plan: Navbar Shift, Add-to-Basket Enhancement, Sales Page Cleanup
+## Plan: Remove Area Estimate from Product Cards
 
-### 1. Shift nav links closer to logo
+Remove the "Area (m²)" input field from all three product card components on the Sales page. The area estimate will remain available only in the Quote Modal (already has a "Quantity (m²)" field when `showSalesFields` is true).
 
-**File: `src/components/Navbar.tsx`**
+### Changes in `src/pages/Sales.tsx`
 
-Change the desktop nav container from `justify-between` to a layout where the nav sits closer to the logo. Replace the outer flex with `justify-start` and add a controlled gap (e.g. `gap-16`) between logo and nav links. Reduce inter-link gap from `gap-10` to `gap-8`. This keeps the mobile layout untouched.
+1. **ProductOverlayCard** (lines 38, 52-58): Remove `area` state and the `<input>` element. Change `handleAdd(product, area)` → `handleAdd(product)`.
 
-### 2. Add "Estimated Area" input to the Add-to-Basket flow
+2. **PartnerProductCard** (lines 86, 104-110): Same removal — drop `area` state, remove `<input>`, simplify `handleAdd` call.
 
-**File: `src/context/QuoteBasketContext.tsx`**
-- Extend `QuoteBasketItem` with an optional `estimatedArea?: string` field.
-- Update `addItem` signature to accept area.
+3. **PartnerInlineCard** (lines 307, 325-331): Same removal — drop `area` state, remove `<input>`, simplify `handleAdd` call.
 
-**File: `src/pages/Sales.tsx`**
-- In both `ProductOverlayCard` and `PartnerProductCard` (and the inline partner card), add a small "Estimated Area (m²)" input field inline next to the "Add to Quote" button. Use local state per card. Pass area value to `addItem`.
-- Style the input to match the existing minimal border-bottom aesthetic.
+4. **`handleAdd` function** (line 31): Simplify to always call `addItem` without area since it's no longer passed from cards.
 
-**File: `src/components/QuoteModal.tsx`**
-- Display the `estimatedArea` per item in the basket item row (next to name/category).
-- Keep the existing standalone "Quantity (m²)" field for `showSalesFields` mode.
-
-### 3. Remove "No middlemen" and "Samples on request" from benefits, re-space
-
-**File: `src/pages/Sales.tsx`**
-- Remove `'No middlemen'` and `'Samples on request'` from the `benefits` array (leaving 4 items).
-- Change the grid from `lg:grid-cols-3` to `md:grid-cols-2` for the 4 remaining benefits, creating a clean 2x2 layout.
-
-### Files modified
-
-| File | Change |
-|------|--------|
-| `src/components/Navbar.tsx` | Shift nav links left with reduced gap |
-| `src/context/QuoteBasketContext.tsx` | Add `estimatedArea` to basket item type |
-| `src/pages/Sales.tsx` | Add area input to cards; remove 2 benefits; adjust grid |
-| `src/components/QuoteModal.tsx` | Show estimated area per basket item |
+No other files need changes. The `QuoteModal` already has area/quantity fields for the quote flow. The `estimatedArea` field stays in `QuoteBasketContext` for use from the modal.
 

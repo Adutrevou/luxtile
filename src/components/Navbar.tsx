@@ -90,6 +90,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
             className="lg:hidden bg-background/98 backdrop-blur-lg overflow-hidden"
           >
             <nav className="section-padding py-8 flex flex-col gap-6">

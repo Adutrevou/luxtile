@@ -128,7 +128,7 @@ const ContactPage = () => {
 
           {/* Right — Multi-step form */}
           <SectionReveal delay={0.2}>
-            <div className="bg-secondary/40 border border-border/40 p-8 md:p-12">
+            <div className="bg-secondary/40 border border-border/40 p-6 md:p-12">
               {submitted ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}

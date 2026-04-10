@@ -29,7 +29,7 @@ const ProductCard = ({ product, onRequestQuote }: ProductCardProps) => {
           <img
             src={coverImage}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+            className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
             loading="lazy"
           />
         ) : (
@@ -43,7 +43,7 @@ const ProductCard = ({ product, onRequestQuote }: ProductCardProps) => {
         {product.price != null && (
           <p className="text-accent font-medium mb-2">R{product.price.toLocaleString()}</p>
         )}
-        <p className="text-muted-foreground text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden leading-relaxed">{product.description}</p>
+        <p className="text-muted-foreground text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 <p className="text-muted-foreground text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-700 ease-in-out overflow-hidden leading-relaxed">{product.description}</p>">{product.description}</p>
         {product.sizes.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {product.sizes.map((s) => (

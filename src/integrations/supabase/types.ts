@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      partners: {
+        Row: {
+          created_at: string
+          description: string
+          display_section_value: string
+          id: string
+          logo_url: string | null
+          name: string
+          sort_order: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          display_section_value: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_section_value?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string

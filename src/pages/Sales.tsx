@@ -39,14 +39,14 @@ const SalesPage = () => {
       <SectionReveal delay={index * 0.15}>
         <div className="group relative overflow-hidden aspect-[3/4]">
           {coverImg ? (
-            <img src={coverImg} alt={product.name} <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]" loading="lazy" />
+            <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]" loading="lazy" /> alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]" loading="lazy" />
           ) : (
             <div className="w-full h-full bg-muted" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
-            <p className="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 <p className="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-700 ease-in-out overflow-hidden line-clamp-3">{product.description}</p>
+            <p className="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-700 ease-in-out overflow-hidden line-clamp-3">{product.description}</p>="text-primary-foreground/60 text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-700 ease-in-out overflow-hidden line-clamp-3">{product.description}</p>
             <div className="flex flex-wrap items-end gap-3">
               <button
                 onClick={() => handleAdd(product)}

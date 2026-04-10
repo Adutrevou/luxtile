@@ -2,14 +2,15 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useAdminProducts } from '@/hooks/useAdminProducts';
-import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore } from 'lucide-react';
+import { useAdminPartners } from '@/hooks/usePartners';
+import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore, Handshake } from 'lucide-react';
 import { toast } from 'sonner';
 import luxtileLogo from '@/assets/luxtile-logo.png';
 
-type View = 'list' | 'form';
+type View = 'list' | 'form' | 'partners';
 
 const CATEGORIES = ['Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
-const SECTIONS = ['Collection', 'Best Sellers', 'On Sale', 'Dekton Partner'];
+const FIXED_SECTIONS = ['Collection', 'Best Sellers', 'On Sale'];
 
 const AdminDashboard = () => {
   const { signOut } = useAdminAuth();
@@ -19,6 +20,12 @@ const AdminDashboard = () => {
     addProduct, updateProduct, deleteProduct, uploadImages,
     isAdding, isUpdating,
   } = useAdminProducts();
+  const {
+    partners, isLoading: partnersLoading,
+    addPartner, updatePartner, deletePartner,
+    isAdding: partnerAdding, isUpdating: partnerUpdating,
+  } = useAdminPartners();
+
   const [view, setView] = useState<View>('list');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -30,7 +37,7 @@ const AdminDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'price'>('date');
 
-  // Form state
+  // Product form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -45,10 +52,30 @@ const AdminDashboard = () => {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Partner form state
+  const [partnerFormOpen, setPartnerFormOpen] = useState(false);
+  const [editingPartnerId, setEditingPartnerId] = useState<string | null>(null);
+  const [partnerName, setPartnerName] = useState('');
+  const [partnerDescription, setPartnerDescription] = useState('');
+  const [partnerSectionValue, setPartnerSectionValue] = useState('');
+  const [partnerLogoUrl, setPartnerLogoUrl] = useState('');
+  const [partnerSortOrder, setPartnerSortOrder] = useState(0);
+  const [partnerUploading, setPartnerUploading] = useState(false);
+  const partnerFileRef = useRef<HTMLInputElement>(null);
+
+  // Combine fixed sections with dynamic partner sections
+  const allSections = [...FIXED_SECTIONS, ...partners.map((p) => p.display_section_value)];
+
   const resetForm = () => {
     setName(''); setDescription(''); setCategory(CATEGORIES[0]); setSizes('');
     setTags(''); setPrice(''); setDisplaySection([]); setImages([]);
     setCoverIndex(0); setFeatured(false); setStatus('active'); setEditingId(null);
+  };
+
+  const resetPartnerForm = () => {
+    setPartnerName(''); setPartnerDescription(''); setPartnerSectionValue('');
+    setPartnerLogoUrl(''); setPartnerSortOrder(0); setEditingPartnerId(null);
+    setPartnerFormOpen(false);
   };
 
   const openAdd = () => { resetForm(); setView('form'); };
@@ -60,6 +87,13 @@ const AdminDashboard = () => {
     setDisplaySection(p.display_section); setImages(p.images);
     setCoverIndex(p.cover_index); setFeatured(p.featured);
     setStatus(p.status as 'active' | 'inactive'); setEditingId(p.id); setView('form');
+  };
+
+  const openEditPartner = (p: typeof partners[0]) => {
+    setPartnerName(p.name); setPartnerDescription(p.description);
+    setPartnerSectionValue(p.display_section_value); setPartnerLogoUrl(p.logo_url || '');
+    setPartnerSortOrder(p.sort_order); setEditingPartnerId(p.id);
+    setPartnerFormOpen(true);
   };
 
   // Parallel upload with compression
@@ -81,6 +115,22 @@ const AdminDashboard = () => {
       toast.error(msg);
     } finally {
       setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handlePartnerLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setPartnerUploading(true);
+    try {
+      const urls = await uploadImages(Array.from(files));
+      setPartnerLogoUrl(urls[0]);
+      toast.success('Logo uploaded');
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setPartnerUploading(false);
       e.target.value = '';
     }
   };
@@ -130,6 +180,28 @@ const AdminDashboard = () => {
         toast.error('Session expired — please sign in again');
         navigate('/admin/login');
       }
+    }
+  };
+
+  const handlePartnerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = {
+      name: partnerName,
+      description: partnerDescription,
+      display_section_value: partnerSectionValue,
+      logo_url: partnerLogoUrl || null,
+      sort_order: partnerSortOrder,
+      status: 'active' as const,
+    };
+    try {
+      if (editingPartnerId) {
+        await updatePartner(editingPartnerId, data);
+      } else {
+        await addPartner(data);
+      }
+      resetPartnerForm();
+    } catch {
+      // toast handled in hook
     }
   };
 
@@ -187,13 +259,115 @@ const AdminDashboard = () => {
           <img src={luxtileLogo} alt="Luxtile" className="h-8 w-auto brightness-0 invert" />
           <span className="text-white/30 text-sm">Admin</span>
         </div>
-        <button onClick={handleSignOut} className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors">
-          <LogOut size={16} /> Sign Out
-        </button>
+        <div className="flex items-center gap-4">
+          <button onClick={() => { setView(view === 'partners' ? 'list' : 'partners'); resetPartnerForm(); }} className={`flex items-center gap-2 text-sm transition-colors ${view === 'partners' ? 'text-accent' : 'text-white/50 hover:text-white'}`}>
+            <Handshake size={16} /> Partners
+          </button>
+          <button onClick={handleSignOut} className="flex items-center gap-2 text-white/50 hover:text-white text-sm transition-colors">
+            <LogOut size={16} /> Sign Out
+          </button>
+        </div>
       </header>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {view === 'list' ? (
+        {view === 'partners' ? (
+          /* Partners Management View */
+          <>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="font-display text-xl">Partners ({partners.length})</h2>
+              <button onClick={() => { resetPartnerForm(); setPartnerFormOpen(true); }} className="flex items-center gap-2 bg-accent text-accent-foreground px-5 py-2.5 text-sm tracking-[0.1em] uppercase font-medium hover:tracking-[0.14em] transition-all">
+                <Plus size={16} /> Add Partner
+              </button>
+            </div>
+
+            {/* Partner Form Modal */}
+            {partnerFormOpen && (
+              <div className="border border-white/10 p-6 mb-8 bg-white/5">
+                <h3 className="font-display text-lg mb-6">{editingPartnerId ? 'Edit Partner' : 'Add Partner'}</h3>
+                <form onSubmit={handlePartnerSubmit} className="space-y-5 max-w-xl">
+                  <FormField label="Partner Name">
+                    <input required value={partnerName} onChange={(e) => setPartnerName(e.target.value)} className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
+                  </FormField>
+                  <FormField label="Display Section Value (used to link products)">
+                    <input
+                      required
+                      value={partnerSectionValue}
+                      onChange={(e) => setPartnerSectionValue(e.target.value)}
+                      placeholder="e.g. Dekton Partner"
+                      disabled={!!editingPartnerId}
+                      className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors disabled:opacity-50"
+                    />
+                    <p className="text-white/30 text-xs mt-1">This value appears as a section option when editing products.</p>
+                  </FormField>
+                  <FormField label="Description">
+                    <textarea value={partnerDescription} onChange={(e) => setPartnerDescription(e.target.value)} rows={3} className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors resize-none" />
+                  </FormField>
+                  <FormField label="Logo">
+                    <div className="flex items-center gap-4 pt-2">
+                      {partnerLogoUrl && (
+                        <img src={partnerLogoUrl} alt="Logo" className="h-12 object-contain bg-white/10 p-2" />
+                      )}
+                      <button type="button" onClick={() => partnerFileRef.current?.click()} disabled={partnerUploading} className="border border-dashed border-white/20 px-4 py-2 text-sm text-white/50 hover:text-white hover:border-white/40 transition-colors disabled:opacity-50">
+                        {partnerUploading ? 'Uploading...' : 'Upload Logo'}
+                      </button>
+                      <input ref={partnerFileRef} type="file" accept="image/*" onChange={handlePartnerLogoUpload} className="hidden" />
+                    </div>
+                  </FormField>
+                  <FormField label="Sort Order">
+                    <input type="number" value={partnerSortOrder} onChange={(e) => setPartnerSortOrder(Number(e.target.value))} className="w-24 bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors" />
+                  </FormField>
+                  <div className="flex gap-3 pt-2">
+                    <button type="submit" disabled={partnerAdding || partnerUpdating} className="bg-accent text-accent-foreground px-6 py-3 text-sm tracking-[0.1em] uppercase font-medium transition-all disabled:opacity-50">
+                      {partnerAdding || partnerUpdating ? 'Saving...' : editingPartnerId ? 'Update' : 'Add Partner'}
+                    </button>
+                    <button type="button" onClick={resetPartnerForm} className="border border-white/20 px-6 py-3 text-sm text-white/60 hover:text-white transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Partner List */}
+            {partnersLoading ? (
+              <div className="border border-white/10 p-12 text-center">
+                <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+              </div>
+            ) : partners.length === 0 ? (
+              <div className="border border-white/10 p-12 text-center">
+                <Handshake size={40} className="mx-auto text-white/20 mb-4" />
+                <p className="text-white/50">No partners yet. Add your first partner.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {partners.map((p) => (
+                  <div key={p.id} className={`border p-4 flex items-center gap-4 transition-colors ${p.status === 'inactive' ? 'border-white/5 opacity-60' : 'border-white/10 hover:border-white/20'}`}>
+                    {p.logo_url ? (
+                      <img src={p.logo_url} alt={p.name} className="w-16 h-10 object-contain bg-white/10 p-1 shrink-0" />
+                    ) : (
+                      <div className="w-16 h-10 bg-white/5 flex items-center justify-center shrink-0">
+                        <Handshake size={16} className="text-white/20" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{p.name}</p>
+                      <p className="text-white/40 text-sm truncate">Section: {p.display_section_value}</p>
+                    </div>
+                    <span className={`text-[10px] tracking-[0.1em] uppercase px-2 py-0.5 shrink-0 ${p.status === 'active' ? 'text-green-400 border border-green-400/30' : 'text-red-400 border border-red-400/30'}`}>
+                      {p.status}
+                    </span>
+                    <button onClick={() => openEditPartner(p)} className="text-white/30 hover:text-white transition-colors shrink-0">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => deletePartner(p.id)} className="text-white/30 hover:text-red-400 transition-colors shrink-0">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : view === 'list' ? (
           <>
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -219,7 +393,7 @@ const AdminDashboard = () => {
               </select>
               <select value={filterSection} onChange={(e) => setFilterSection(e.target.value)} className="bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm outline-none">
                 <option value="All" className="bg-[#0F0F0F]">All Sections</option>
-                {SECTIONS.map((s) => <option key={s} value={s} className="bg-[#0F0F0F]">{s}</option>)}
+                {allSections.map((s) => <option key={s} value={s} className="bg-[#0F0F0F]">{s}</option>)}
               </select>
               <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-white/5 border border-white/10 text-white px-3 py-2.5 text-sm outline-none">
                 <option value="All" className="bg-[#0F0F0F]">All Status</option>
@@ -365,7 +539,7 @@ const AdminDashboard = () => {
                 </FormField>
               </div>
 
-              {/* Display Section */}
+              {/* Display Section — dynamic */}
               <FormField label="Display Section">
                 <div className="space-y-4 pt-2">
                   <div>
@@ -379,8 +553,8 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Sales Page Sections</p>
-                    <div className="flex gap-4">
-                      {['Best Sellers', 'On Sale', 'Dekton Partner'].map((s) => (
+                    <div className="flex flex-wrap gap-4">
+                      {['Best Sellers', 'On Sale'].map((s) => (
                         <label key={s} className="flex items-center gap-2 cursor-pointer">
                           <input type="checkbox" checked={displaySection.includes(s)} onChange={() => toggleSection(s)} className="accent-accent" />
                           <span className="text-sm text-white/80">{s}</span>
@@ -388,6 +562,19 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   </div>
+                  {partners.length > 0 && (
+                    <div>
+                      <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Partner Sections</p>
+                      <div className="flex flex-wrap gap-4">
+                        {partners.map((p) => (
+                          <label key={p.id} className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={displaySection.includes(p.display_section_value)} onChange={() => toggleSection(p.display_section_value)} className="accent-accent" />
+                            <span className="text-sm text-white/80">{p.display_section_value}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </FormField>
 

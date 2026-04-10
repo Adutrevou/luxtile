@@ -5,8 +5,7 @@ import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
-
-import dektonLogo from '@/assets/dekton-logo.png';
+import { usePartners } from '@/hooks/usePartners';
 
 const benefits = [
   'Competitive direct pricing',
@@ -24,7 +23,7 @@ const SalesPage = () => {
 
   const { data: bestSellers = [], isError: bsErr, refetch: bsRefetch } = useProductsBySection('Best Sellers');
   const { data: saleProducts = [], isError: spErr, refetch: spRefetch } = useProductsBySection('On Sale');
-  const { data: dektonProducts = [], isError: dkErr, refetch: dkRefetch } = useProductsBySection('Dekton Partner');
+  const { data: partners = [] } = usePartners();
 
   const openQuote = (name: string) => {
     setSelectedCollection(name);
@@ -75,7 +74,7 @@ const SalesPage = () => {
     );
   };
 
-  const DektonCard = ({ product, index }: { product: Product; index: number }) => {
+  const PartnerProductCard = ({ product, index }: { product: Product; index: number }) => {
     const inBasket = isInBasket(product.id);
     const coverImg = product.images[product.cover_index] || product.images[0] || '';
     return (
@@ -176,7 +175,7 @@ const SalesPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {saleProducts.map((product, i) => (
                 <SectionReveal key={product.id} delay={i * 0.1}>
-                  <DektonCard product={product} index={i} />
+                  <PartnerProductCard product={product} index={i} />
                 </SectionReveal>
               ))}
             </div>
@@ -184,32 +183,16 @@ const SalesPage = () => {
         </section>
       )}
 
-      {/* Dekton Brand Section */}
-      {(dektonProducts.length > 0 || dkErr) && (
-        <section className="section-padding py-28 bg-secondary">
-          <SectionReveal>
-            <div className="flex items-center gap-6 mb-4">
-              <p className="label-caps">Premium Partner</p>
-            </div>
-            <div className="flex items-center gap-6 mb-6">
-              <img src={dektonLogo} alt="Dekton" className="h-10 md:h-14 object-contain" />
-            </div>
-            <p className="text-muted-foreground max-w-2xl mb-16">
-              Ultra-compact surfaces engineered for unmatched durability and striking beauty. Available in large-format slabs up to 3200 × 1440mm.
-            </p>
-          </SectionReveal>
-
-          {dkErr ? (
-            <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => dkRefetch()}>Something went wrong — tap to retry</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border auto-rows-fr">
-              {dektonProducts.map((product, i) => (
-                <DektonCard key={product.id} product={product} index={i} />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+      {/* Dynamic Partner Sections */}
+      {partners.map((partner) => (
+        <PartnerSection
+          key={partner.id}
+          partner={partner}
+          openQuote={openQuote}
+          handleAdd={handleAdd}
+          isInBasket={isInBasket}
+        />
+      ))}
 
       {/* CTA */}
       <section className="bg-surface-dark text-surface-dark-foreground section-padding py-28 text-center">
@@ -230,6 +213,93 @@ const SalesPage = () => {
 
       <QuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} collectionName={selectedCollection} showSalesFields />
     </PageTransition>
+  );
+};
+
+/** Renders a single partner brand section with its products */
+const PartnerSection = ({
+  partner,
+  openQuote,
+  handleAdd,
+  isInBasket,
+}: {
+  partner: { id: string; name: string; logo_url: string | null; display_section_value: string; description: string };
+  openQuote: (name: string) => void;
+  handleAdd: (p: Product) => void;
+  isInBasket: (id: string) => boolean;
+}) => {
+  const { data: products = [], isError, refetch } = useProductsBySection(partner.display_section_value);
+
+  if (products.length === 0 && !isError) return null;
+
+  return (
+    <section className="section-padding py-28 bg-secondary">
+      <SectionReveal>
+        <div className="flex items-center gap-6 mb-4">
+          <p className="label-caps">Premium Partner</p>
+        </div>
+        {partner.logo_url ? (
+          <div className="flex items-center gap-6 mb-6">
+            <img src={partner.logo_url} alt={partner.name} className="h-10 md:h-14 object-contain" />
+          </div>
+        ) : (
+          <h2 className="heading-section text-foreground mb-6">{partner.name}</h2>
+        )}
+        {partner.description && (
+          <p className="text-muted-foreground max-w-2xl mb-16">{partner.description}</p>
+        )}
+      </SectionReveal>
+
+      {isError ? (
+        <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => refetch()}>Something went wrong — tap to retry</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border auto-rows-fr">
+          {products.map((product, i) => {
+            const inBasket = isInBasket(product.id);
+            const coverImg = product.images[product.cover_index] || product.images[0] || '';
+            return (
+              <SectionReveal key={product.id} delay={i * 0.1}>
+                <div className="bg-background overflow-hidden h-full flex flex-col group">
+                  <div className="aspect-[16/9] overflow-hidden">
+                    {coverImg ? (
+                      <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full bg-muted" />
+                    )}
+                  </div>
+                  <div className="p-6 md:p-8 flex flex-col flex-1">
+                    <h3 className="font-display text-lg md:text-xl mb-2">{product.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden line-clamp-4">{product.description}</p>
+                    {product.sizes.length > 0 && (
+                      <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>
+                    )}
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={() => handleAdd(product)}
+                        disabled={inBasket}
+                        className={`px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all flex items-center gap-2 ${
+                          inBasket
+                            ? 'bg-accent/20 text-accent cursor-default'
+                            : 'border border-border text-foreground hover:border-accent hover:text-accent'
+                        }`}
+                      >
+                        {inBasket ? <><CheckIcon size={14} /> Added</> : 'Add to Quote'}
+                      </button>
+                      <button
+                        onClick={() => openQuote(product.name)}
+                        className="bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+                      >
+                        Request Quote
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </SectionReveal>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 };
 

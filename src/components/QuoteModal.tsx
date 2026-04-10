@@ -83,6 +83,9 @@ const QuoteModal = ({ open, onClose, collectionName, showSalesFields }: QuoteMod
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">{item.name}</p>
                               <p className="text-xs text-muted-foreground">{item.category}</p>
+                              {item.estimatedArea && (
+                                <p className="text-xs text-accent">{item.estimatedArea} m²</p>
+                              )}
                             </div>
                             <button
                               type="button"

@@ -5,6 +5,7 @@ export interface QuoteBasketItem {
   name: string;
   image: string;
   category: string;
+  estimatedArea?: string;
 }
 
 interface QuoteBasketContextType {

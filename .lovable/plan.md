@@ -1,18 +1,15 @@
 
 
-## Plan: Remove Area Estimate from Product Cards
+## Plan: Show Estimated Area Input in Quote Modal on All Pages
 
-Remove the "Area (m²)" input field from all three product card components on the Sales page. The area estimate will remain available only in the Quote Modal (already has a "Quantity (m²)" field when `showSalesFields` is true).
+### Problem
+The "Estimated Area (m²)" and "Delivery Location" fields only appear in the Quote Modal when `showSalesFields` is true (currently only on the Sales page). The user wants these fields visible on every page when the quote side panel opens.
 
-### Changes in `src/pages/Sales.tsx`
+### Change
 
-1. **ProductOverlayCard** (lines 38, 52-58): Remove `area` state and the `<input>` element. Change `handleAdd(product, area)` → `handleAdd(product)`.
+**File: `src/components/QuoteModal.tsx`** (lines 140-151)
 
-2. **PartnerProductCard** (lines 86, 104-110): Same removal — drop `area` state, remove `<input>`, simplify `handleAdd` call.
+Remove the `{showSalesFields && ( ... )}` conditional wrapper so the "Quantity (m²)" and "Delivery Location" fields always render, regardless of which page triggered the modal.
 
-3. **PartnerInlineCard** (lines 307, 325-331): Same removal — drop `area` state, remove `<input>`, simplify `handleAdd` call.
-
-4. **`handleAdd` function** (line 31): Simplify to always call `addItem` without area since it's no longer passed from cards.
-
-No other files need changes. The `QuoteModal` already has area/quantity fields for the quote flow. The `estimatedArea` field stays in `QuoteBasketContext` for use from the modal.
+This is a single-line conditional removal — no layout, styling, or logic changes needed.
 

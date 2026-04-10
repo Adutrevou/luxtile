@@ -146,7 +146,7 @@ const Index = () => {
             <p className="label-caps mb-4">Now Available Direct</p>
             <h2 className="heading-section text-surface-dark-foreground mb-6">Acquire Excellence</h2>
             <p className="text-surface-dark-foreground/60 mb-10 max-w-md">
-              Move beyond inspiration — secure your slabs today for flawless execution. Now available direct for South
+              Move beyond inspiration, secure your slabs today for flawless execution. Now available direct for South
               Africa's most ambitious projects.
             </p>
             <Link

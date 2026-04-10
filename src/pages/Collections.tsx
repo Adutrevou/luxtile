@@ -49,7 +49,7 @@ const CollectionsPage = () => {
         ) : products.length === 0 ? (
           <p className="text-muted-foreground text-center py-20">No collections available yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((col, i) => {
               const inBasket = isInBasket(col.id);
               const coverImg = col.images[col.cover_index] || col.images[0] || '';
@@ -61,7 +61,7 @@ const CollectionsPage = () => {
                         <img
                           src={coverImg}
                           alt={col.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
                           loading="lazy"
                         />
                       ) : (
@@ -70,7 +70,7 @@ const CollectionsPage = () => {
                     </div>
                     <div className="p-8">
                       <h3 className="font-display text-xl mb-2">{col.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-500 ease-out overflow-hidden leading-relaxed">{col.description}</p>
+                      <p className="text-muted-foreground text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-700 ease-in-out overflow-hidden leading-relaxed">{col.description}</p>
                       {col.sizes.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-6">
                           {col.sizes.map(s => (

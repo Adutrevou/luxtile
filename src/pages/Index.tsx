@@ -19,7 +19,7 @@ const Index = () => {
   return (
     <PageTransition>
       {/* Hero */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen min-h-[100svh] flex items-center justify-center overflow-hidden">
         <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -91,7 +91,7 @@ const Index = () => {
           <h2 className="heading-section text-foreground mb-16">Curated Excellence</h2>
         </SectionReveal>
         {featured.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
             {featured.map((col, i) => {
               const coverImg = col.images[col.cover_index] || col.images[0] || "";
               return (
@@ -101,7 +101,7 @@ const Index = () => {
                       <img
                         src={coverImg}
                         alt={col.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                        className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
                         loading="lazy"
                       />
                     ) : (
@@ -110,7 +110,7 @@ const Index = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-8">
                       <p className="text-primary-foreground font-display text-xl mb-1">{col.name}</p>
-                      <p className="text-primary-foreground/60 text-sm max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 transition-all duration-500 ease-out overflow-hidden">
+                      <p className="text-primary-foreground/60 text-sm max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 transition-all duration-700 ease-in-out overflow-hidden">
                         {col.description}
                       </p>
                     </div>
@@ -200,7 +200,7 @@ const Index = () => {
                 <img
                   src={img}
                   alt="Inspiration"
-                  className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-700"
+                  className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-1000 ease-in-out"
                   loading="lazy"
                 />
               </div>

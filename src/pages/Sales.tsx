@@ -223,7 +223,7 @@ const PartnerSection = ({
 }: {
   partner: { id: string; name: string; logo_url: string | null; display_section_value: string; description: string };
   openQuote: (name: string) => void;
-  handleAdd: (p: Product, area?: string) => void;
+  handleAdd: (p: Product) => void;
   isInBasket: (id: string) => boolean;
 }) => {
   const { data: products = [], isError, refetch } = useProductsBySection(partner.display_section_value);
@@ -285,7 +285,7 @@ const PartnerInlineCard = ({
   index: number;
   inBasket: boolean;
   coverImg: string;
-  handleAdd: (p: Product, area?: string) => void;
+  handleAdd: (p: Product) => void;
   openQuote: (name: string) => void;
 }) => {
   

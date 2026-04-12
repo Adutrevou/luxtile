@@ -71,7 +71,7 @@ const CollectionsPage = () => {
                     </div>
                     <div className="p-8">
                       <h3 className="font-display text-xl mb-2">{col.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-0 max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mb-4 transition-all duration-700 ease-in-out overflow-hidden leading-relaxed">{col.description}</p>
+                      <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-3">{col.description}</p>
                       {col.sizes.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-6">
                           {col.sizes.map(s => (

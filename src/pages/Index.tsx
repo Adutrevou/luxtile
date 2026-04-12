@@ -111,7 +111,7 @@ const Index = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-8">
                       <p className="text-primary-foreground font-display text-xl mb-1">{col.name}</p>
-                      <p className="text-primary-foreground/60 text-sm max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 transition-all duration-700 ease-in-out overflow-hidden">
+                      <p className="text-primary-foreground/60 text-sm mt-1 line-clamp-2">
                         {col.description}
                       </p>
                     </div>

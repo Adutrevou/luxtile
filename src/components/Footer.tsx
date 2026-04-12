@@ -17,7 +17,7 @@ const Footer = () => (
         <div>
           <img src={luxtileLogoWhite} alt="Luxtile Installations" className="h-12 md:h-14 w-auto object-contain mb-4" />
           <p className="text-surface-dark-foreground/60 text-sm leading-relaxed max-w-xs">
-            Premium large format salbs for spaces that demand nothing less than exceptional.
+            Premium large format slabs for spaces that demand nothing less than exceptional.
           </p>
         </div>
         <div>

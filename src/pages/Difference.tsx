@@ -11,7 +11,7 @@ const cards = [
   {
     icon: Maximize2,
     title: "Large Format Slabs",
-    desc: "Offering sizes up to 1200×2400mm for seamless, grout-minimal installations.",
+    desc: "Offering sizes up to 1600×3200mm for seamless, grout-minimal installations.",
   },
   {
     icon: Truck,

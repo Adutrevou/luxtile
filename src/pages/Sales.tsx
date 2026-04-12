@@ -7,6 +7,7 @@ import QuoteModal from '@/components/QuoteModal';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
 import { usePartners } from '@/hooks/usePartners';
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 const benefits = [
   'Competitive direct pricing',

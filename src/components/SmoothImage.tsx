@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 interface SmoothImageProps {
   src: string;
@@ -7,18 +7,46 @@ interface SmoothImageProps {
   loading?: 'lazy' | 'eager';
 }
 
-/** Image component that fades in smoothly once loaded, preventing pop-in jank. */
 const SmoothImage = ({ src, alt, className = '', loading = 'lazy' }: SmoothImageProps) => {
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const onLoad = useCallback(() => setLoaded(true), []);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+
+    if (img.complete && img.naturalWidth > 0) {
+      setLoaded(true);
+      return;
+    }
+
+    const handleLoad = () => setLoaded(true);
+    const handleError = () => setLoaded(true);
+
+    img.addEventListener('load', handleLoad);
+    img.addEventListener('error', handleError);
+
+    return () => {
+      img.removeEventListener('load', handleLoad);
+      img.removeEventListener('error', handleError);
+    };
+  }, [src]);
 
   return (
     <img
+      ref={imgRef}
       src={src}
       alt={alt}
       loading={loading}
-      onLoad={onLoad}
-      className={`${className} transition-opacity duration-500 ease-in-out ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      decoding="async"
+      fetchPriority={loading === 'eager' ? 'high' : 'auto'}
+      onLoad={() => setLoaded(true)}
+      onError={() => setLoaded(true)}
+      className={`${className} transition-opacity duration-300 ease-out ${loaded ? 'opacity-100' : 'opacity-0'}`}
     />
   );
 };

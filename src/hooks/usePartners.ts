@@ -17,10 +17,21 @@ export interface Partner {
 type PartnerInsert = Omit<Partner, 'id' | 'created_at' | 'updated_at'>;
 type PartnerUpdate = Partial<PartnerInsert>;
 
+const withAssetVersion = (rawUrl: string, version: string) => {
+  try {
+    const url = new URL(rawUrl);
+    url.searchParams.set('v', version);
+    return url.toString();
+  } catch {
+    const separator = rawUrl.includes('?') ? '&' : '?';
+    return `${rawUrl}${separator}v=${encodeURIComponent(version)}`;
+  }
+};
+
 const mapPartner = (row: any): Partner => ({
   id: row.id,
   name: row.name,
-  logo_url: row.logo_url,
+  logo_url: row.logo_url ? withAssetVersion(row.logo_url, row.updated_at || row.created_at || 'static') : null,
   display_section_value: row.display_section_value,
   description: row.description || '',
   sort_order: row.sort_order || 0,
@@ -42,9 +53,11 @@ export const usePartners = () => {
       if (error) throw error;
       return (data || []).map(mapPartner);
     },
-    staleTime: 60_000,
+    staleTime: 0,
     gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };
 

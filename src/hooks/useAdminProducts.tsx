@@ -113,9 +113,14 @@ export const useAdminProducts = () => {
   const addMutation = useMutation({
     mutationFn: async (product: ProductInsert) => {
       await ensureSession();
+      // Trim display_section values to prevent PostgREST matching issues
+      const cleaned = {
+        ...product,
+        display_section: product.display_section?.map((s: string) => s.trim()) || [],
+      };
       const { data, error } = await supabase
         .from('products')
-        .insert(product)
+        .insert(cleaned)
         .select()
         .single();
       if (error) throw error;
@@ -134,9 +139,13 @@ export const useAdminProducts = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ProductUpdate }) => {
       await ensureSession();
+      const cleaned = {
+        ...updates,
+        ...(updates.display_section && { display_section: updates.display_section.map((s: string) => s.trim()) }),
+      };
       const { data, error } = await supabase
         .from('products')
-        .update(updates)
+        .update(cleaned)
         .eq('id', id)
         .select()
         .single();

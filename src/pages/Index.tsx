@@ -19,7 +19,7 @@ const Index = () => {
   const { data: featured = [], isError: featErr, refetch: featRefetch } = useFeaturedProducts();
 
   // Live updates when admin changes products
-  useRealtimeSubscription('products', [['products']]);
+  useRealtimeSubscription("products", [["products"]]);
 
   return (
     <PageTransition>
@@ -107,7 +107,7 @@ const Index = () => {
                         src={coverImg}
                         alt={col.name}
                         className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
-                        loading={i < 3 ? 'eager' : 'lazy'}
+                        loading={i < 3 ? "eager" : "lazy"}
                       />
                     ) : (
                       <div className="w-full h-full bg-muted" />
@@ -115,9 +115,7 @@ const Index = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-8">
                       <p className="text-primary-foreground font-display text-xl mb-1">{col.name}</p>
-                      <p className="text-primary-foreground/60 text-sm mt-1 line-clamp-2">
-                        {col.description}
-                      </p>
+                      <p className="text-primary-foreground/60 text-sm mt-1 line-clamp-2">{col.description}</p>
                     </div>
                   </Link>
                 </SectionReveal>
@@ -173,7 +171,7 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {[
             { title: "Premium Quality", desc: "Every slab rigorously tested to meet international standards." },
-            { title: "Large Format", desc: "Sizes up to 1200×2400mm for seamless installations." },
+            { title: "Large Format", desc: "Sizes up to 1600×3200mm for seamless installations." },
             { title: "Expert Guidance", desc: "Specialists to help you choose the perfect tile for your vision." },
           ].map((item, i) => (
             <SectionReveal key={item.title} delay={i * 0.15} className="border-l border-border pl-8">

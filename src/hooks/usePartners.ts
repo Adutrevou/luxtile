@@ -53,10 +53,10 @@ export const usePartners = () => {
       if (error) throw error;
       return (data || []).map(mapPartner);
     },
-    staleTime: 0,
+    staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 };
@@ -79,6 +79,11 @@ export const useAdminPartners = () => {
     refetchOnWindowFocus: true,
   });
 
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-partners'] });
+    queryClient.invalidateQueries({ queryKey: ['partners'] });
+  };
+
   const addMutation = useMutation({
     mutationFn: async (partner: PartnerInsert) => {
       const { data, error } = await supabase
@@ -89,11 +94,7 @@ export const useAdminPartners = () => {
       if (error) throw error;
       return mapPartner(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-partners'] });
-      queryClient.invalidateQueries({ queryKey: ['partners'] });
-      toast.success('Partner added');
-    },
+    onSuccess: () => { invalidateAll(); toast.success('Partner added'); },
     onError: (err: any) => toast.error(err.message || 'Failed to add partner'),
   });
 
@@ -108,11 +109,7 @@ export const useAdminPartners = () => {
       if (error) throw error;
       return mapPartner(data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-partners'] });
-      queryClient.invalidateQueries({ queryKey: ['partners'] });
-      toast.success('Partner updated');
-    },
+    onSuccess: () => { invalidateAll(); toast.success('Partner updated'); },
     onError: (err: any) => toast.error(err.message || 'Failed to update partner'),
   });
 
@@ -125,11 +122,7 @@ export const useAdminPartners = () => {
       if (error) throw error;
       return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-partners'] });
-      queryClient.invalidateQueries({ queryKey: ['partners'] });
-      toast.success('Partner archived');
-    },
+    onSuccess: () => { invalidateAll(); toast.success('Partner archived'); },
     onError: (err: any) => toast.error(err.message || 'Failed to archive partner'),
   });
 

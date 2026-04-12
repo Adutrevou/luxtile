@@ -46,7 +46,6 @@ const mapRow = (row: any): AdminProduct => ({
 const ensureSession = async () => {
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error || !session) {
-    // Try to refresh
     const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
     if (refreshError || !refreshData.session) {
       throw new Error('Your session has expired. Please sign in again.');
@@ -102,10 +101,14 @@ export const useAdminProducts = () => {
       if (error) throw error;
       return (data || []).map(mapRow);
     },
-    staleTime: 0,          // Always refetch on mount — admin needs fresh data
+    staleTime: 0,
     gcTime: 2 * 60_000,
     refetchOnWindowFocus: true,
   });
+
+  const invalidatePublic = () => {
+    queryClient.invalidateQueries({ queryKey: ['products'] });
+  };
 
   const addMutation = useMutation({
     mutationFn: async (product: ProductInsert) => {
@@ -122,7 +125,7 @@ export const useAdminProducts = () => {
       queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
         old ? [newProduct, ...old] : [newProduct]
       );
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      invalidatePublic();
       toast.success('Product added successfully');
     },
     onError: (err: any) => toast.error(err.message || 'Failed to add product'),
@@ -144,7 +147,7 @@ export const useAdminProducts = () => {
       queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
         old ? old.map((p) => (p.id === updated.id ? updated : p)) : [updated]
       );
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      invalidatePublic();
       toast.success('Product updated successfully');
     },
     onError: (err: any) => toast.error(err.message || 'Failed to update product'),
@@ -164,22 +167,17 @@ export const useAdminProducts = () => {
       queryClient.setQueryData(['admin-products'], (old: AdminProduct[] | undefined) =>
         old ? old.map((p) => (p.id === id ? { ...p, status: 'inactive' } : p)) : []
       );
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      invalidatePublic();
       toast.success('Product archived (hidden from site)');
     },
     onError: (err: any) => toast.error(err.message || 'Failed to archive product'),
   });
-
-  const addProduct = useCallback((product: ProductInsert) => addMutation.mutateAsync(product), [addMutation]);
-  const updateProduct = useCallback((id: string, updates: ProductUpdate) => updateMutation.mutateAsync({ id, updates }), [updateMutation]);
-  const deleteProduct = useCallback((id: string) => archiveMutation.mutateAsync(id), [archiveMutation]);
 
   // Parallel image upload with compression — always outputs .jpg
   const uploadImages = useCallback(async (files: File[]): Promise<string[]> => {
     await ensureSession();
     const uploads = files.map(async (file) => {
       const compressed = await compressImage(file);
-      // Always use .jpg since compressImage converts to JPEG
       const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
       const { error } = await supabase.storage.from('product_images').upload(path, compressed, {
         contentType: 'image/jpeg',
@@ -188,7 +186,6 @@ export const useAdminProducts = () => {
       });
       if (error) throw error;
       const { data } = supabase.storage.from('product_images').getPublicUrl(path);
-      // Append cache-buster so the browser always fetches the fresh version
       return `${data.publicUrl}?t=${Date.now()}`;
     });
     return Promise.all(uploads);
@@ -202,7 +199,6 @@ export const useAdminProducts = () => {
   const deleteImage = useCallback(async (url: string) => {
     const raw = url.split('/product_images/')[1];
     if (raw) {
-      // Strip cache-buster query params (e.g. ?t=123456) before deleting from storage
       const path = raw.split('?')[0];
       await supabase.storage.from('product_images').remove([path]);
     }
@@ -213,9 +209,9 @@ export const useAdminProducts = () => {
     isLoading,
     error,
     refetch,
-    addProduct,
-    updateProduct,
-    deleteProduct,
+    addProduct: addMutation.mutateAsync,
+    updateProduct: (id: string, updates: ProductUpdate) => updateMutation.mutateAsync({ id, updates }),
+    deleteProduct: archiveMutation.mutateAsync,
     uploadImage,
     uploadImages,
     deleteImage,

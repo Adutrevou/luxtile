@@ -1,5 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-// Quote basket context v2
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
 export interface QuoteBasketItem {
   id: string;
@@ -26,6 +25,9 @@ export const QuoteBasketProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<QuoteBasketItem[]>([]);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
+  // O(1) lookup set derived from items
+  const basketIds = useMemo(() => new Set(items.map((i) => i.id)), [items]);
+
   const addItem = useCallback((item: QuoteBasketItem) => {
     setItems((prev) => {
       if (prev.some((i) => i.id === item.id)) return prev;
@@ -39,15 +41,18 @@ export const QuoteBasketProvider = ({ children }: { children: ReactNode }) => {
 
   const clearBasket = useCallback(() => setItems([]), []);
 
-  const isInBasket = useCallback((id: string) => items.some((i) => i.id === id), [items]);
+  const isInBasket = useCallback((id: string) => basketIds.has(id), [basketIds]);
 
   const openQuoteModal = useCallback(() => setIsQuoteOpen(true), []);
   const closeQuoteModal = useCallback(() => setIsQuoteOpen(false), []);
 
+  const value = useMemo(
+    () => ({ items, addItem, removeItem, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal }),
+    [items, addItem, removeItem, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal]
+  );
+
   return (
-    <QuoteBasketContext.Provider
-      value={{ items, addItem, removeItem, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal }}
-    >
+    <QuoteBasketContext.Provider value={value}>
       {children}
     </QuoteBasketContext.Provider>
   );

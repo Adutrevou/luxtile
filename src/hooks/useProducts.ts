@@ -65,7 +65,6 @@ const fetchProducts = async (section?: string): Promise<Product[]> => {
     console.error('[useProducts] fetch failed', section, error);
     throw error;
   }
-  console.log('[useProducts]', section || 'all', 'returned', data?.length, 'rows');
   return (data || []).map(mapProduct);
 };
 
@@ -73,10 +72,10 @@ export const useProducts = (section?: string) => {
   return useQuery({
     queryKey: ['products', section || 'all'],
     queryFn: () => fetchProducts(section),
-    staleTime: 0,
+    staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 };
@@ -96,10 +95,10 @@ export const useFeaturedProducts = () => {
       if (error) throw error;
       return (data || []).map(mapProduct);
     },
-    staleTime: 0,
+    staleTime: 60_000,
     gcTime: 5 * 60_000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 };

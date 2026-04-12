@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SmoothImage from '@/components/SmoothImage';
 import { Check as CheckIcon } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
@@ -39,7 +40,7 @@ const SalesPage = () => {
       <SectionReveal delay={index * 0.15}>
         <div className="group relative overflow-hidden aspect-[3/4]">
           {coverImg ? (
-            <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]" loading="lazy" />
+            <SmoothImage src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]" loading={index < 3 ? 'eager' : 'lazy'} />
           ) : (
             <div className="w-full h-full bg-muted" />
           )}

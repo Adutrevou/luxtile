@@ -1,0 +1,34 @@
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+
+/**
+ * Subscribe to Postgres changes on a table and invalidate
+ * the matching React-Query cache keys on any INSERT/UPDATE/DELETE.
+ */
+export const useRealtimeSubscription = (
+  tableName: string,
+  queryKeys: string[][],
+) => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`realtime-${tableName}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: tableName },
+        () => {
+          queryKeys.forEach((key) => {
+            queryClient.invalidateQueries({ queryKey: key });
+          });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableName]);
+};

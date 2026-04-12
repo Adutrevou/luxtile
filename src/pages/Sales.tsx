@@ -163,6 +163,10 @@ const SalesPage = () => {
   const [selectedCollection, setSelectedCollection] = useState('');
   const { addItem, isInBasket } = useQuoteBasket();
 
+  // Realtime: auto-refresh when products or partners change in DB
+  useRealtimeSubscription('products', [['products']]);
+  useRealtimeSubscription('partners', [['partners']]);
+
   const { data: bestSellers = [], isError: bsErr, refetch: bsRefetch } = useProductsBySection('Best Sellers');
   const { data: saleProducts = [], isError: spErr, refetch: spRefetch } = useProductsBySection('On Sale');
   const { data: partners = [] } = usePartners();

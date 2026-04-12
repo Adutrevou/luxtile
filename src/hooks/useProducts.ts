@@ -19,6 +19,17 @@ export interface Product {
   updated_at: string;
 }
 
+const withAssetVersion = (rawUrl: string, version: string) => {
+  try {
+    const url = new URL(rawUrl);
+    url.searchParams.set('v', version);
+    return url.toString();
+  } catch {
+    const separator = rawUrl.includes('?') ? '&' : '?';
+    return `${rawUrl}${separator}v=${encodeURIComponent(version)}`;
+  }
+};
+
 const mapProduct = (row: any): Product => ({
   id: row.id,
   name: row.name,
@@ -28,7 +39,7 @@ const mapProduct = (row: any): Product => ({
   tags: row.tags || [],
   sizes: row.sizes || [],
   display_section: row.display_section || [],
-  images: row.images || [],
+  images: (row.images || []).map((image: string) => withAssetVersion(image, row.updated_at || row.created_at || 'static')),
   cover_index: row.cover_index || 0,
   status: row.status,
   featured: row.featured || false,
@@ -62,9 +73,11 @@ export const useProducts = (section?: string) => {
   return useQuery({
     queryKey: ['products', section || 'all'],
     queryFn: () => fetchProducts(section),
-    staleTime: 60_000,
+    staleTime: 0,
     gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };
 
@@ -83,8 +96,10 @@ export const useFeaturedProducts = () => {
       if (error) throw error;
       return (data || []).map(mapProduct);
     },
-    staleTime: 60_000,
+    staleTime: 0,
     gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };

@@ -139,9 +139,13 @@ export const useAdminProducts = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ProductUpdate }) => {
       await ensureSession();
+      const cleaned = {
+        ...updates,
+        ...(updates.display_section && { display_section: updates.display_section.map((s: string) => s.trim()) }),
+      };
       const { data, error } = await supabase
         .from('products')
-        .update(updates)
+        .update(cleaned)
         .eq('id', id)
         .select()
         .single();

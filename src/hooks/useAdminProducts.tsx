@@ -183,7 +183,7 @@ export const useAdminProducts = () => {
       const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
       const { error } = await supabase.storage.from('product_images').upload(path, compressed, {
         contentType: 'image/jpeg',
-        cacheControl: '60',
+        cacheControl: '31536000',
         upsert: true,
       });
       if (error) throw error;

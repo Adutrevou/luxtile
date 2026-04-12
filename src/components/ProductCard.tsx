@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import SmoothImage from '@/components/SmoothImage';
 import { Check } from 'lucide-react';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import type { Product } from '@/hooks/useProducts';
@@ -26,11 +27,10 @@ const ProductCard = ({ product, onRequestQuote }: ProductCardProps) => {
     <div className="bg-background group relative overflow-hidden">
       <div className="aspect-[3/4] overflow-hidden">
         {coverImage ? (
-          <img
+          <SmoothImage
             src={coverImage}
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
-            loading="lazy"
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">

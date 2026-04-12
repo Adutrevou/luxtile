@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import SmoothImage from '@/components/SmoothImage';
 import { Check } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
@@ -7,6 +7,7 @@ import QuoteModal from '@/components/QuoteModal';
 import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 const CollectionsPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
@@ -14,19 +15,22 @@ const CollectionsPage = () => {
   const { addItem, isInBasket } = useQuoteBasket();
   const { data: products = [], isLoading, isError, refetch } = useProductsBySection('Collection');
 
-  const openQuote = (name: string) => {
+  // Live updates when admin changes products
+  useRealtimeSubscription('products', [['products']]);
+
+  const openQuote = useCallback((name: string) => {
     setSelectedCollection(name);
     setQuoteOpen(true);
-  };
+  }, []);
 
-  const handleAddToBasket = (p: Product) => {
+  const handleAddToBasket = useCallback((p: Product) => {
     addItem({
       id: p.id,
       name: p.name,
       image: p.images[p.cover_index] || '',
       category: p.category,
     });
-  };
+  }, [addItem]);
 
   return (
     <PageTransition>

@@ -9,6 +9,7 @@ import QuoteModal from "@/components/QuoteModal";
 import heroImg from "@/assets/hero-calacatta.jpg";
 import slabNero from "@/assets/slab-nero.jpg";
 import { useFeaturedProducts } from "@/hooks/useProducts";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import inspKitchen from "@/assets/insp-kitchen.jpg";
 import inspLiving from "@/assets/insp-living.jpg";
 import inspLobby from "@/assets/insp-lobby.jpg";
@@ -16,6 +17,9 @@ import inspLobby from "@/assets/insp-lobby.jpg";
 const Index = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const { data: featured = [], isError: featErr, refetch: featRefetch } = useFeaturedProducts();
+
+  // Live updates when admin changes products
+  useRealtimeSubscription('products', [['products']]);
 
   return (
     <PageTransition>

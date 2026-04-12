@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SmoothImage from '@/components/SmoothImage';
 import { Check } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
@@ -58,11 +59,11 @@ const CollectionsPage = () => {
                   <div className="bg-background group relative overflow-hidden">
                     <div className="aspect-[3/4] overflow-hidden">
                       {coverImg ? (
-                        <img
+                        <SmoothImage
                           src={coverImg}
                           alt={col.name}
                           className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
-                          loading="lazy"
+                          loading={i < 3 ? 'eager' : 'lazy'}
                         />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">No Image</div>

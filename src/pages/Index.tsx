@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SmoothImage from "@/components/SmoothImage";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -98,11 +99,11 @@ const Index = () => {
                 <SectionReveal key={col.id} delay={i * 0.15}>
                   <Link to="/collections" className="group block relative overflow-hidden aspect-[3/4]">
                     {coverImg ? (
-                      <img
+                      <SmoothImage
                         src={coverImg}
                         alt={col.name}
                         className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
-                        loading="lazy"
+                        loading={i < 3 ? 'eager' : 'lazy'}
                       />
                     ) : (
                       <div className="w-full h-full bg-muted" />

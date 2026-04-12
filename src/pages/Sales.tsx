@@ -81,7 +81,7 @@ const SalesPage = () => {
         <div className="bg-background overflow-hidden h-full flex flex-col group">
           <div className="aspect-[16/9] overflow-hidden">
             {coverImg ? (
-              <img src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" loading="lazy" />
+              <SmoothImage src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" />
             ) : (
               <div className="w-full h-full bg-muted" />
             )}

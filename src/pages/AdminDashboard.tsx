@@ -136,8 +136,20 @@ const AdminDashboard = () => {
   };
 
   const removeImage = (idx: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
-    if (coverIndex >= idx && coverIndex > 0) setCoverIndex((c) => c - 1);
+    setImages((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      // Fix cover index after removal
+      if (next.length === 0) {
+        setCoverIndex(0);
+      } else if (idx === coverIndex) {
+        // Removed the cover — default to first image
+        setCoverIndex(0);
+      } else if (idx < coverIndex) {
+        // Removed before cover — shift index down
+        setCoverIndex((c) => c - 1);
+      }
+      return next;
+    });
   };
 
   const toggleSection = (section: string) => {

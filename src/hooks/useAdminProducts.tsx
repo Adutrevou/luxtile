@@ -200,8 +200,10 @@ export const useAdminProducts = () => {
   }, [uploadImages]);
 
   const deleteImage = useCallback(async (url: string) => {
-    const path = url.split('/product_images/')[1];
-    if (path) {
+    const raw = url.split('/product_images/')[1];
+    if (raw) {
+      // Strip cache-buster query params (e.g. ?t=123456) before deleting from storage
+      const path = raw.split('?')[0];
       await supabase.storage.from('product_images').remove([path]);
     }
   }, []);

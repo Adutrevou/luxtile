@@ -183,11 +183,13 @@ export const useAdminProducts = () => {
       const path = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`;
       const { error } = await supabase.storage.from('product_images').upload(path, compressed, {
         contentType: 'image/jpeg',
-        cacheControl: '3600',
+        cacheControl: '60',
+        upsert: true,
       });
       if (error) throw error;
       const { data } = supabase.storage.from('product_images').getPublicUrl(path);
-      return data.publicUrl;
+      // Append cache-buster so the browser always fetches the fresh version
+      return `${data.publicUrl}?t=${Date.now()}`;
     });
     return Promise.all(uploads);
   }, []);

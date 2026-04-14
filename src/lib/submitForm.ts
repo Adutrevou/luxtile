@@ -1,4 +1,4 @@
-const FORM_API = 'https://154.66.196.229/send-form';
+const FORM_API = 'https://luxtile.co.za/send-form';
 
 interface SubmitFormPayload {
   formName: string;

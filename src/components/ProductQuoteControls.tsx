@@ -51,11 +51,10 @@ const ProductQuoteControls = ({
 
   const handleRequestQuote = useCallback(() => {
     if (!selectionReady || !onRequestQuote) return;
-    if (!selectedAlreadyInBasket) {
-      addItem(buildBasketItem());
-    }
+    addItem(buildBasketItem());
+    setQuantity(1);
     onRequestQuote();
-  }, [selectionReady, onRequestQuote, selectedAlreadyInBasket, addItem, buildBasketItem]);
+  }, [selectionReady, onRequestQuote, addItem, buildBasketItem]);
 
   const isLight = variant === 'light';
   const selectCls = isLight

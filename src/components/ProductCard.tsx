@@ -39,17 +39,10 @@ const ProductCard = ({ product, onRequestQuote }: ProductCardProps) => {
             ))}
           </div>
         )}
-        <div className="flex flex-col gap-3">
-          <ProductQuoteControls product={product} />
-          {onRequestQuote && (
-            <button
-              onClick={() => onRequestQuote(product.name)}
-              className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em] w-fit"
-            >
-              Request Quote
-            </button>
-          )}
-        </div>
+        <ProductQuoteControls
+          product={product}
+          onRequestQuote={onRequestQuote ? () => onRequestQuote(product.name) : undefined}
+        />
       </div>
     </div>
   );

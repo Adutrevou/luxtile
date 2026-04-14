@@ -4,7 +4,6 @@ import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import ProductQuoteControls from '@/components/ProductQuoteControls';
-import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
 import { usePartners } from '@/hooks/usePartners';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
@@ -16,8 +15,6 @@ const benefits = [
   'Bulk project discounts available',
   'Specialist delivery nationwide',
 ];
-
-/* ── Overlay card with quote controls ── */
 
 const ProductOverlayCard = memo(({ product, index, onQuote }: {
   product: Product; index: number; onQuote: (name: string) => void;
@@ -35,18 +32,17 @@ const ProductOverlayCard = memo(({ product, index, onQuote }: {
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
           <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
           <p className="text-primary-foreground/60 text-sm mb-4 line-clamp-3">{product.description}</p>
-          <ProductQuoteControls product={product} variant="light" />
-          <button onClick={() => onQuote(product.name)} className="mt-3 bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine">
-            Request Quote
-          </button>
+          <ProductQuoteControls
+            product={product}
+            variant="light"
+            onRequestQuote={() => onQuote(product.name)}
+          />
         </div>
       </div>
     </SectionReveal>
   );
 });
 ProductOverlayCard.displayName = 'ProductOverlayCard';
-
-/* ── Partner / inline product card ── */
 
 const PartnerProductCard = memo(({ product, index, onQuote }: {
   product: Product; index: number; onQuote: (name: string) => void;
@@ -66,18 +62,13 @@ const PartnerProductCard = memo(({ product, index, onQuote }: {
         <p className="text-sm text-muted-foreground mb-4 line-clamp-4">{product.description}</p>
         {product.sizes.length > 0 && <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>}
         <div className="mt-auto">
-          <ProductQuoteControls product={product} />
-          <button onClick={() => onQuote(product.name)} className="mt-3 bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]">
-            Request Quote
-          </button>
+          <ProductQuoteControls product={product} onRequestQuote={() => onQuote(product.name)} />
         </div>
       </div>
     </div>
   );
 });
 PartnerProductCard.displayName = 'PartnerProductCard';
-
-/* ── Partner section ── */
 
 const PartnerSection = memo(({ partner, openQuote }: {
   partner: { id: string; name: string; logo_url: string | null; display_section_value: string; description: string };
@@ -119,8 +110,6 @@ const PartnerSection = memo(({ partner, openQuote }: {
 });
 PartnerSection.displayName = 'PartnerSection';
 
-/* ── Main page ── */
-
 const SalesPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
@@ -139,7 +128,6 @@ const SalesPage = () => {
 
   return (
     <PageTransition>
-      {/* Hero */}
       <section className="pt-40 pb-20 section-padding">
         <SectionReveal>
           <p className="label-caps mb-4">Direct Sales</p>
@@ -161,7 +149,6 @@ const SalesPage = () => {
         </SectionReveal>
       </section>
 
-      {/* Best Sellers */}
       {(bestSellers.length > 0 || bsErr) && (
         <section className="section-padding pb-28">
           <SectionReveal>
@@ -180,7 +167,6 @@ const SalesPage = () => {
         </section>
       )}
 
-      {/* On Sale Products */}
       {(saleProducts.length > 0 || spErr) && (
         <section className="section-padding pb-28">
           <SectionReveal>
@@ -201,12 +187,10 @@ const SalesPage = () => {
         </section>
       )}
 
-      {/* Dynamic Partner Sections */}
       {partners.map((partner) => (
         <PartnerSection key={partner.id} partner={partner} openQuote={openQuote} />
       ))}
 
-      {/* CTA */}
       <section className="bg-surface-dark text-surface-dark-foreground section-padding py-28 text-center">
         <SectionReveal>
           <p className="label-caps mb-4">Trusted by Leading South African Projects</p>

@@ -26,9 +26,11 @@ const CollectionsPage = () => {
   const handleAddToBasket = useCallback((p: Product) => {
     addItem({
       id: p.id,
+      productId: p.id,
       name: p.name,
       image: p.images[p.cover_index] || '',
       category: p.category,
+      quantity: 1,
     });
   }, [addItem]);
 

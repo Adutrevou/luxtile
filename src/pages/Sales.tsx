@@ -177,7 +177,7 @@ const SalesPage = () => {
   }, []);
 
   const handleAdd = useCallback((p: Product) => {
-    addItem({ id: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category });
+    addItem({ id: p.id, productId: p.id, name: p.name, image: p.images[p.cover_index] || '', category: p.category, quantity: 1 });
   }, [addItem]);
 
   return (

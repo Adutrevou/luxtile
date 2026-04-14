@@ -48,7 +48,7 @@ const CollectionsPage = () => {
               return (
                 <SectionReveal key={col.id} delay={i * 0.1}>
                   <div className="bg-background group relative overflow-hidden h-full flex flex-col">
-                    <div className="aspect-[3/4] overflow-hidden">
+                    <div className="aspect-[3/4] overflow-hidden shrink-0">
                       {coverImg ? (
                         <SmoothImage
                           src={coverImg}
@@ -60,9 +60,9 @@ const CollectionsPage = () => {
                         <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">No Image</div>
                       )}
                     </div>
-                    <div className="p-8">
+                    <div className="p-8 flex flex-col flex-1">
                       <h3 className="font-display text-xl mb-2">{col.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-3">{col.description}</p>
+                      <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{col.description}</p>
                       {col.sizes.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-6">
                           {col.sizes.map((s) => (

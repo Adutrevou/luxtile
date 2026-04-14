@@ -277,6 +277,9 @@ const AdminDashboard = () => {
           <span className="text-white/30 text-sm">Admin</span>
         </div>
         <div className="flex items-center gap-4">
+          <button onClick={() => setView(view === 'option-sets' ? 'list' : 'option-sets')} className={`flex items-center gap-2 text-sm transition-colors ${view === 'option-sets' ? 'text-accent' : 'text-white/50 hover:text-white'}`}>
+            <Layers size={16} /> Option Sets
+          </button>
           <button onClick={() => { setView(view === 'partners' ? 'list' : 'partners'); resetPartnerForm(); }} className={`flex items-center gap-2 text-sm transition-colors ${view === 'partners' ? 'text-accent' : 'text-white/50 hover:text-white'}`}>
             <Handshake size={16} /> Partners
           </button>

@@ -1,7 +1,9 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2 } from 'lucide-react';
 import { useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
+import { submitForm } from '@/lib/submitForm';
+import { toast } from 'sonner';
 
 interface QuoteModalProps {
   open: boolean;
@@ -13,16 +15,63 @@ interface QuoteModalProps {
 const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
   ({ open, onClose, collectionName, showSalesFields }, ref) => {
     const [submitted, setSubmitted] = useState(false);
+    const [sending, setSending] = useState(false);
     const { items, removeItem, clearBasket } = useQuoteBasket();
+    const formRef = useRef<HTMLFormElement>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        clearBasket();
-        onClose();
-      }, 2000);
+      if (sending) return;
+
+      const form = formRef.current;
+      if (!form) return;
+
+      // Honeypot check
+      const honeypot = (form.elements.namedItem('website') as HTMLInputElement)?.value;
+      if (honeypot) return;
+
+      const get = (name: string) => (form.elements.namedItem(name) as HTMLInputElement)?.value?.trim() ?? '';
+
+      const nameVal = get('name');
+      const emailVal = get('email');
+
+      if (!nameVal || !emailVal) return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        toast.error('Please enter a valid email address');
+        return;
+      }
+
+      const productNames = items.map(i => i.name).join(', ');
+
+      const fields: Record<string, string> = {
+        name: nameVal,
+        email: emailVal,
+        phone: get('phone'),
+        projectType: get('projectType'),
+        quantity: get('quantity'),
+        deliveryLocation: get('deliveryLocation'),
+        message: get('message'),
+        purchaseInterest: (form.elements.namedItem('purchase-interest') as HTMLInputElement)?.checked ? 'Yes' : 'No',
+        products: productNames || collectionName || '',
+      };
+
+      // Remove empty fields
+      Object.keys(fields).forEach(k => { if (!fields[k]) delete fields[k]; });
+
+      setSending(true);
+      try {
+        await submitForm({ formName: 'Request a Quote', fields });
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          clearBasket();
+          onClose();
+        }, 2500);
+      } catch {
+        toast.error('Something went wrong. Please try again.');
+      } finally {
+        setSending(false);
+      }
     };
 
     const handleClose = () => {
@@ -62,10 +111,13 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
                 {submitted ? (
                   <div className="text-center py-20">
                     <p className="font-display text-2xl mb-2">Thank You</p>
-                    <p className="text-muted-foreground">We'll be in touch shortly.</p>
+                    <p className="text-muted-foreground">Thanks, we've received your enquiry.</p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+                    {/* Honeypot */}
+                    <input type="text" name="website" autoComplete="off" tabIndex={-1} className="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
+
                     {(displayItems.length > 0 || hasStandalone) && (
                       <div>
                         <label className="label-caps block mb-3">Selected Products</label>
@@ -101,19 +153,19 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
 
                     <div>
                       <label className="label-caps block mb-2">Name</label>
-                      <input required type="text" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
+                      <input required type="text" name="name" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Email</label>
-                      <input required type="email" maxLength={255} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
+                      <input required type="email" name="email" maxLength={255} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Phone</label>
-                      <input type="tel" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
+                      <input type="tel" name="phone" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Project Type</label>
-                      <select className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors">
+                      <select name="projectType" className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors">
                         <option value="">Select</option>
                         <option>Residential</option>
                         <option>Commercial</option>
@@ -123,22 +175,26 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Quantity (m²)</label>
-                      <input type="text" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="Estimated area" />
+                      <input type="text" name="quantity" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="Estimated area" />
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Delivery Location</label>
-                      <input type="text" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="City / Province" />
+                      <input type="text" name="deliveryLocation" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="City / Province" />
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Message</label>
-                      <textarea maxLength={1000} rows={4} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors resize-none" />
+                      <textarea name="message" maxLength={1000} rows={4} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors resize-none" />
                     </div>
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" id="purchase-interest" className="accent-accent" />
+                      <input type="checkbox" id="purchase-interest" name="purchase-interest" className="accent-accent" />
                       <label htmlFor="purchase-interest" className="text-sm text-muted-foreground">Interested in direct purchase</label>
                     </div>
-                    <button type="submit" className="w-full bg-accent text-accent-foreground py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine mt-4 transition-all hover:tracking-[0.19em]">
-                      Submit Request{displayItems.length > 1 ? ` (${displayItems.length} Products)` : ''}
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      className={`w-full bg-accent text-accent-foreground py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine mt-4 transition-all ${sending ? 'opacity-70 cursor-not-allowed' : 'hover:tracking-[0.19em]'}`}
+                    >
+                      {sending ? 'Sending…' : `Submit Request${displayItems.length > 1 ? ` (${displayItems.length} Products)` : ''}`}
                     </button>
                   </form>
                 )}

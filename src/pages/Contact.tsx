@@ -4,6 +4,8 @@ import { MapPin, Phone, Mail, ChevronRight, ChevronLeft, Check, Upload, X } from
 import PageTransition from "@/components/PageTransition";
 import SectionReveal from "@/components/SectionReveal";
 import { Progress } from "@/components/ui/progress";
+import { submitForm } from "@/lib/submitForm";
+import { toast } from "sonner";
 
 const STEPS = ["Project Type", "Style", "Inspiration", "Budget", "Details"];
 
@@ -37,6 +39,8 @@ const ContactPage = () => {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   const [projectType, setProjectType] = useState("");
   const [style, setStyle] = useState("");
@@ -53,14 +57,36 @@ const ContactPage = () => {
     if (step === 1) return !!style;
     if (step === 2) return true; // optional
     if (step === 3) return !!budget;
-    if (step === 4) return name.trim() && email.trim();
+    if (step === 4) return name.trim() && email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     return false;
   };
 
-  const next = () => {
-    if (!canNext()) return;
+  const next = async () => {
+    if (!canNext() || sending) return;
     if (step === 4) {
-      setSubmitted(true);
+      // Honeypot
+      if (honeypot) return;
+
+      setSending(true);
+      try {
+        const fields: Record<string, string> = {
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          projectType,
+          style,
+          budget,
+          inspiration: fileName || '',
+        };
+        Object.keys(fields).forEach(k => { if (!fields[k]) delete fields[k]; });
+
+        await submitForm({ formName: 'Contact Us', fields });
+        setSubmitted(true);
+      } catch {
+        toast.error('Something went wrong. Please try again.');
+      } finally {
+        setSending(false);
+      }
       return;
     }
     setDir(1);
@@ -140,11 +166,14 @@ const ContactPage = () => {
                   </div>
                   <p className="font-display text-3xl mb-3">Thank You</p>
                   <p className="text-muted-foreground max-w-xs mx-auto">
-                    We'll be in touch within 24–48 hours with a tailored recommendation for your project.
+                    Thanks, we've received your enquiry. We'll be in touch within 24–48 hours.
                   </p>
                 </motion.div>
               ) : (
                 <>
+                  {/* Honeypot */}
+                  <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} autoComplete="off" tabIndex={-1} className="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
+
                   {/* Progress */}
                   <div className="mb-8">
                     <div className="flex justify-between items-center mb-3">
@@ -370,14 +399,14 @@ const ContactPage = () => {
                     <button
                       type="button"
                       onClick={next}
-                      disabled={!canNext()}
+                      disabled={!canNext() || sending}
                       className={`flex items-center gap-2 px-8 py-3 text-sm tracking-[0.12em] uppercase font-medium transition-all gold-shine ${
-                        canNext()
+                        canNext() && !sending
                           ? "bg-accent text-accent-foreground hover:tracking-[0.16em]"
                           : "bg-muted text-muted-foreground cursor-not-allowed"
                       }`}
                     >
-                      {step === 4 ? "Submit" : "Continue"}
+                      {step === 4 ? (sending ? "Sending…" : "Submit") : "Continue"}
                       {step < 4 && <ChevronRight size={16} />}
                     </button>
                   </div>

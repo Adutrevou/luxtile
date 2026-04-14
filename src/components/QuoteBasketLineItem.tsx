@@ -9,12 +9,7 @@ interface QuoteBasketLineItemProps {
   onUpdateSize: (id: string, sizeThickness: string) => void;
 }
 
-const QuoteBasketLineItem = ({
-  item,
-  onRemove,
-  onUpdateQuantity,
-  onUpdateSize,
-}: QuoteBasketLineItemProps) => {
+const QuoteBasketLineItem = ({ item, onRemove, onUpdateQuantity, onUpdateSize }: QuoteBasketLineItemProps) => {
   const sizeOptions = useOptionSetItems(item.optionSetId);
   const hasSizeOptions = sizeOptions.length > 0;
 

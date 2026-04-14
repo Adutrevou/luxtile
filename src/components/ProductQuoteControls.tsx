@@ -1,45 +1,61 @@
-import { memo, useState, useCallback } from 'react';
-import { Check, Minus, Plus } from 'lucide-react';
-import { useQuoteBasket } from '@/context/QuoteBasketContext';
+import { memo, useCallback, useState } from 'react';
+import { Minus, Plus } from 'lucide-react';
+import { buildQuoteBasketItemId, useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
 import { useOptionSetItems } from '@/hooks/useOptionSets';
 import type { Product } from '@/hooks/useProducts';
 
 interface ProductQuoteControlsProps {
   product: Product;
-  variant?: 'light' | 'dark'; // light = white text (overlay cards), dark = default
+  variant?: 'light' | 'dark';
   className?: string;
+  onRequestQuote?: () => void;
+  requestQuoteLabel?: string;
 }
 
-const ProductQuoteControls = ({ product, variant = 'dark', className = '' }: ProductQuoteControlsProps) => {
+const ProductQuoteControls = ({
+  product,
+  variant = 'dark',
+  className = '',
+  onRequestQuote,
+  requestQuoteLabel = 'Request Quote',
+}: ProductQuoteControlsProps) => {
   const { addItem, isInBasket } = useQuoteBasket();
-  const optionSetId = (product as any).option_set_id as string | null;
+  const optionSetId = product.option_set_id;
   const items = useOptionSetItems(optionSetId);
   const hasOptions = items.length > 0;
 
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
 
-  const compositeId = hasOptions ? `${product.id}-${selectedSize}` : product.id;
-  const inBasket = isInBasket(compositeId);
-  const canAdd = hasOptions ? !!selectedSize && !inBasket : !inBasket;
-
+  const compositeId = buildQuoteBasketItemId(product.id, selectedSize);
+  const selectionReady = hasOptions ? !!selectedSize : true;
+  const selectedAlreadyInBasket = selectionReady ? isInBasket(compositeId) : false;
   const coverImage = product.images[product.cover_index] || product.images[0] || '';
 
+  const buildBasketItem = useCallback((): QuoteBasketItem => ({
+    id: compositeId,
+    productId: product.id,
+    name: product.name,
+    image: coverImage,
+    category: product.category,
+    optionSetId: optionSetId || null,
+    sizeThickness: selectedSize || undefined,
+    quantity,
+  }), [compositeId, product.id, product.name, coverImage, product.category, optionSetId, selectedSize, quantity]);
+
   const handleAdd = useCallback(() => {
-    if (!canAdd) return;
-    addItem({
-      id: compositeId,
-      productId: product.id,
-      name: product.name,
-      image: coverImage,
-      category: product.category,
-      sizeThickness: selectedSize || undefined,
-      quantity,
-    });
-    // Reset after adding
-    setSelectedSize('');
+    if (!selectionReady) return;
+    addItem(buildBasketItem());
     setQuantity(1);
-  }, [canAdd, compositeId, product, coverImage, selectedSize, quantity, addItem]);
+  }, [selectionReady, addItem, buildBasketItem]);
+
+  const handleRequestQuote = useCallback(() => {
+    if (!selectionReady || !onRequestQuote) return;
+    if (!selectedAlreadyInBasket) {
+      addItem(buildBasketItem());
+    }
+    onRequestQuote();
+  }, [selectionReady, onRequestQuote, selectedAlreadyInBasket, addItem, buildBasketItem]);
 
   const isLight = variant === 'light';
   const selectCls = isLight
@@ -49,10 +65,15 @@ const ProductQuoteControls = ({ product, variant = 'dark', className = '' }: Pro
     ? 'w-8 h-8 flex items-center justify-center border border-primary-foreground/30 text-primary-foreground/70 hover:text-primary-foreground transition-colors'
     : 'w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-accent transition-colors';
   const qtyTextCls = isLight ? 'text-primary-foreground text-sm w-8 text-center' : 'text-foreground text-sm w-8 text-center';
+  const addButtonCls = isLight
+    ? 'border border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10'
+    : 'border border-border text-foreground hover:border-accent hover:text-accent';
+  const disabledAddButtonCls = isLight
+    ? 'border border-primary-foreground/20 text-primary-foreground/40 cursor-not-allowed'
+    : 'border border-border/50 text-muted-foreground/50 cursor-not-allowed';
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {/* Size & Thickness dropdown */}
       {hasOptions && (
         <select
           value={selectedSize}
@@ -68,9 +89,7 @@ const ProductQuoteControls = ({ product, variant = 'dark', className = '' }: Pro
         </select>
       )}
 
-      {/* Quantity + Add button row */}
       <div className="flex items-center gap-3 flex-wrap">
-        {/* Quantity controls */}
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -89,26 +108,25 @@ const ProductQuoteControls = ({ product, variant = 'dark', className = '' }: Pro
           </button>
         </div>
 
-        {/* Add to Quote button */}
         <button
+          type="button"
           onClick={handleAdd}
-          disabled={!canAdd}
-          className={`flex items-center gap-2 px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all ${
-            inBasket
-              ? isLight
-                ? 'bg-accent/30 text-accent-foreground cursor-default'
-                : 'bg-accent/20 text-accent cursor-default'
-              : !canAdd
-                ? isLight
-                  ? 'border border-primary-foreground/20 text-primary-foreground/40 cursor-not-allowed'
-                  : 'border border-border/50 text-muted-foreground/50 cursor-not-allowed'
-                : isLight
-                  ? 'border border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10'
-                  : 'border border-border text-foreground hover:border-accent hover:text-accent'
-          }`}
+          disabled={!selectionReady}
+          className={`flex items-center gap-2 px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all ${selectionReady ? addButtonCls : disabledAddButtonCls}`}
         >
-          {inBasket ? <><Check size={14} /> Added</> : 'Add to Quote'}
+          {selectedAlreadyInBasket ? 'Add More' : 'Add to Quote'}
         </button>
+
+        {onRequestQuote && (
+          <button
+            type="button"
+            onClick={handleRequestQuote}
+            disabled={!selectionReady}
+            className={`bg-accent text-accent-foreground px-5 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all ${selectionReady ? 'hover:tracking-[0.19em]' : 'opacity-60 cursor-not-allowed'}`}
+          >
+            {requestQuoteLabel}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -70,11 +70,13 @@ const CollectionsPage = () => {
                           ))}
                         </div>
                       )}
-                      <ProductQuoteControls
-                        product={col}
-                        onRequestQuote={() => openQuote(col.name)}
-                        requestQuoteLabel="Request Specification"
-                      />
+                      <div className="mt-auto">
+                        <ProductQuoteControls
+                          product={col}
+                          onRequestQuote={() => openQuote(col.name)}
+                          requestQuoteLabel="Request Specification"
+                        />
+                      </div>
                     </div>
                   </div>
                 </SectionReveal>

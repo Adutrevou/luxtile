@@ -5,7 +5,7 @@ import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import ProductQuoteControls from '@/components/ProductQuoteControls';
-import { useProductsBySection, Product } from '@/hooks/useProducts';
+import { useProductsBySection } from '@/hooks/useProducts';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 const CollectionsPage = () => {
@@ -65,20 +65,16 @@ const CollectionsPage = () => {
                       <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-3">{col.description}</p>
                       {col.sizes.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-6">
-                          {col.sizes.map(s => (
+                          {col.sizes.map((s) => (
                             <span key={s} className="text-xs text-muted-foreground border border-border px-2 py-1">{s}</span>
                           ))}
                         </div>
                       )}
-                      <div className="flex flex-col gap-3">
-                        <ProductQuoteControls product={col} />
-                        <button
-                          onClick={() => openQuote(col.name)}
-                          className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em] w-fit"
-                        >
-                          Request Specification
-                        </button>
-                      </div>
+                      <ProductQuoteControls
+                        product={col}
+                        onRequestQuote={() => openQuote(col.name)}
+                        requestQuoteLabel="Request Specification"
+                      />
                     </div>
                   </div>
                 </SectionReveal>

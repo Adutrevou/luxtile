@@ -1,7 +1,8 @@
-import { forwardRef, useState, useRef } from 'react';
+import { forwardRef, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, Minus, Plus } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useQuoteBasket } from '@/context/QuoteBasketContext';
+import QuoteBasketLineItem from '@/components/QuoteBasketLineItem';
 import { sanitizeFormFields, submitForm } from '@/lib/submitForm';
 import { toast } from 'sonner';
 
@@ -16,7 +17,7 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
   ({ open, onClose, collectionName }, ref) => {
     const [submitted, setSubmitted] = useState(false);
     const [sending, setSending] = useState(false);
-    const { items, removeItem, updateQuantity, clearBasket } = useQuoteBasket();
+    const { items, removeItem, updateQuantity, updateSizeThickness, clearBasket } = useQuoteBasket();
     const formRef = useRef<HTMLFormElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -25,6 +26,12 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
 
       const form = formRef.current;
       if (!form) return;
+
+      const incompleteConfiguredItems = items.filter((item) => item.optionSetId && !item.sizeThickness);
+      if (incompleteConfiguredItems.length > 0) {
+        toast.error('Please select a size & thickness for every item before submitting.');
+        return;
+      }
 
       const formData = new FormData(form);
       const rawFields = Object.fromEntries(
@@ -42,7 +49,6 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
         return;
       }
 
-      // Build product lines with full detail
       const productLines = items.map((item) => {
         let line = `${item.name}`;
         if (item.sizeThickness) line += ` | Size: ${item.sizeThickness}`;
@@ -50,26 +56,25 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
         return line;
       });
 
-      // Add standalone collection name if present
       if (collectionName && !items.some((item) => item.name === collectionName)) {
         productLines.push(collectionName);
       }
 
-      const generatedMessage = productLines.length
-        ? `Products:\n${productLines.join('\n')}`
-        : '';
+      const generatedMessage = productLines.length ? `Products:\n${productLines.join('\n')}` : '';
 
       const fields = sanitizeFormFields({
         ...rawFields,
         message: rawFields.message || generatedMessage || 'Quote request',
         products: productLines.join('; '),
-        // Include detailed item breakdown for the email
-        itemDetails: JSON.stringify(items.map((item) => ({
-          name: item.name,
-          sizeThickness: item.sizeThickness || 'N/A',
-          quantity: item.quantity,
-          category: item.category,
-        }))),
+        itemDetails: JSON.stringify(
+          items.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            sizeThickness: item.sizeThickness || 'N/A',
+            quantity: item.quantity,
+            category: item.category,
+          })),
+        ),
       });
 
       delete fields.website;
@@ -91,10 +96,6 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
       }
     };
 
-    const handleClose = () => {
-      onClose();
-    };
-
     const hasStandalone = collectionName && !items.some((i) => i.name === collectionName);
 
     return (
@@ -106,7 +107,7 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-[100]"
-              onClick={handleClose}
+              onClick={onClose}
             />
             <motion.div
               ref={ref}
@@ -119,7 +120,7 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
               <div className="p-8 md:p-12">
                 <div className="flex items-center justify-between mb-10">
                   <h2 className="font-display text-2xl">Request a Quote</h2>
-                  <button onClick={handleClose} className="text-foreground/50 hover:text-foreground transition-colors">
+                  <button onClick={onClose} className="text-foreground/50 hover:text-foreground transition-colors">
                     <X size={24} />
                   </button>
                 </div>
@@ -131,45 +132,20 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
                   </div>
                 ) : (
                   <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                    {/* Honeypot */}
                     <input type="text" name="website" autoComplete="off" tabIndex={-1} className="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
 
-                    {/* Cart items */}
                     {(items.length > 0 || hasStandalone) && (
                       <div>
                         <label className="label-caps block mb-3">Your Selections</label>
                         <div className="space-y-2">
                           {items.map((item) => (
-                            <div key={item.id} className="flex items-center gap-3 border border-border p-3">
-                              <img src={item.image} alt={item.name} className="w-12 h-12 object-cover shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{item.name}</p>
-                                {item.sizeThickness && (
-                                  <p className="text-xs text-muted-foreground">{item.sizeThickness}</p>
-                                )}
-                              </div>
-                              {/* Quantity controls */}
-                              <div className="flex items-center gap-1 shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  className="w-7 h-7 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
-                                >
-                                  <Minus size={12} />
-                                </button>
-                                <span className="text-sm w-6 text-center">{item.quantity}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="w-7 h-7 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
-                                >
-                                  <Plus size={12} />
-                                </button>
-                              </div>
-                              <button type="button" onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors shrink-0" aria-label={`Remove ${item.name}`}>
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
+                            <QuoteBasketLineItem
+                              key={item.id}
+                              item={item}
+                              onRemove={removeItem}
+                              onUpdateQuantity={updateQuantity}
+                              onUpdateSize={updateSizeThickness}
+                            />
                           ))}
                           {hasStandalone && (
                             <div className="flex items-center gap-3 border border-border p-3">

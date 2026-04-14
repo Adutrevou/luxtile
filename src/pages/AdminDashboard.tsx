@@ -290,7 +290,9 @@ const AdminDashboard = () => {
       </header>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {view === 'partners' ? (
+        {view === 'option-sets' ? (
+          <OptionSetsManager />
+        ) : view === 'partners' ? (
           /* Partners Management View */
           <>
             <div className="flex items-center justify-between mb-8">
@@ -598,7 +600,21 @@ const AdminDashboard = () => {
                 </div>
               </FormField>
 
-              {/* Images */}
+              {/* Option Set assignment */}
+              <FormField label="Size & Thickness Option Set">
+                <select
+                  value={optionSetId}
+                  onChange={(e) => setOptionSetId(e.target.value)}
+                  className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors"
+                >
+                  <option value="" className="bg-[#0F0F0F]">None (no size selection required)</option>
+                  {optionSets.map((os) => (
+                    <option key={os.id} value={os.id} className="bg-[#0F0F0F]">{os.name} ({os.items.length} options)</option>
+                  ))}
+                </select>
+              </FormField>
+
+
               <FormField label="Product Images">
                 <div className="flex flex-wrap gap-3 mb-3 pt-2">
                   {images.map((img, idx) => (

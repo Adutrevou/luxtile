@@ -28,9 +28,6 @@ const AdminDashboard = () => {
     isAdding: partnerAdding, isUpdating: partnerUpdating,
   } = useAdminPartners();
   const { data: optionSets = [] } = useOptionSets();
-    addPartner, updatePartner, deletePartner,
-    isAdding: partnerAdding, isUpdating: partnerUpdating,
-  } = useAdminPartners();
 
   const [view, setView] = useState<View>('list');
   const [editingId, setEditingId] = useState<string | null>(null);

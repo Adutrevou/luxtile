@@ -15,6 +15,7 @@ export interface Product {
   status: string;
   featured: boolean;
   sort_order: number;
+  option_set_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +45,7 @@ const mapProduct = (row: any): Product => ({
   status: row.status,
   featured: row.featured || false,
   sort_order: row.sort_order || 0,
+  option_set_id: row.option_set_id || null,
   created_at: row.created_at,
   updated_at: row.updated_at,
 });

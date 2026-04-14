@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, ChevronRight, ChevronLeft, Check, Upload, X } from
 import PageTransition from "@/components/PageTransition";
 import SectionReveal from "@/components/SectionReveal";
 import { Progress } from "@/components/ui/progress";
-import { submitForm } from "@/lib/submitForm";
+import { sanitizeFormFields, submitForm } from "@/lib/submitForm";
 import { toast } from "sonner";
 
 const STEPS = ["Project Type", "Style", "Inspiration", "Budget", "Details"];
@@ -69,29 +69,32 @@ const ContactPage = () => {
 
       setSending(true);
       try {
+        const projectTypeLabel = PROJECT_TYPES.find((item) => item.id === projectType)?.label ?? projectType;
+        const styleLabel = STYLES.find((item) => item.id === style)?.label ?? style;
+        const budgetLabel = BUDGETS.find((item) => item.id === budget)?.label ?? budget;
+
         const messageParts = [
-          `Project: ${projectType}`,
-          `Style: ${style}`,
-          `Budget: ${budget}`,
+          `Project: ${projectTypeLabel}`,
+          `Style: ${styleLabel}`,
+          `Budget: ${budgetLabel}`,
           fileName ? `Inspiration: ${fileName}` : '',
         ].filter(Boolean).join(', ');
 
-        const fields: Record<string, string> = {
+        const fields = sanitizeFormFields({
           name: name.trim(),
           email: email.trim(),
           phone: phone.trim(),
           message: messageParts,
-          projectType,
-          style,
-          budget,
+          projectType: projectTypeLabel,
+          style: styleLabel,
+          budget: budgetLabel,
           inspiration: fileName || '',
-        };
-        Object.keys(fields).forEach(k => { if (!fields[k]) delete fields[k]; });
+        });
 
         await submitForm({ formName: 'Contact Us', fields });
         setSubmitted(true);
-      } catch {
-        toast.error('Something went wrong. Please try again.');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
       } finally {
         setSending(false);
       }

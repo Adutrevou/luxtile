@@ -47,7 +47,7 @@ const CollectionsPage = () => {
               const coverImg = col.images[col.cover_index] || col.images[0] || '';
               return (
                 <SectionReveal key={col.id} delay={i * 0.1}>
-                  <div className="bg-background group relative overflow-hidden">
+                  <div className="bg-background group relative overflow-hidden h-full flex flex-col">
                     <div className="aspect-[3/4] overflow-hidden">
                       {coverImg ? (
                         <SmoothImage

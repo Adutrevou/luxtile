@@ -59,7 +59,7 @@ const PartnerProductCard = memo(({ product, index, onQuote }: {
       </div>
       <div className="p-6 md:p-8 flex flex-col flex-1">
         <h3 className="font-display text-lg md:text-xl mb-2">{product.name}</h3>
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-4">{product.description}</p>
+        <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
         {product.sizes.length > 0 && <p className="text-sm text-muted-foreground mb-4">{product.sizes.join(' · ')}</p>}
         <div className="mt-auto">
           <ProductQuoteControls product={product} onRequestQuote={() => onQuote(product.name)} />

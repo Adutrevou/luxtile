@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      option_set_items: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          option_set_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          option_set_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          option_set_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "option_set_items_option_set_id_fkey"
+            columns: ["option_set_id"]
+            isOneToOne: false
+            referencedRelation: "option_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      option_sets: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
@@ -61,6 +114,7 @@ export type Database = {
           id: string
           images: string[] | null
           name: string
+          option_set_id: string | null
           price: number | null
           sizes: string[] | null
           sort_order: number | null
@@ -78,6 +132,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           name: string
+          option_set_id?: string | null
           price?: number | null
           sizes?: string[] | null
           sort_order?: number | null
@@ -95,6 +150,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           name?: string
+          option_set_id?: string | null
           price?: number | null
           sizes?: string[] | null
           sort_order?: number | null
@@ -102,7 +158,15 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_option_set_id_fkey"
+            columns: ["option_set_id"]
+            isOneToOne: false
+            referencedRelation: "option_sets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

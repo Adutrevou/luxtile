@@ -69,10 +69,18 @@ const ContactPage = () => {
 
       setSending(true);
       try {
+        const messageParts = [
+          `Project: ${projectType}`,
+          `Style: ${style}`,
+          `Budget: ${budget}`,
+          fileName ? `Inspiration: ${fileName}` : '',
+        ].filter(Boolean).join(', ');
+
         const fields: Record<string, string> = {
           name: name.trim(),
           email: email.trim(),
           phone: phone.trim(),
+          message: messageParts,
           projectType,
           style,
           budget,

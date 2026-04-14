@@ -52,6 +52,7 @@ const AdminDashboard = () => {
   const [coverIndex, setCoverIndex] = useState(0);
   const [featured, setFeatured] = useState(false);
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
+  const [optionSetId, setOptionSetId] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
   const resetForm = () => {
     setName(''); setDescription(''); setCategory(CATEGORIES[0]); setSizes('');
     setTags(''); setPrice(''); setDisplaySection([]); setImages([]);
-    setCoverIndex(0); setFeatured(false); setStatus('active'); setEditingId(null);
+    setCoverIndex(0); setFeatured(false); setStatus('active'); setOptionSetId(''); setEditingId(null);
   };
 
   const resetPartnerForm = () => {
@@ -89,7 +90,7 @@ const AdminDashboard = () => {
     setPrice(p.price != null ? String(p.price) : '');
     setDisplaySection(p.display_section); setImages(p.images);
     setCoverIndex(p.cover_index); setFeatured(p.featured);
-    setStatus(p.status as 'active' | 'inactive'); setEditingId(p.id); setView('form');
+    setStatus(p.status as 'active' | 'inactive'); setOptionSetId((p as any).option_set_id || ''); setEditingId(p.id); setView('form');
   };
 
   const openEditPartner = (p: typeof partners[0]) => {
@@ -167,7 +168,7 @@ const AdminDashboard = () => {
       toast.error('Please wait for images to finish uploading');
       return;
     }
-    const data = {
+    const data: any = {
       name,
       description,
       category,
@@ -180,6 +181,7 @@ const AdminDashboard = () => {
       featured,
       status,
       sort_order: 0,
+      option_set_id: optionSetId || null,
     };
     try {
       if (editingId) {

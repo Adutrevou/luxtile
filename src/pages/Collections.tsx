@@ -1,38 +1,24 @@
 import { useState, useCallback } from 'react';
 import SmoothImage from '@/components/SmoothImage';
-import { Check } from 'lucide-react';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import ProductCardSkeleton from '@/components/ProductCardSkeleton';
-import { useQuoteBasket } from '@/context/QuoteBasketContext';
+import ProductQuoteControls from '@/components/ProductQuoteControls';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 const CollectionsPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
-  const { addItem, isInBasket } = useQuoteBasket();
   const { data: products = [], isLoading, isError, refetch } = useProductsBySection('Collection');
 
-  // Live updates when admin changes products
   useRealtimeSubscription('products', [['products']]);
 
   const openQuote = useCallback((name: string) => {
     setSelectedCollection(name);
     setQuoteOpen(true);
   }, []);
-
-  const handleAddToBasket = useCallback((p: Product) => {
-    addItem({
-      id: p.id,
-      productId: p.id,
-      name: p.name,
-      image: p.images[p.cover_index] || '',
-      category: p.category,
-      quantity: 1,
-    });
-  }, [addItem]);
 
   return (
     <PageTransition>
@@ -58,7 +44,6 @@ const CollectionsPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((col, i) => {
-              const inBasket = isInBasket(col.id);
               const coverImg = col.images[col.cover_index] || col.images[0] || '';
               return (
                 <SectionReveal key={col.id} delay={i * 0.1}>
@@ -85,21 +70,11 @@ const CollectionsPage = () => {
                           ))}
                         </div>
                       )}
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => handleAddToBasket(col)}
-                          disabled={inBasket}
-                          className={`flex items-center gap-2 px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium transition-all ${
-                            inBasket
-                              ? 'bg-accent/20 text-accent cursor-default'
-                              : 'border border-border text-foreground hover:border-accent hover:text-accent'
-                          }`}
-                        >
-                          {inBasket ? <><Check size={14} /> Added</> : 'Add to Quote'}
-                        </button>
+                      <div className="flex flex-col gap-3">
+                        <ProductQuoteControls product={col} />
                         <button
                           onClick={() => openQuote(col.name)}
-                          className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em]"
+                          className="bg-accent text-accent-foreground px-6 py-3 text-xs tracking-[0.15em] uppercase font-medium gold-shine transition-all hover:tracking-[0.19em] w-fit"
                         >
                           Request Specification
                         </button>

@@ -74,7 +74,7 @@ const Navbar = () => {
         {/* Mobile Toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className={`lg:hidden p-2 transition-colors duration-300 ${
+          className={`lg:hidden ml-auto p-2 transition-colors duration-300 ${
             useLight ? 'text-white' : 'text-foreground'
           }`}
           aria-label="Toggle menu"

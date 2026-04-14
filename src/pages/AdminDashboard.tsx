@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useAdminProducts } from '@/hooks/useAdminProducts';
 import { useAdminPartners } from '@/hooks/usePartners';
-import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore, Handshake } from 'lucide-react';
+import { useOptionSets } from '@/hooks/useOptionSets';
+import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore, Handshake, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import luxtileLogo from '@/assets/luxtile-logo.png';
+import OptionSetsManager from '@/components/admin/OptionSetsManager';
 
-type View = 'list' | 'form' | 'partners';
+type View = 'list' | 'form' | 'partners' | 'option-sets';
 
 const CATEGORIES = ['Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
 const FIXED_SECTIONS = ['Collection', 'Best Sellers', 'On Sale'];

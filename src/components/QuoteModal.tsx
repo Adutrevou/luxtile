@@ -2,7 +2,7 @@ import { forwardRef, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2 } from 'lucide-react';
 import { useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
-import { submitForm } from '@/lib/submitForm';
+import { sanitizeFormFields, submitForm } from '@/lib/submitForm';
 import { toast } from 'sonner';
 
 interface QuoteModalProps {
@@ -26,14 +26,15 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
       const form = formRef.current;
       if (!form) return;
 
-      // Honeypot check
-      const honeypot = (form.elements.namedItem('website') as HTMLInputElement)?.value;
-      if (honeypot) return;
+      const formData = new FormData(form);
+      const rawFields = Object.fromEntries(
+        Array.from(formData.entries()).map(([key, value]) => [key, String(value).trim()]),
+      ) as Record<string, string>;
 
-      const get = (name: string) => (form.elements.namedItem(name) as HTMLInputElement)?.value?.trim() ?? '';
+      if (rawFields.website) return;
 
-      const nameVal = get('name');
-      const emailVal = get('email');
+      const nameVal = rawFields.name ?? '';
+      const emailVal = rawFields.email ?? '';
 
       if (!nameVal || !emailVal) return;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
@@ -41,34 +42,42 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
         return;
       }
 
-      const productNames = items.map(i => i.name).join(', ');
+      const productNames = [
+        ...items.map((item) => item.name),
+        ...(collectionName && !items.some((item) => item.name === collectionName) ? [collectionName] : []),
+      ];
 
-      const fields: Record<string, string> = {
-        name: nameVal,
-        email: emailVal,
-        phone: get('phone'),
-        projectType: get('projectType'),
-        quantity: get('quantity'),
-        deliveryLocation: get('deliveryLocation'),
-        message: get('message'),
+      const generatedMessage = [
+        productNames.length ? `Products: ${productNames.join(', ')}` : '',
+        rawFields.projectType ? `Project Type: ${rawFields.projectType}` : '',
+        rawFields.quantity ? `Quantity: ${rawFields.quantity}` : '',
+        rawFields.deliveryLocation ? `Delivery Location: ${rawFields.deliveryLocation}` : '',
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
+      const fields = sanitizeFormFields({
+        ...rawFields,
+        message: rawFields.message || generatedMessage || 'Quote request',
         purchaseInterest: (form.elements.namedItem('purchase-interest') as HTMLInputElement)?.checked ? 'Yes' : 'No',
-        products: productNames || collectionName || '',
-      };
+        products: productNames.join(', '),
+      });
 
-      // Remove empty fields
-      Object.keys(fields).forEach(k => { if (!fields[k]) delete fields[k]; });
+      delete fields.website;
+      delete fields['purchase-interest'];
 
       setSending(true);
       try {
         await submitForm({ formName: 'Request a Quote', fields });
+        form.reset();
         setSubmitted(true);
         setTimeout(() => {
           setSubmitted(false);
           clearBasket();
           onClose();
         }, 2500);
-      } catch {
-        toast.error('Something went wrong. Please try again.');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
       } finally {
         setSending(false);
       }

@@ -64,12 +64,12 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
         message: rawFields.message || generatedMessage || 'Quote request',
         products: productLines.join('; '),
         // Include detailed item breakdown for the email
-        itemDetails: items.map((item) => ({
+        itemDetails: JSON.stringify(items.map((item) => ({
           name: item.name,
           sizeThickness: item.sizeThickness || 'N/A',
           quantity: item.quantity,
           category: item.category,
-        })),
+        }))),
       });
 
       delete fields.website;

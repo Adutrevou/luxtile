@@ -1,17 +1,20 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
 export interface QuoteBasketItem {
-  id: string;
+  id: string;          // composite: productId or productId-sizeThickness
+  productId: string;
   name: string;
   image: string;
   category: string;
-  estimatedArea?: string;
+  sizeThickness?: string;
+  quantity: number;
 }
 
 interface QuoteBasketContextType {
   items: QuoteBasketItem[];
   addItem: (item: QuoteBasketItem) => void;
   removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearBasket: () => void;
   isInBasket: (id: string) => boolean;
   openQuoteModal: () => void;
@@ -25,12 +28,15 @@ export const QuoteBasketProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<QuoteBasketItem[]>([]);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
-  // O(1) lookup set derived from items
   const basketIds = useMemo(() => new Set(items.map((i) => i.id)), [items]);
 
   const addItem = useCallback((item: QuoteBasketItem) => {
     setItems((prev) => {
-      if (prev.some((i) => i.id === item.id)) return prev;
+      const existing = prev.find((i) => i.id === item.id);
+      if (existing) {
+        // Same config → increase quantity
+        return prev.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i);
+      }
       return [...prev, item];
     });
   }, []);
@@ -39,16 +45,22 @@ export const QuoteBasketProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
+  const updateQuantity = useCallback((id: string, quantity: number) => {
+    if (quantity <= 0) {
+      setItems((prev) => prev.filter((i) => i.id !== id));
+    } else {
+      setItems((prev) => prev.map((i) => i.id === id ? { ...i, quantity } : i));
+    }
+  }, []);
+
   const clearBasket = useCallback(() => setItems([]), []);
-
   const isInBasket = useCallback((id: string) => basketIds.has(id), [basketIds]);
-
   const openQuoteModal = useCallback(() => setIsQuoteOpen(true), []);
   const closeQuoteModal = useCallback(() => setIsQuoteOpen(false), []);
 
   const value = useMemo(
-    () => ({ items, addItem, removeItem, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal }),
-    [items, addItem, removeItem, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal]
+    () => ({ items, addItem, removeItem, updateQuantity, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal }),
+    [items, addItem, removeItem, updateQuantity, clearBasket, isInBasket, openQuoteModal, isQuoteOpen, closeQuoteModal]
   );
 
   return (

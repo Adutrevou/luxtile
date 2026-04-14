@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useAdminProducts } from '@/hooks/useAdminProducts';
 import { useAdminPartners } from '@/hooks/usePartners';
-import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore, Handshake } from 'lucide-react';
+import { useOptionSets } from '@/hooks/useOptionSets';
+import { Package, LogOut, Plus, Trash2, Edit2, Image, X, ChevronLeft, Search, ToggleLeft, ToggleRight, RefreshCw, ArchiveRestore, Handshake, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import luxtileLogo from '@/assets/luxtile-logo.png';
+import OptionSetsManager from '@/components/admin/OptionSetsManager';
 
-type View = 'list' | 'form' | 'partners';
+type View = 'list' | 'form' | 'partners' | 'option-sets';
 
 const CATEGORIES = ['Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
 const FIXED_SECTIONS = ['Collection', 'Best Sellers', 'On Sale'];
@@ -25,6 +27,7 @@ const AdminDashboard = () => {
     addPartner, updatePartner, deletePartner,
     isAdding: partnerAdding, isUpdating: partnerUpdating,
   } = useAdminPartners();
+  const { data: optionSets = [] } = useOptionSets();
 
   const [view, setView] = useState<View>('list');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -49,6 +52,7 @@ const AdminDashboard = () => {
   const [coverIndex, setCoverIndex] = useState(0);
   const [featured, setFeatured] = useState(false);
   const [status, setStatus] = useState<'active' | 'inactive'>('active');
+  const [optionSetId, setOptionSetId] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -69,7 +73,7 @@ const AdminDashboard = () => {
   const resetForm = () => {
     setName(''); setDescription(''); setCategory(CATEGORIES[0]); setSizes('');
     setTags(''); setPrice(''); setDisplaySection([]); setImages([]);
-    setCoverIndex(0); setFeatured(false); setStatus('active'); setEditingId(null);
+    setCoverIndex(0); setFeatured(false); setStatus('active'); setOptionSetId(''); setEditingId(null);
   };
 
   const resetPartnerForm = () => {
@@ -86,7 +90,7 @@ const AdminDashboard = () => {
     setPrice(p.price != null ? String(p.price) : '');
     setDisplaySection(p.display_section); setImages(p.images);
     setCoverIndex(p.cover_index); setFeatured(p.featured);
-    setStatus(p.status as 'active' | 'inactive'); setEditingId(p.id); setView('form');
+    setStatus(p.status as 'active' | 'inactive'); setOptionSetId((p as any).option_set_id || ''); setEditingId(p.id); setView('form');
   };
 
   const openEditPartner = (p: typeof partners[0]) => {
@@ -164,7 +168,7 @@ const AdminDashboard = () => {
       toast.error('Please wait for images to finish uploading');
       return;
     }
-    const data = {
+    const data: any = {
       name,
       description,
       category,
@@ -177,6 +181,7 @@ const AdminDashboard = () => {
       featured,
       status,
       sort_order: 0,
+      option_set_id: optionSetId || null,
     };
     try {
       if (editingId) {
@@ -272,6 +277,9 @@ const AdminDashboard = () => {
           <span className="text-white/30 text-sm">Admin</span>
         </div>
         <div className="flex items-center gap-4">
+          <button onClick={() => setView(view === 'option-sets' ? 'list' : 'option-sets')} className={`flex items-center gap-2 text-sm transition-colors ${view === 'option-sets' ? 'text-accent' : 'text-white/50 hover:text-white'}`}>
+            <Layers size={16} /> Option Sets
+          </button>
           <button onClick={() => { setView(view === 'partners' ? 'list' : 'partners'); resetPartnerForm(); }} className={`flex items-center gap-2 text-sm transition-colors ${view === 'partners' ? 'text-accent' : 'text-white/50 hover:text-white'}`}>
             <Handshake size={16} /> Partners
           </button>
@@ -282,7 +290,9 @@ const AdminDashboard = () => {
       </header>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {view === 'partners' ? (
+        {view === 'option-sets' ? (
+          <OptionSetsManager />
+        ) : view === 'partners' ? (
           /* Partners Management View */
           <>
             <div className="flex items-center justify-between mb-8">
@@ -590,7 +600,21 @@ const AdminDashboard = () => {
                 </div>
               </FormField>
 
-              {/* Images */}
+              {/* Option Set assignment */}
+              <FormField label="Size & Thickness Option Set">
+                <select
+                  value={optionSetId}
+                  onChange={(e) => setOptionSetId(e.target.value)}
+                  className="w-full bg-transparent border-b border-white/20 text-white py-3 outline-none focus:border-accent transition-colors"
+                >
+                  <option value="" className="bg-[#0F0F0F]">None (no size selection required)</option>
+                  {optionSets.map((os) => (
+                    <option key={os.id} value={os.id} className="bg-[#0F0F0F]">{os.name} ({os.items.length} options)</option>
+                  ))}
+                </select>
+              </FormField>
+
+
               <FormField label="Product Images">
                 <div className="flex flex-wrap gap-3 mb-3 pt-2">
                   {images.map((img, idx) => (

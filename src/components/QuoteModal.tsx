@@ -1,7 +1,7 @@
 import { forwardRef, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2 } from 'lucide-react';
-import { useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
+import { X, Trash2, Minus, Plus } from 'lucide-react';
+import { useQuoteBasket } from '@/context/QuoteBasketContext';
 import { sanitizeFormFields, submitForm } from '@/lib/submitForm';
 import { toast } from 'sonner';
 
@@ -13,10 +13,10 @@ interface QuoteModalProps {
 }
 
 const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
-  ({ open, onClose, collectionName, showSalesFields }, ref) => {
+  ({ open, onClose, collectionName }, ref) => {
     const [submitted, setSubmitted] = useState(false);
     const [sending, setSending] = useState(false);
-    const { items, removeItem, clearBasket } = useQuoteBasket();
+    const { items, removeItem, updateQuantity, clearBasket } = useQuoteBasket();
     const formRef = useRef<HTMLFormElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -42,29 +42,37 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
         return;
       }
 
-      const productNames = [
-        ...items.map((item) => item.name),
-        ...(collectionName && !items.some((item) => item.name === collectionName) ? [collectionName] : []),
-      ];
+      // Build product lines with full detail
+      const productLines = items.map((item) => {
+        let line = `${item.name}`;
+        if (item.sizeThickness) line += ` | Size: ${item.sizeThickness}`;
+        line += ` | Qty: ${item.quantity}`;
+        return line;
+      });
 
-      const generatedMessage = [
-        productNames.length ? `Products: ${productNames.join(', ')}` : '',
-        rawFields.projectType ? `Project Type: ${rawFields.projectType}` : '',
-        rawFields.quantity ? `Quantity: ${rawFields.quantity}` : '',
-        rawFields.deliveryLocation ? `Delivery Location: ${rawFields.deliveryLocation}` : '',
-      ]
-        .filter(Boolean)
-        .join(' | ');
+      // Add standalone collection name if present
+      if (collectionName && !items.some((item) => item.name === collectionName)) {
+        productLines.push(collectionName);
+      }
+
+      const generatedMessage = productLines.length
+        ? `Products:\n${productLines.join('\n')}`
+        : '';
 
       const fields = sanitizeFormFields({
         ...rawFields,
         message: rawFields.message || generatedMessage || 'Quote request',
-        purchaseInterest: (form.elements.namedItem('purchase-interest') as HTMLInputElement)?.checked ? 'Yes' : 'No',
-        products: productNames.join(', '),
+        products: productLines.join('; '),
+        // Include detailed item breakdown for the email
+        itemDetails: JSON.stringify(items.map((item) => ({
+          name: item.name,
+          sizeThickness: item.sizeThickness || 'N/A',
+          quantity: item.quantity,
+          category: item.category,
+        }))),
       });
 
       delete fields.website;
-      delete fields['purchase-interest'];
 
       setSending(true);
       try {
@@ -87,7 +95,6 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
       onClose();
     };
 
-    const displayItems: QuoteBasketItem[] = [...items];
     const hasStandalone = collectionName && !items.some((i) => i.name === collectionName);
 
     return (
@@ -127,17 +134,37 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
                     {/* Honeypot */}
                     <input type="text" name="website" autoComplete="off" tabIndex={-1} className="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
 
-                    {(displayItems.length > 0 || hasStandalone) && (
+                    {/* Cart items */}
+                    {(items.length > 0 || hasStandalone) && (
                       <div>
-                        <label className="label-caps block mb-3">Selected Products</label>
+                        <label className="label-caps block mb-3">Your Selections</label>
                         <div className="space-y-2">
-                          {displayItems.map((item) => (
-                            <div key={item.id} className="flex items-center gap-3 border border-border p-3 group">
+                          {items.map((item) => (
+                            <div key={item.id} className="flex items-center gap-3 border border-border p-3">
                               <img src={item.image} alt={item.name} className="w-12 h-12 object-cover shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">{item.name}</p>
-                                <p className="text-xs text-muted-foreground">{item.category}</p>
-                                {item.estimatedArea && <p className="text-xs text-accent">{item.estimatedArea} m²</p>}
+                                {item.sizeThickness && (
+                                  <p className="text-xs text-muted-foreground">{item.sizeThickness}</p>
+                                )}
+                              </div>
+                              {/* Quantity controls */}
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  className="w-7 h-7 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
+                                >
+                                  <Minus size={12} />
+                                </button>
+                                <span className="text-sm w-6 text-center">{item.quantity}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  className="w-7 h-7 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
+                                >
+                                  <Plus size={12} />
+                                </button>
                               </div>
                               <button type="button" onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors shrink-0" aria-label={`Remove ${item.name}`}>
                                 <Trash2 size={14} />
@@ -153,7 +180,7 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
                       </div>
                     )}
 
-                    {!displayItems.length && !hasStandalone && collectionName && (
+                    {!items.length && !hasStandalone && collectionName && (
                       <div>
                         <label className="label-caps block mb-2">Collection</label>
                         <p className="text-foreground font-display text-lg">{collectionName}</p>
@@ -173,37 +200,19 @@ const QuoteModal = forwardRef<HTMLDivElement, QuoteModalProps>(
                       <input type="tel" name="phone" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" />
                     </div>
                     <div>
-                      <label className="label-caps block mb-2">Project Type</label>
-                      <select name="projectType" className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors">
-                        <option value="">Select</option>
-                        <option>Residential</option>
-                        <option>Commercial</option>
-                        <option>Hospitality</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="label-caps block mb-2">Quantity (m²)</label>
-                      <input type="text" name="quantity" maxLength={20} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="Estimated area" />
-                    </div>
-                    <div>
                       <label className="label-caps block mb-2">Delivery Location</label>
                       <input type="text" name="deliveryLocation" maxLength={100} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors" placeholder="City / Province" />
                     </div>
                     <div>
                       <label className="label-caps block mb-2">Message</label>
-                      <textarea name="message" maxLength={1000} rows={4} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors resize-none" />
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <input type="checkbox" id="purchase-interest" name="purchase-interest" className="accent-accent" />
-                      <label htmlFor="purchase-interest" className="text-sm text-muted-foreground">Interested in direct purchase</label>
+                      <textarea name="message" maxLength={1000} rows={3} className="w-full border-b border-border bg-transparent py-3 outline-none focus:border-accent transition-colors resize-none" />
                     </div>
                     <button
                       type="submit"
                       disabled={sending}
                       className={`w-full bg-accent text-accent-foreground py-4 text-sm tracking-[0.15em] uppercase font-medium gold-shine mt-4 transition-all ${sending ? 'opacity-70 cursor-not-allowed' : 'hover:tracking-[0.19em]'}`}
                     >
-                      {sending ? 'Sending…' : `Submit Request${displayItems.length > 1 ? ` (${displayItems.length} Products)` : ''}`}
+                      {sending ? 'Sending…' : `Submit Request${items.length > 1 ? ` (${items.length} items)` : ''}`}
                     </button>
                   </form>
                 )}

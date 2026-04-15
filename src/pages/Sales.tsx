@@ -99,9 +99,7 @@ const PartnerSection = memo(({ partner, openQuote }: {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border auto-rows-fr">
           {products.map((product, i) => (
-            <SectionReveal key={product.id} delay={i * 0.1}>
-              <PartnerProductCard product={product} index={i} onQuote={openQuote} />
-            </SectionReveal>
+            <PartnerProductCard key={product.id} product={product} index={i} onQuote={openQuote} />
           ))}
         </div>
       )}
@@ -160,7 +158,19 @@ const SalesPage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
               {bestSellers.map((product, i) => (
-                <ProductOverlayCard key={product.id} product={product} index={i} onQuote={openQuote} />
+                <div key={product.id} className="group relative overflow-hidden aspect-[3/4]">
+                  {(product.images[product.cover_index] || product.images[0]) ? (
+                    <SmoothImage src={product.images[product.cover_index] || product.images[0]} alt={product.name} className="w-full h-full object-cover" loading={i < 3 ? 'eager' : 'lazy'} />
+                  ) : (
+                    <div className="w-full h-full bg-muted" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
+                    <p className="text-primary-foreground/60 text-sm mb-4 line-clamp-3">{product.description}</p>
+                    <ProductQuoteControls product={product} variant="light" onRequestQuote={() => openQuote(product.name)} />
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -178,9 +188,7 @@ const SalesPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {saleProducts.map((product, i) => (
-                <SectionReveal key={product.id} delay={i * 0.1}>
-                  <PartnerProductCard product={product} index={i} onQuote={openQuote} />
-                </SectionReveal>
+                <PartnerProductCard key={product.id} product={product} index={i} onQuote={openQuote} />
               ))}
             </div>
           )}

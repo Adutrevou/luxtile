@@ -46,40 +46,38 @@ const CollectionsPage = () => {
             {products.map((col, i) => {
               const coverImg = col.images[col.cover_index] || col.images[0] || '';
               return (
-                <SectionReveal key={col.id} delay={i * 0.1}>
-                  <div className="bg-background group relative overflow-hidden h-full flex flex-col">
-                    <div className="aspect-[3/4] overflow-hidden shrink-0">
-                      {coverImg ? (
-                        <SmoothImage
-                          src={coverImg}
-                          alt={col.name}
-                          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
-                          loading={i < 3 ? 'eager' : 'lazy'}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">No Image</div>
-                      )}
-                    </div>
-                    <div className="p-8 flex flex-col flex-1">
-                      <h3 className="font-display text-xl mb-2">{col.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{col.description}</p>
-                      {col.sizes.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {col.sizes.map((s) => (
-                            <span key={s} className="text-xs text-muted-foreground border border-border px-2 py-1">{s}</span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="mt-auto">
-                        <ProductQuoteControls
-                          product={col}
-                          onRequestQuote={() => openQuote(col.name)}
-                          requestQuoteLabel="Request Specification"
-                        />
+                <div key={col.id} className="bg-background group relative overflow-hidden h-full flex flex-col">
+                  <div className="aspect-[3/4] overflow-hidden shrink-0">
+                    {coverImg ? (
+                      <SmoothImage
+                        src={coverImg}
+                        alt={col.name}
+                        className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]"
+                        loading={i < 3 ? 'eager' : 'lazy'}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">No Image</div>
+                    )}
+                  </div>
+                  <div className="p-8 flex flex-col flex-1">
+                    <h3 className="font-display text-xl mb-2">{col.name}</h3>
+                    <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{col.description}</p>
+                    {col.sizes.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {col.sizes.map((s) => (
+                          <span key={s} className="text-xs text-muted-foreground border border-border px-2 py-1">{s}</span>
+                        ))}
                       </div>
+                    )}
+                    <div className="mt-auto">
+                      <ProductQuoteControls
+                        product={col}
+                        onRequestQuote={() => openQuote(col.name)}
+                        requestQuoteLabel="Request Specification"
+                      />
                     </div>
                   </div>
-                </SectionReveal>
+                </div>
               );
             })}
           </div>

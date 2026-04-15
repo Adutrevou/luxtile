@@ -47,7 +47,7 @@ const Footer = () => (
         <p className="text-surface-dark-foreground/40 text-xs">
           © 2026 Luxtile Installations. All rights reserved. Johannesburg, South Africa.
         </p>
-        <p className="text-surface-dark-foreground/30 text-xs">Made with love in South Africa</p>
+        <p className="text-surface-dark-foreground/30 text-xs">Made with love by Intergrai</p>
       </div>
     </div>
   </footer>

@@ -1,37 +1,29 @@
 
 
-## Plan: Use Product Sizes Directly Instead of Option Sets
+## Plan: Replace Multi-Step Contact Form with Simple Quote Request Form
 
-### Problem
-Currently, `ProductQuoteControls` uses the `option_sets` / `option_set_items` tables to populate the size dropdown. But the product's own `sizes` array already contains the relevant size data (comma/pipe-separated strings). The user wants sizes to come directly from each product's `sizes` field and the size selector to appear inline next to "Add to Quote" on the Sales page.
+### Summary
+Replace the 5-step wizard (Project Type → Style → Inspiration → Budget → Details) with a straightforward single-page contact/quote form, matching the style of the existing Quote Modal.
 
 ### Changes
 
-**1. Update `ProductQuoteControls.tsx`**
-- Remove the dependency on `useOptionSetItems` and `option_set_id`
-- Instead, parse the product's `sizes` array: split each entry by `|` to get individual size options
-- If the product has sizes, show the `<select>` dropdown; otherwise hide it
-- Keep all existing quantity, add-to-quote, and request-quote logic intact
+**File: `src/pages/Contact.tsx`** — Full rewrite of the right-side form panel:
 
-**2. Update `QuoteBasketContext.tsx`** (if needed)
-- Verify the composite ID still works with size strings from the `sizes` field — no change expected since it already uses string labels
+- Remove all step/wizard logic, `STEPS`, `PROJECT_TYPES`, `STYLES`, `BUDGETS` constants, `AnimatePresence` step transitions, and `Progress` bar
+- Replace with a simple form containing:
+  - **Name** (required)
+  - **Email** (required)
+  - **Phone** (optional)
+  - **Delivery Location** (optional, placeholder "City / Province")
+  - **Message** (optional, textarea)
+  - **Submit button** with gold accent styling and `gold-shine` class
+- Keep the honeypot spam protection field
+- Keep the same `submitForm` API call with `formName: 'Contact Us'`
+- Keep the success "Thank You" state with check icon
+- Keep the left column (contact info, location, "10+ Years of Excellence") unchanged
+- Match input styling to Quote Modal: `border-b border-border bg-transparent py-3 outline-none focus:border-accent`
+- Use `label-caps` for field labels, consistent with Quote Modal
 
-**3. No database changes needed**
-- The `sizes` column on `products` already holds the data
-- The `option_sets` / `option_set_items` tables can remain for backward compatibility but will no longer be the primary source for storefront size selection
-
-### Technical Detail
-
-Size parsing logic:
-```typescript
-// Product sizes come as: ["3200mm x 1440mm x 8mm | 3200mm x 1440mm x 12mm | 3200mm x 1440mm x 20mm"]
-// Split by " | " to get individual selectable options
-const sizeOptions = product.sizes
-  .flatMap(s => s.split(/\s*\|\s*/))
-  .map(s => s.trim())
-  .filter(Boolean);
-const hasOptions = sizeOptions.length > 0;
-```
-
-The `<select>` dropdown will use these parsed sizes instead of querying option_set_items. Everything else (quantity controls, add to quote button, request quote button) stays the same.
+### Result
+A clean, single-step "Request a Quote" form on the Contact page — no wizard steps, no progress bar — visually and functionally aligned with the basket quote modal.
 

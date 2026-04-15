@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import luxtileLogo from '@/assets/luxtile-logo.png';
+import NavSearch from '@/components/NavSearch';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -69,18 +70,22 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
+          <NavSearch useLight={useLight} />
         </nav>
 
-        {/* Mobile Toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className={`lg:hidden ml-auto p-2 transition-colors duration-300 ${
-            useLight ? 'text-white' : 'text-foreground'
-          }`}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile: search + burger */}
+        <div className="lg:hidden ml-auto flex items-center gap-2">
+          <NavSearch useLight={useLight} />
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className={`p-2 transition-colors duration-300 ${
+              useLight ? 'text-white' : 'text-foreground'
+            }`}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

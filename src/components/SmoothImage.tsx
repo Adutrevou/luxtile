@@ -30,7 +30,7 @@ const SmoothImage = ({ src, alt, className = '', loading = 'lazy' }: SmoothImage
       fetchPriority={loading === 'eager' ? 'high' : 'auto'}
       onLoad={onReady}
       onError={onReady}
-      className={`${className} transition-opacity duration-300 ease-out ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      className={`${className} transition-opacity duration-200 ease-out ${loaded ? 'opacity-100' : 'opacity-0'}`}
     />
   );
 };

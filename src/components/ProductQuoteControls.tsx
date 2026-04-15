@@ -1,7 +1,6 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import { buildQuoteBasketItemId, useQuoteBasket, type QuoteBasketItem } from '@/context/QuoteBasketContext';
-import { useOptionSetItems } from '@/hooks/useOptionSets';
 import type { Product } from '@/hooks/useProducts';
 
 interface ProductQuoteControlsProps {
@@ -20,9 +19,16 @@ const ProductQuoteControls = ({
   requestQuoteLabel = 'Request Quote',
 }: ProductQuoteControlsProps) => {
   const { addItem, isInBasket } = useQuoteBasket();
-  const optionSetId = product.option_set_id;
-  const items = useOptionSetItems(optionSetId);
-  const hasOptions = items.length > 0;
+
+  const sizeOptions = useMemo(
+    () =>
+      (product.sizes ?? [])
+        .flatMap((s) => s.split(/\s*\|\s*/))
+        .map((s) => s.trim())
+        .filter(Boolean),
+    [product.sizes],
+  );
+  const hasOptions = sizeOptions.length > 0;
 
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -38,10 +44,10 @@ const ProductQuoteControls = ({
     name: product.name,
     image: coverImage,
     category: product.category,
-    optionSetId: optionSetId || null,
+    optionSetId: null,
     sizeThickness: selectedSize || undefined,
     quantity,
-  }), [compositeId, product.id, product.name, coverImage, product.category, optionSetId, selectedSize, quantity]);
+  }), [compositeId, product.id, product.name, coverImage, product.category, selectedSize, quantity]);
 
   const handleAdd = useCallback(() => {
     if (!selectionReady) return;
@@ -73,22 +79,22 @@ const ProductQuoteControls = ({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {hasOptions && (
-        <select
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-          className={`w-full ${selectCls}`}
-        >
-          <option value="">Select Size & Thickness</option>
-          {items.map((item) => (
-            <option key={item.id} value={item.label} className="bg-background text-foreground">
-              {item.label}
-            </option>
-          ))}
-        </select>
-      )}
-
       <div className="flex items-center gap-3 flex-wrap">
+        {hasOptions && (
+          <select
+            value={selectedSize}
+            onChange={(e) => setSelectedSize(e.target.value)}
+            className={`min-w-[140px] ${selectCls}`}
+          >
+            <option value="">Select Size</option>
+            {sizeOptions.map((size) => (
+              <option key={size} value={size} className="bg-background text-foreground">
+                {size}
+              </option>
+            ))}
+          </select>
+        )}
+
         <div className="flex items-center gap-1">
           <button
             type="button"

@@ -3,6 +3,7 @@ import SmoothImage from '@/components/SmoothImage';
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import ProductQuoteControls from '@/components/ProductQuoteControls';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
 import { usePartners } from '@/hooks/usePartners';
@@ -16,36 +17,8 @@ const benefits = [
   'Specialist delivery nationwide',
 ];
 
-const ProductOverlayCard = memo(({ product, index, onQuote }: {
-  product: Product; index: number; onQuote: (name: string) => void;
-}) => {
-  const coverImg = product.images[product.cover_index] || product.images[0] || '';
-  return (
-    <SectionReveal delay={index * 0.15}>
-      <div className="group relative overflow-hidden aspect-[3/4]">
-        {coverImg ? (
-          <SmoothImage src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 ease-in-out group-hover:scale-[1.02]" loading={index < 3 ? 'eager' : 'lazy'} />
-        ) : (
-          <div className="w-full h-full bg-muted" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <h3 className="text-primary-foreground font-display text-xl md:text-2xl mb-2">{product.name}</h3>
-          <p className="text-primary-foreground/60 text-sm mb-4 line-clamp-3">{product.description}</p>
-          <ProductQuoteControls
-            product={product}
-            variant="light"
-            onRequestQuote={() => onQuote(product.name)}
-          />
-        </div>
-      </div>
-    </SectionReveal>
-  );
-});
-ProductOverlayCard.displayName = 'ProductOverlayCard';
-
-const PartnerProductCard = memo(({ product, index, onQuote }: {
-  product: Product; index: number; onQuote: (name: string) => void;
+const PartnerProductCard = memo(({ product, onQuote }: {
+  product: Product; onQuote: (name: string) => void;
 }) => {
   const coverImg = product.images[product.cover_index] || product.images[0] || '';
   return (
@@ -74,9 +47,9 @@ const PartnerSection = memo(({ partner, openQuote }: {
   partner: { id: string; name: string; logo_url: string | null; display_section_value: string; description: string };
   openQuote: (name: string) => void;
 }) => {
-  const { data: products = [], isError, refetch } = useProductsBySection(partner.display_section_value);
+  const { data: products = [], isLoading, isError, refetch } = useProductsBySection(partner.display_section_value);
 
-  if (products.length === 0 && !isError) return null;
+  if (!isLoading && products.length === 0 && !isError) return null;
 
   return (
     <section className="section-padding py-28 bg-secondary">
@@ -94,12 +67,16 @@ const PartnerSection = memo(({ partner, openQuote }: {
         {partner.description && <p className="text-muted-foreground max-w-2xl mb-16">{partner.description}</p>}
       </SectionReveal>
 
-      {isError ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2, 3, 4].map((i) => <ProductCardSkeleton key={i} />)}
+        </div>
+      ) : isError ? (
         <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => refetch()}>Something went wrong — tap to retry</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2px] bg-border auto-rows-fr">
-          {products.map((product, i) => (
-            <PartnerProductCard key={product.id} product={product} index={i} onQuote={openQuote} />
+          {products.map((product) => (
+            <PartnerProductCard key={product.id} product={product} onQuote={openQuote} />
           ))}
         </div>
       )}
@@ -116,17 +93,17 @@ const SalesPage = () => {
   useRealtimeSubscription('products', [['products']]);
   useRealtimeSubscription('partners', [['partners']]);
 
-  const { data: bestSellers = [], isError: bsErr, refetch: bsRefetch } = useProductsBySection('Best Sellers');
-  const { data: saleProducts = [], isError: spErr, refetch: spRefetch } = useProductsBySection('On Sale');
-  const { data: partners = [] } = usePartners();
+  const { data: bestSellers = [], isLoading: bsLoading, isError: bsErr, refetch: bsRefetch } = useProductsBySection('Best Sellers');
+  const { data: saleProducts = [], isLoading: spLoading, isError: spErr, refetch: spRefetch } = useProductsBySection('On Sale');
+  const { data: partners = [], isLoading: partnersLoading } = usePartners();
 
   const openQuote = useCallback((name: string) => {
     setSelectedCollection(name);
     setQuoteOpen(true);
   }, []);
 
-  const showBestSellers = !brandFilter && (bestSellers.length > 0 || bsErr);
-  const showOnSale = !brandFilter && (saleProducts.length > 0 || spErr);
+  const showBestSellers = !brandFilter && (bestSellers.length > 0 || bsLoading || bsErr);
+  const showOnSale = !brandFilter && (saleProducts.length > 0 || spLoading || spErr);
   const filteredPartners = brandFilter
     ? partners.filter((p) => p.id === brandFilter)
     : partners;
@@ -153,7 +130,7 @@ const SalesPage = () => {
           </div>
         </SectionReveal>
 
-        {partners.length > 0 && (
+        {(partners.length > 0 || partnersLoading) && (
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setBrandFilter(null)}
@@ -188,7 +165,11 @@ const SalesPage = () => {
             <p className="label-caps mb-4">Featured</p>
             <h2 className="heading-section text-foreground mb-16">Best Sellers</h2>
           </SectionReveal>
-          {bsErr ? (
+          {bsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+              {[1, 2, 3].map((i) => <ProductCardSkeleton key={i} />)}
+            </div>
+          ) : bsErr ? (
             <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => bsRefetch()}>Something went wrong — tap to retry</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
@@ -218,12 +199,16 @@ const SalesPage = () => {
             <p className="label-caps mb-4">Limited Time</p>
             <h2 className="heading-section text-foreground mb-16">On Sale</h2>
           </SectionReveal>
-          {spErr ? (
+          {spLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => <ProductCardSkeleton key={i} />)}
+            </div>
+          ) : spErr ? (
             <p className="text-muted-foreground text-center py-12 cursor-pointer" onClick={() => spRefetch()}>Something went wrong — tap to retry</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {saleProducts.map((product, i) => (
-                <PartnerProductCard key={product.id} product={product} index={i} onQuote={openQuote} />
+              {saleProducts.map((product) => (
+                <PartnerProductCard key={product.id} product={product} onQuote={openQuote} />
               ))}
             </div>
           )}
@@ -233,6 +218,14 @@ const SalesPage = () => {
       {filteredPartners.map((partner) => (
         <PartnerSection key={partner.id} partner={partner} openQuote={openQuote} />
       ))}
+
+      {partnersLoading && !brandFilter && (
+        <section className="section-padding py-28 bg-secondary">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map((i) => <ProductCardSkeleton key={i} />)}
+          </div>
+        </section>
+      )}
 
       <section className="bg-surface-dark text-surface-dark-foreground section-padding py-28 text-center">
         <SectionReveal>

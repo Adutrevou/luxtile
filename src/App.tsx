@@ -14,16 +14,16 @@ import QuoteModal from "@/components/QuoteModal";
 import PageSkeleton from "@/components/PageSkeleton";
 
 // Lazy-loaded pages for code splitting
-import Index from "./pages/Index";
-const CollectionsPage = lazy(() => import("./pages/Collections.tsx"));
-const SalesPage = lazy(() => import("./pages/Sales.tsx"));
-const DifferencePage = lazy(() => import("./pages/Difference.tsx"));
-const InspirationPage = lazy(() => import("./pages/Inspiration.tsx"));
-const ContactPage = lazy(() => import("./pages/Contact.tsx"));
-const NotFound = lazy(() => import("./pages/NotFound.tsx"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
-const RequireAdmin = lazy(() => import("./components/admin/RequireAdmin.tsx"));
+const Index = lazy(() => import("./pages/Index"));
+const CollectionsPage = lazy(() => import("./pages/Collections"));
+const SalesPage = lazy(() => import("./pages/Sales"));
+const DifferencePage = lazy(() => import("./pages/Difference"));
+const InspirationPage = lazy(() => import("./pages/Inspiration"));
+const ContactPage = lazy(() => import("./pages/Contact"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const RequireAdmin = lazy(() => import("./components/admin/RequireAdmin"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

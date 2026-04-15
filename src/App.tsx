@@ -14,7 +14,7 @@ import QuoteModal from "@/components/QuoteModal";
 import PageSkeleton from "@/components/PageSkeleton";
 
 // Lazy-loaded pages for code splitting
-const Index = lazy(() => import("./pages/Index.tsx"));
+import Index from "./pages/Index";
 const CollectionsPage = lazy(() => import("./pages/Collections.tsx"));
 const SalesPage = lazy(() => import("./pages/Sales.tsx"));
 const DifferencePage = lazy(() => import("./pages/Difference.tsx"));

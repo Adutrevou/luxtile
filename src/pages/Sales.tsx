@@ -111,6 +111,7 @@ PartnerSection.displayName = 'PartnerSection';
 const SalesPage = () => {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState('');
+  const [brandFilter, setBrandFilter] = useState<string | null>(null);
 
   useRealtimeSubscription('products', [['products']]);
   useRealtimeSubscription('partners', [['partners']]);
@@ -123,6 +124,12 @@ const SalesPage = () => {
     setSelectedCollection(name);
     setQuoteOpen(true);
   }, []);
+
+  const showBestSellers = !brandFilter && (bestSellers.length > 0 || bsErr);
+  const showOnSale = !brandFilter && (saleProducts.length > 0 || spErr);
+  const filteredPartners = brandFilter
+    ? partners.filter((p) => p.id === brandFilter)
+    : partners;
 
   return (
     <PageTransition>
@@ -145,9 +152,37 @@ const SalesPage = () => {
             ))}
           </div>
         </SectionReveal>
+
+        {partners.length > 0 && (
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setBrandFilter(null)}
+              className={`px-5 py-2 text-xs tracking-[0.15em] uppercase font-medium border transition-colors ${
+                brandFilter === null
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'bg-transparent text-foreground border-border hover:border-foreground'
+              }`}
+            >
+              All Brands
+            </button>
+            {partners.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setBrandFilter(brandFilter === p.id ? null : p.id)}
+                className={`px-5 py-2 text-xs tracking-[0.15em] uppercase font-medium border transition-colors ${
+                  brandFilter === p.id
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-transparent text-foreground border-border hover:border-foreground'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
-      {(bestSellers.length > 0 || bsErr) && (
+      {showBestSellers && (
         <section className="section-padding pb-28">
           <SectionReveal>
             <p className="label-caps mb-4">Featured</p>
@@ -177,7 +212,7 @@ const SalesPage = () => {
         </section>
       )}
 
-      {(saleProducts.length > 0 || spErr) && (
+      {showOnSale && (
         <section className="section-padding pb-28">
           <SectionReveal>
             <p className="label-caps mb-4">Limited Time</p>
@@ -195,7 +230,7 @@ const SalesPage = () => {
         </section>
       )}
 
-      {partners.map((partner) => (
+      {filteredPartners.map((partner) => (
         <PartnerSection key={partner.id} partner={partner} openQuote={openQuote} />
       ))}
 

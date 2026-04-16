@@ -12,7 +12,7 @@ const footerLinks = [
 
 const Footer = () => (
   <footer className="bg-surface-dark text-surface-dark-foreground">
-    <div className="section-padding py-20">
+    <div className="section-padding py-20 bg-black">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
         <div>
           <img src={luxtileLogoWhite} alt="Luxtile Installations" className="h-12 md:h-14 w-auto object-contain mb-4" />

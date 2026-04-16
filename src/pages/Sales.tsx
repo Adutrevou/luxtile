@@ -59,7 +59,7 @@ const PartnerSection = memo(({ partner, openQuote }: {
         </div>
         {partner.logo_url ? (
           <div className="flex items-center gap-6 mb-6">
-            <img src={partner.logo_url} alt={partner.name} className="h-10 md:h-14 object-contain" />
+            <img src={partner.logo_url} alt={partner.name} className="h-8 md:h-10 w-auto object-contain" />
           </div>
         ) : (
           <h2 className="heading-section text-foreground mb-6">{partner.name}</h2>

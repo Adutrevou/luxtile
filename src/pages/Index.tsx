@@ -139,7 +139,7 @@ const Index = () => {
           <div className="aspect-square lg:aspect-auto overflow-hidden">
             <img src={slabNero} alt="Nero Marquina slab" className="w-full h-full object-cover scale-105" loading="lazy" />
           </div>
-          <SectionReveal className="section-padding py-20 lg:py-28 flex flex-col justify-center">
+          <SectionReveal className="section-padding py-20 lg:py-28 flex flex-col justify-center bg-black">
             <p className="label-caps mb-4">Now Available Direct</p>
             <h2 className="heading-section text-surface-dark-foreground mb-6">Acquire Excellence</h2>
             <p className="text-surface-dark-foreground/60 mb-10 max-w-md">

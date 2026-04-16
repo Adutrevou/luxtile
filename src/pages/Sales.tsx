@@ -22,7 +22,7 @@ const PartnerProductCard = memo(({ product, onQuote }: {
 }) => {
   const coverImg = product.images[product.cover_index] || product.images[0] || '';
   return (
-    <div className="bg-background overflow-hidden h-full flex flex-col group">
+    <div id={`product-${product.id}`} className="bg-background overflow-hidden h-full flex flex-col group transition-all duration-300">
       <div className="aspect-[16/9] overflow-hidden">
         {coverImg ? (
           <SmoothImage src={coverImg} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]" />
@@ -174,7 +174,7 @@ const SalesPage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
               {bestSellers.map((product, i) => (
-                <div key={product.id} className="group relative overflow-hidden aspect-[3/4]">
+                <div id={`product-${product.id}`} key={product.id} className="group relative overflow-hidden aspect-[3/4] transition-all duration-300">
                   {(product.images[product.cover_index] || product.images[0]) ? (
                     <SmoothImage src={product.images[product.cover_index] || product.images[0]} alt={product.name} className="w-full h-full object-cover" loading={i < 3 ? 'eager' : 'lazy'} />
                   ) : (

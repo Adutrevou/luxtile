@@ -46,7 +46,7 @@ const CollectionsPage = () => {
             {products.map((col, i) => {
               const coverImg = col.images[col.cover_index] || col.images[0] || '';
               return (
-                <div key={col.id} className="bg-background group relative overflow-hidden h-full flex flex-col">
+                <div id={`product-${col.id}`} key={col.id} className="bg-background group relative overflow-hidden h-full flex flex-col transition-all duration-300">
                   <div className="aspect-[3/4] overflow-hidden shrink-0">
                     {coverImg ? (
                       <SmoothImage

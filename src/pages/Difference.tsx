@@ -32,7 +32,7 @@ const DifferencePage = () => (
         <p className="label-caps mb-4">Why Choose Us</p>
         <h1 className="heading-display text-surface-dark-foreground mb-6">Why Choose Luxtile Installations</h1>
         <p className="text-surface-dark-foreground/60 max-w-xl mb-20">
-          We don't just supply porcelain. We deliver confidence in every slab.
+          We don't just supply stone. We deliver confidence in every slab.
         </p>
       </SectionReveal>
 

@@ -89,13 +89,13 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Collections */}
-      <section className="section-padding py-28">
-        <SectionReveal>
-          <p className="label-caps mb-4">Signature Collections</p>
-          <h2 className="heading-section text-foreground mb-16">Curated Excellence</h2>
-        </SectionReveal>
-        {featured.length > 0 ? (
+      {/* Featured Collections – only render when products exist */}
+      {featured.length > 0 && (
+        <section className="section-padding py-28">
+          <SectionReveal>
+            <p className="label-caps mb-4">Signature Collections</p>
+            <h2 className="heading-section text-foreground mb-16">Curated Excellence</h2>
+          </SectionReveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
             {featured.map((col, i) => {
               const coverImg = col.images[col.cover_index] || col.images[0] || "";
@@ -122,28 +122,22 @@ const Index = () => {
               );
             })}
           </div>
-        ) : featErr ? (
-          <div className="text-center py-12 text-muted-foreground cursor-pointer" onClick={() => featRefetch()}>
-            Something went wrong — tap to retry
-          </div>
-        ) : (
-          <div className="text-center py-12 text-muted-foreground">Loading collections...</div>
-        )}
-        <SectionReveal className="mt-12 text-center">
-          <Link
-            to="/collections"
-            className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all"
-          >
-            View All Collections <ArrowRight size={16} />
-          </Link>
-        </SectionReveal>
-      </section>
+          <SectionReveal className="mt-12 text-center">
+            <Link
+              to="/collections"
+              className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all"
+            >
+              View All Collections <ArrowRight size={16} />
+            </Link>
+          </SectionReveal>
+        </section>
+      )}
 
       {/* Sales Teaser */}
       <section className="bg-surface-dark text-surface-dark-foreground">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="aspect-square lg:aspect-auto overflow-hidden">
-            <img src={slabNero} alt="Nero Marquina slab" className="w-full h-full object-cover" loading="lazy" />
+            <img src={slabNero} alt="Nero Marquina slab" className="w-full h-full object-cover scale-105" loading="lazy" />
           </div>
           <SectionReveal className="section-padding py-20 lg:py-28 flex flex-col justify-center">
             <p className="label-caps mb-4">Now Available Direct</p>

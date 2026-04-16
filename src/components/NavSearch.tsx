@@ -39,12 +39,20 @@ const NavSearch = ({ useLight = false }: NavSearchProps) => {
 
   const handleSelect = useCallback((product: Product) => {
     const section = product.display_section?.[0];
-    if (section?.toLowerCase() === 'collection') {
-      navigate('/collections');
-    } else {
-      navigate('/sales');
-    }
+    const targetPage = section?.toLowerCase() === 'collection' ? '/collections' : '/sales';
     handleClose();
+    navigate(targetPage);
+    // Wait for page render then scroll to product
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const el = document.getElementById(`product-${product.id}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('ring-2', 'ring-accent');
+          setTimeout(() => el.classList.remove('ring-2', 'ring-accent'), 2000);
+        }
+      }, 300);
+    });
   }, [navigate, handleClose]);
 
   // Close on click outside

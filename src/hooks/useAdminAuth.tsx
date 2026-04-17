@@ -27,56 +27,62 @@ export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Single initialization: getSession first, then listen for changes
+  // Single initialization: synchronous session resolution, defer admin check
   useEffect(() => {
     let mounted = true;
 
-    const init = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!mounted) return;
-        if (session?.user) {
-          const admin = await checkAdmin(session.user.id);
-          if (!mounted) return;
-          setIsAuthenticated(true);
-          setUserId(session.user.id);
-          setIsAdmin(admin);
-        } else {
-          // Clear any stale tokens from localStorage
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setUserId(null);
-        }
-      } catch {
-        // Clear state on error (e.g. invalid refresh token)
-        if (mounted) {
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setUserId(null);
-        }
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
+    // Hard safety net: never let the loading state hang the UI
+    const loadingTimeout = setTimeout(() => {
+      if (mounted) setIsLoading(false);
+    }, 3000);
 
-    init();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Set up auth listener FIRST so we never miss an event
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       if (session?.user) {
         setIsAuthenticated(true);
         setUserId(session.user.id);
-        const admin = await checkAdmin(session.user.id);
-        if (mounted) setIsAdmin(admin);
+        // Defer Supabase RPC call to avoid deadlock inside the auth callback
+        setTimeout(() => {
+          checkAdmin(session.user.id).then((admin) => {
+            if (mounted) setIsAdmin(admin);
+          });
+        }, 0);
       } else {
         setIsAuthenticated(false);
         setIsAdmin(false);
         setUserId(null);
       }
+      setIsLoading(false);
+    });
+
+    // Then resolve the existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserId(session.user.id);
+        checkAdmin(session.user.id).then((admin) => {
+          if (mounted) setIsAdmin(admin);
+        });
+      } else {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        setUserId(null);
+      }
+      setIsLoading(false);
+    }).catch(() => {
+      if (mounted) {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        setUserId(null);
+        setIsLoading(false);
+      }
     });
 
     return () => {
       mounted = false;
+      clearTimeout(loadingTimeout);
       subscription.unsubscribe();
     };
   }, [checkAdmin]);

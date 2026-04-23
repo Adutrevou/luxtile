@@ -129,7 +129,9 @@ const NavSearch = ({ useLight = false }: NavSearchProps) => {
                   )}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">{product.category}</p>
+                    {product.category && product.category !== 'None' && (
+                      <p className="text-xs text-muted-foreground">{product.category}</p>
+                    )}
                   </div>
                 </button>
               );

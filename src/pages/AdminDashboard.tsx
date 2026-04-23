@@ -11,7 +11,7 @@ import OptionSetsManager from '@/components/admin/OptionSetsManager';
 
 type View = 'list' | 'form' | 'partners' | 'option-sets';
 
-const CATEGORIES = ['Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
+const CATEGORIES = ['None', 'Marble', 'Stone', 'Concrete', 'Dark', 'Wood', 'Other'];
 const FIXED_SECTIONS = ['Collection', 'Best Sellers', 'On Sale'];
 
 const AdminDashboard = () => {

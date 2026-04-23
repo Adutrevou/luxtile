@@ -39,12 +39,9 @@ const NavSearch = ({ useLight = false }: NavSearchProps) => {
 
   const handleSelect = useCallback((product: Product) => {
     const sections = (product.display_section || []).map((s) => s.trim().toLowerCase());
-    // Route to the page where the product actually renders.
-    // /collections only shows products tagged "Collection".
-    // Everything else (Best Sellers, On Sale, partner sections) renders on /sales.
-    const onCollections = sections.includes('collection');
-    const onSales = sections.some((s) => s !== 'collection');
-    const targetPage = onSales ? '/sales' : onCollections ? '/collections' : '/sales';
+    // Prefer /collections when the product is in the Collection section,
+    // otherwise route to /sales (Best Sellers, On Sale, and partner sections).
+    const targetPage = sections.includes('collection') ? '/collections' : '/sales';
     handleClose();
     navigate(targetPage);
     // Wait for page render then scroll to product

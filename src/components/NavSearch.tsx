@@ -38,21 +38,27 @@ const NavSearch = ({ useLight = false }: NavSearchProps) => {
   }, []);
 
   const handleSelect = useCallback((product: Product) => {
-    const section = product.display_section?.[0];
-    const targetPage = section?.toLowerCase() === 'collection' ? '/collections' : '/sales';
+    const sections = (product.display_section || []).map((s) => s.trim().toLowerCase());
+    // Route to the page where the product actually renders.
+    // /collections only shows products tagged "Collection".
+    // Everything else (Best Sellers, On Sale, partner sections) renders on /sales.
+    const onCollections = sections.includes('collection');
+    const onSales = sections.some((s) => s !== 'collection');
+    const targetPage = onSales ? '/sales' : onCollections ? '/collections' : '/sales';
     handleClose();
     navigate(targetPage);
     // Wait for page render then scroll to product
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        const el = document.getElementById(`product-${product.id}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el.classList.add('ring-2', 'ring-accent');
-          setTimeout(() => el.classList.remove('ring-2', 'ring-accent'), 2000);
-        }
-      }, 300);
-    });
+    const scrollToProduct = (attempt = 0) => {
+      const el = document.getElementById(`product-${product.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-2', 'ring-accent');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-accent'), 2000);
+      } else if (attempt < 10) {
+        setTimeout(() => scrollToProduct(attempt + 1), 200);
+      }
+    };
+    requestAnimationFrame(() => setTimeout(() => scrollToProduct(), 300));
   }, [navigate, handleClose]);
 
   // Close on click outside

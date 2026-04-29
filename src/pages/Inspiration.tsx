@@ -1,5 +1,7 @@
 import PageTransition from '@/components/PageTransition';
 import SectionReveal from '@/components/SectionReveal';
+import Seo from '@/components/Seo';
+import { breadcrumb } from '@/lib/seoSchemas';
 
 import inspKitchen from '@/assets/insp-kitchen.jpg';
 import inspLiving from '@/assets/insp-living.jpg';

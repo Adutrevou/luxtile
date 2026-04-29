@@ -1,6 +1,8 @@
 import { Shield, Maximize2, Truck, Users } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import SectionReveal from "@/components/SectionReveal";
+import Seo from "@/components/Seo";
+import { breadcrumb, serviceSchema } from "@/lib/seoSchemas";
 
 const cards = [
   {

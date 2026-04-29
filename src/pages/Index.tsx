@@ -1,5 +1,7 @@
 import { useState } from "react";
 import SmoothImage from "@/components/SmoothImage";
+import Seo from "@/components/Seo";
+import { organizationSchema, websiteSchema, faqSchema, homeFaqs, breadcrumb } from "@/lib/seoSchemas";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -23,6 +25,17 @@ const Index = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Luxtile Installations | Large Format Porcelain Slab Installers Johannesburg"
+        description="Premium large format porcelain slab installation in Johannesburg, Sandton & across South Africa. Luxury tiling for homes, developers & architects. Get a free quote."
+        keywords="large format tile installation Johannesburg, porcelain slab installers South Africa, luxury tile installation Gauteng, tile installers Sandton, large slab tiles Johannesburg"
+        jsonLd={[
+          organizationSchema,
+          websiteSchema,
+          faqSchema(homeFaqs),
+          breadcrumb([{ name: 'Home', path: '/' }]),
+        ]}
+      />
       {/* Hero */}
       <section className="relative h-screen min-h-[100svh] flex items-center justify-center overflow-hidden">
         <motion.div

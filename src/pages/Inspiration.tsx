@@ -23,6 +23,12 @@ const images = [
 
 const InspirationPage = () => (
   <PageTransition>
+    <Seo
+      title="Tile Installation Inspiration Gallery | Luxtile South Africa"
+      description="Browse real large format porcelain slab installations across South African homes, hotels and commercial spaces — kitchens, bathrooms, lobbies and feature walls."
+      keywords="tile installation gallery South Africa, large format slab inspiration, luxury bathroom tiles Johannesburg, porcelain slab projects"
+      jsonLd={breadcrumb([{ name: 'Home', path: '/' }, { name: 'Inspiration', path: '/inspiration' }])}
+    />
     <section className="pt-32 pb-20 section-padding">
       <SectionReveal>
         <p className="label-caps mb-4">Inspiration</p>

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Check } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import SectionReveal from "@/components/SectionReveal";
+import Seo from "@/components/Seo";
+import { breadcrumb, organizationSchema } from "@/lib/seoSchemas";
 import { sanitizeFormFields, submitForm } from "@/lib/submitForm";
 import { toast } from "sonner";
 

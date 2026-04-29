@@ -5,6 +5,8 @@ import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import ProductQuoteControls from '@/components/ProductQuoteControls';
+import Seo from '@/components/Seo';
+import { breadcrumb, serviceSchema } from '@/lib/seoSchemas';
 import { useProductsBySection, Product } from '@/hooks/useProducts';
 import { usePartners } from '@/hooks/usePartners';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
@@ -110,6 +112,15 @@ const SalesPage = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Direct Tile & Slab Sales South Africa | Luxtile Installations"
+        description="Buy premium large format porcelain slabs direct in South Africa. Best sellers, on-sale slabs and partner brands with fast quotes and nationwide delivery."
+        keywords="buy large format tiles South Africa, porcelain slabs for sale Johannesburg, slab tile prices Gauteng, direct slab sales"
+        jsonLd={[
+          serviceSchema('Porcelain Slab Direct Sales', 'Direct supply of premium large format porcelain slabs to South African homeowners, architects, developers and contractors.', '/sales'),
+          breadcrumb([{ name: 'Home', path: '/' }, { name: 'Sales', path: '/sales' }]),
+        ]}
+      />
       <section className="pt-40 pb-20 section-padding">
         <SectionReveal>
           <p className="label-caps mb-4">Direct Sales</p>

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Check } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import SectionReveal from "@/components/SectionReveal";
+import Seo from "@/components/Seo";
+import { breadcrumb, organizationSchema } from "@/lib/seoSchemas";
 import { sanitizeFormFields, submitForm } from "@/lib/submitForm";
 import { toast } from "sonner";
 
@@ -55,6 +57,12 @@ const ContactPage = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Contact Luxtile Installations | Tile & Slab Quotes Johannesburg"
+        description="Contact Luxtile Installations in Johannesburg for premium large format tile installation quotes, site visits and project consultations across South Africa."
+        keywords="tile installer contact Johannesburg, request tile installation quote, slab installation consultation Gauteng"
+        jsonLd={[organizationSchema, breadcrumb([{ name: 'Home', path: '/' }, { name: 'Contact', path: '/contact' }])]}
+      />
       <section className="pt-40 pb-28 section-padding min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
           {/* Left — Info */}

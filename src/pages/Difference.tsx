@@ -1,6 +1,8 @@
 import { Shield, Maximize2, Truck, Users } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import SectionReveal from "@/components/SectionReveal";
+import Seo from "@/components/Seo";
+import { breadcrumb, serviceSchema } from "@/lib/seoSchemas";
 
 const cards = [
   {
@@ -27,6 +29,12 @@ const cards = [
 
 const DifferencePage = () => (
   <PageTransition>
+    <Seo
+      title="Why Choose Luxtile | Premium Tile Installers Johannesburg"
+      description="Why architects, developers and luxury homeowners choose Luxtile Installations: certified slab quality, large format expertise, nationwide delivery and specialist guidance."
+      keywords="best tile installers Johannesburg, large format slab specialists, premium tile installation Gauteng, expert porcelain slab installers"
+      jsonLd={breadcrumb([{ name: 'Home', path: '/' }, { name: 'Why Us', path: '/why-us' }])}
+    />
     <section className="min-h-screen bg-surface-dark text-surface-dark-foreground pt-40 pb-28 section-padding">
       <SectionReveal>
         <p className="label-caps mb-4">Why Choose Us</p>

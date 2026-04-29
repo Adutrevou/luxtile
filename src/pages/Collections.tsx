@@ -5,6 +5,8 @@ import SectionReveal from '@/components/SectionReveal';
 import QuoteModal from '@/components/QuoteModal';
 import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import ProductQuoteControls from '@/components/ProductQuoteControls';
+import Seo from '@/components/Seo';
+import { breadcrumb, serviceSchema } from '@/lib/seoSchemas';
 import { useProductsBySection } from '@/hooks/useProducts';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 

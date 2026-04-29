@@ -24,6 +24,15 @@ const CollectionsPage = () => {
 
   return (
     <PageTransition>
+      <Seo
+        title="Luxury Tile & Porcelain Slab Collections | Luxtile Johannesburg"
+        description="Explore Luxtile's signature collections of large format porcelain slabs and luxury tiles — marble, stone & contemporary finishes for Johannesburg homes and projects."
+        keywords="luxury tile collections Johannesburg, large format porcelain slabs, marble look slabs South Africa, designer tiles Sandton"
+        jsonLd={[
+          serviceSchema('Large Format Porcelain Slab Supply', 'Curated collections of premium large format porcelain slabs for residential and commercial projects across South Africa.', '/collections'),
+          breadcrumb([{ name: 'Home', path: '/' }, { name: 'Collections', path: '/collections' }]),
+        ]}
+      />
       <section className="pt-32 pb-20 section-padding">
         <SectionReveal>
           <p className="label-caps mb-4">Our Range</p>

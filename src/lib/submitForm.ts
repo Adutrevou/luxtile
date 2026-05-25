@@ -32,14 +32,17 @@ export async function submitForm(
 ): Promise<SubmitFormResponse> {
   const { fields, formName } = payload;
 
+  // Forward all sanitized fields (name, email, phone, deliveryLocation,
+  // message, products, itemDetails, etc.) so any form across the site can
+  // include extra context that the email template will render.
   const templateData = {
-    name: fields.name,
-    email: fields.email,
-    phone: fields.phone,
-    deliveryLocation: fields.deliveryLocation,
-    message: fields.message,
+    ...fields,
     formName,
   };
+
+  const recipientEmail = fields.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)
+    ? fields.email
+    : undefined;
 
   try {
     const { data, error } = await supabase.functions.invoke(
@@ -47,6 +50,7 @@ export async function submitForm(
       {
         body: {
           templateName: "contact_enquiry",
+          recipientEmail,
           templateData,
         },
       },

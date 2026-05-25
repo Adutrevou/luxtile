@@ -18,7 +18,7 @@ export class FormSubmitError extends Error {
 }
 
 const NETWORK_ERROR_MESSAGE =
-  "Unable to send your enquiry right now. Please try again.";
+  "We couldn't send your enquiry right now. Please try again or email Sales@luxtile.co.za.";
 
 export const sanitizeFormFields = (fields: Record<string, string>) =>
   Object.fromEntries(
@@ -32,35 +32,22 @@ export async function submitForm(
 ): Promise<SubmitFormResponse> {
   const { fields, formName } = payload;
 
-  // Forward all sanitized fields (name, email, phone, deliveryLocation,
-  // message, products, itemDetails, etc.) so any form across the site can
-  // include extra context that the email template will render.
-  const templateData = {
-    ...fields,
-    formName,
-  };
-
-  const recipientEmail = fields.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)
-    ? fields.email
-    : undefined;
+  const pageUrl =
+    typeof window !== "undefined" ? window.location.href : undefined;
 
   try {
-    const { data, error } = await supabase.functions.invoke(
-      "send-transactional-email",
-      {
-        body: {
-          templateName: "contact_enquiry",
-          recipientEmail,
-          templateData,
-        },
+    const { data, error } = await supabase.functions.invoke("send-enquiry", {
+      body: {
+        ...fields,
+        formName,
+        pageUrl,
       },
-    );
+    });
 
     if (error) {
-      console.error("send-transactional-email error", error);
+      console.error("send-enquiry error", error);
       throw new FormSubmitError(NETWORK_ERROR_MESSAGE);
     }
-
     if (data && data.success === false) {
       throw new FormSubmitError(NETWORK_ERROR_MESSAGE);
     }

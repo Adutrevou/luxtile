@@ -53,11 +53,16 @@ Deno.serve(async (req) => {
     const errors: string[] = []
     if (!name || typeof name !== 'string' || name.trim().length === 0) errors.push('name required')
     if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('valid email required')
-    if (!phone || typeof phone !== 'string' || phone.trim().length === 0) errors.push('phone required')
-    if (!message || typeof message !== 'string' || message.trim().length === 0) errors.push('message required')
+
+    const normalizedMessage = typeof message === 'string' && message.trim().length > 0
+      ? message
+      : typeof payload.products === 'string' && payload.products.trim().length > 0
+        ? `Products:\n${payload.products}`
+        : 'Website enquiry'
+
     if (errors.length) {
-      return new Response(JSON.stringify({ error: errors.join(', ') }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      return new Response(JSON.stringify({ success: false, error: errors.join(', ') }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
@@ -67,8 +72,8 @@ Deno.serve(async (req) => {
     const rows: Array<[string, string]> = [
       ['Name', String(name)],
       ['Email', String(email)],
-      ['Phone', String(phone)],
-      ['Message', String(message)],
+      ['Phone', String(phone || '(not provided)')],
+      ['Message', String(normalizedMessage)],
     ]
     if (deliveryLocation) rows.push(['Delivery Location', String(deliveryLocation)])
 

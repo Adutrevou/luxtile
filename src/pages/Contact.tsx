@@ -37,10 +37,7 @@ const ContactPage = () => {
       return;
     }
 
-    const fields = sanitizeFormFields({
-      ...rawFields,
-      message: rawFields.message || "General enquiry",
-    });
+    const fields = sanitizeFormFields(rawFields);
     delete fields.website;
 
     setSending(true);

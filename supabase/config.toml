@@ -13,3 +13,6 @@ verify_jwt = false
 
 [functions.handle-email-suppression]
 verify_jwt = false
+
+[functions.send-enquiry]
+verify_jwt = false

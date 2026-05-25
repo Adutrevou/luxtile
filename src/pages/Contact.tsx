@@ -37,10 +37,7 @@ const ContactPage = () => {
       return;
     }
 
-    const fields = sanitizeFormFields({
-      ...rawFields,
-      message: rawFields.message || "General enquiry",
-    });
+    const fields = sanitizeFormFields(rawFields);
     delete fields.website;
 
     setSending(true);
@@ -122,7 +119,7 @@ const ContactPage = () => {
                   </div>
                   <p className="font-display text-3xl mb-3">Thank You</p>
                   <p className="text-muted-foreground max-w-xs mx-auto">
-                    Thanks, we've received your enquiry. We'll be in touch within 24–48 hours.
+                    Thank you, your enquiry has been received. Our team will contact you shortly.
                   </p>
                 </motion.div>
               ) : (
@@ -165,6 +162,7 @@ const ContactPage = () => {
                   <div>
                     <label className="label-caps block mb-2">Phone</label>
                     <input
+                      required
                       type="tel"
                       name="phone"
                       maxLength={20}
@@ -184,6 +182,7 @@ const ContactPage = () => {
                   <div>
                     <label className="label-caps block mb-2">Message</label>
                     <textarea
+                      required
                       name="message"
                       maxLength={1000}
                       rows={3}

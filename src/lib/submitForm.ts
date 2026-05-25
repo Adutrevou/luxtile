@@ -20,6 +20,24 @@ export class FormSubmitError extends Error {
 const NETWORK_ERROR_MESSAGE =
   "We couldn't send your enquiry right now. Please try again or email Sales@luxtile.co.za.";
 
+const SEND_ENQUIRY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-enquiry`;
+
+async function postDirectlyToEnquiryFunction(body: Record<string, string | undefined>) {
+  const response = await fetch(SEND_ENQUIRY_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await response.json().catch(() => null) as SubmitFormResponse | null;
+  if (!response.ok || data?.success === false) throw new FormSubmitError(NETWORK_ERROR_MESSAGE);
+  return data;
+}
+
 export const sanitizeFormFields = (fields: Record<string, string>) =>
   Object.fromEntries(
     Object.entries(fields)
@@ -35,18 +53,20 @@ export async function submitForm(
   const pageUrl =
     typeof window !== "undefined" ? window.location.href : undefined;
 
+  const body = {
+    ...fields,
+    formName,
+    pageUrl,
+  };
+
   try {
     const { data, error } = await supabase.functions.invoke("send-enquiry", {
-      body: {
-        ...fields,
-        formName,
-        pageUrl,
-      },
+      body,
     });
 
     if (error) {
       console.error("send-enquiry error", error);
-      throw new FormSubmitError(NETWORK_ERROR_MESSAGE);
+      await postDirectlyToEnquiryFunction(body);
     }
     if (data && data.success === false) {
       throw new FormSubmitError(NETWORK_ERROR_MESSAGE);

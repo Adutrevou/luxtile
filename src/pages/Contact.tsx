@@ -122,7 +122,7 @@ const ContactPage = () => {
                   </div>
                   <p className="font-display text-3xl mb-3">Thank You</p>
                   <p className="text-muted-foreground max-w-xs mx-auto">
-                    Thanks, we've received your enquiry. We'll be in touch within 24–48 hours.
+                    Thank you, your enquiry has been received. Our team will contact you shortly.
                   </p>
                 </motion.div>
               ) : (

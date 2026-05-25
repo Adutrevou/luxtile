@@ -182,6 +182,7 @@ const ContactPage = () => {
                   <div>
                     <label className="label-caps block mb-2">Message</label>
                     <textarea
+                      required
                       name="message"
                       maxLength={1000}
                       rows={3}

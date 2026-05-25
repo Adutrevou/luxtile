@@ -21,6 +21,7 @@ const DifferencePage = lazy(() => import("./pages/Difference"));
 const InspirationPage = lazy(() => import("./pages/Inspiration"));
 const ContactPage = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const UnsubscribePage = lazy(() => import("./pages/Unsubscribe"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const RequireAdmin = lazy(() => import("./components/admin/RequireAdmin"));
@@ -74,6 +75,7 @@ const App = () => (
                           <Route path="/why-us" element={<DifferencePage />} />
                           <Route path="/inspiration" element={<InspirationPage />} />
                           <Route path="/contact" element={<ContactPage />} />
+                          <Route path="/unsubscribe" element={<UnsubscribePage />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>

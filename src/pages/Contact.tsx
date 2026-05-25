@@ -162,6 +162,7 @@ const ContactPage = () => {
                   <div>
                     <label className="label-caps block mb-2">Phone</label>
                     <input
+                      required
                       type="tel"
                       name="phone"
                       maxLength={20}

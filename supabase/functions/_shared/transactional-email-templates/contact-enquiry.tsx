@@ -20,7 +20,28 @@ interface ContactEnquiryProps {
   deliveryLocation?: string
   message?: string
   formName?: string
+  products?: string
+  itemDetails?: string
+  [key: string]: string | undefined
 }
+
+const RESERVED_KEYS = new Set([
+  'name',
+  'email',
+  'phone',
+  'deliveryLocation',
+  'message',
+  'formName',
+  'products',
+  'itemDetails',
+  'website',
+])
+
+const formatLabel = (key: string) =>
+  key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (s) => s.toUpperCase())
+    .trim()
 
 const main: React.CSSProperties = {
   backgroundColor: '#ffffff',

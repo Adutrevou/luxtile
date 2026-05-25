@@ -20,7 +20,28 @@ interface ContactEnquiryProps {
   deliveryLocation?: string
   message?: string
   formName?: string
+  products?: string
+  itemDetails?: string
+  [key: string]: string | undefined
 }
+
+const RESERVED_KEYS = new Set([
+  'name',
+  'email',
+  'phone',
+  'deliveryLocation',
+  'message',
+  'formName',
+  'products',
+  'itemDetails',
+  'website',
+])
+
+const formatLabel = (key: string) =>
+  key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (s) => s.toUpperCase())
+    .trim()
 
 const main: React.CSSProperties = {
   backgroundColor: '#ffffff',
@@ -61,52 +82,75 @@ const hr: React.CSSProperties = {
   margin: '24px 0',
 }
 
-const ContactEnquiryEmail: React.FC<ContactEnquiryProps> = ({
-  name = '—',
-  email = '—',
-  phone,
-  deliveryLocation,
-  message = '—',
-  formName = 'Contact Us',
-}) => (
-  <Html>
-    <Head />
-    <Preview>New {formName} enquiry from {name}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={heading}>New Enquiry — Luxtile</Heading>
-        <Text style={{ color: '#55575d', margin: '0 0 8px' }}>
-          A new enquiry was submitted via the {formName} form.
-        </Text>
-        <Hr style={hr} />
-        <Section>
-          <Text style={label}>Name</Text>
-          <Text style={value}>{name}</Text>
-          <Text style={label}>Email</Text>
-          <Text style={value}>{email}</Text>
-          {phone ? (
-            <>
-              <Text style={label}>Phone</Text>
-              <Text style={value}>{phone}</Text>
-            </>
-          ) : null}
-          {deliveryLocation ? (
-            <>
-              <Text style={label}>Delivery Location</Text>
-              <Text style={value}>{deliveryLocation}</Text>
-            </>
-          ) : null}
-          <Text style={label}>Message</Text>
-          <Text style={value}>{message}</Text>
-        </Section>
-        <Hr style={hr} />
-        <Text style={{ fontSize: '12px', color: '#8a8a8a' }}>
-          Sent automatically from luxtile.co.za
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+const ContactEnquiryEmail: React.FC<ContactEnquiryProps> = (props) => {
+  const {
+    name = '—',
+    email = '—',
+    phone,
+    deliveryLocation,
+    message = '—',
+    formName = 'Contact Us',
+    products,
+  } = props
+
+  const extraEntries = Object.entries(props).filter(
+    ([key, val]) => !RESERVED_KEYS.has(key) && typeof val === 'string' && val.trim().length > 0,
+  ) as [string, string][]
+
+  return (
+    <Html>
+      <Head />
+      <Preview>New {formName} enquiry from {name}</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Heading style={heading}>New Enquiry — Luxtile</Heading>
+          <Text style={{ color: '#55575d', margin: '0 0 8px' }}>
+            A new enquiry was submitted via the {formName} form.
+          </Text>
+          <Hr style={hr} />
+          <Section>
+            <Text style={label}>Form</Text>
+            <Text style={value}>{formName}</Text>
+            <Text style={label}>Name</Text>
+            <Text style={value}>{name}</Text>
+            <Text style={label}>Email</Text>
+            <Text style={value}>{email}</Text>
+            {phone ? (
+              <>
+                <Text style={label}>Phone</Text>
+                <Text style={value}>{phone}</Text>
+              </>
+            ) : null}
+            {deliveryLocation ? (
+              <>
+                <Text style={label}>Delivery Location</Text>
+                <Text style={value}>{deliveryLocation}</Text>
+              </>
+            ) : null}
+            {products ? (
+              <>
+                <Text style={label}>Products</Text>
+                <Text style={value}>{products}</Text>
+              </>
+            ) : null}
+            <Text style={label}>Message</Text>
+            <Text style={value}>{message}</Text>
+            {extraEntries.map(([key, val]) => (
+              <React.Fragment key={key}>
+                <Text style={label}>{formatLabel(key)}</Text>
+                <Text style={value}>{val}</Text>
+              </React.Fragment>
+            ))}
+          </Section>
+          <Hr style={hr} />
+          <Text style={{ fontSize: '12px', color: '#8a8a8a' }}>
+            Sent automatically from luxtile.co.za
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export const template = {
   component: ContactEnquiryEmail,

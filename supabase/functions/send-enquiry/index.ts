@@ -13,6 +13,19 @@ function escapeHtml(s: string) {
     .replace(/'/g, '&#039;')
 }
 
+function normalizePayload(body: Record<string, unknown>) {
+  const nestedFields = body && typeof body.fields === 'object' && body.fields !== null
+    ? body.fields as Record<string, unknown>
+    : {}
+
+  return {
+    ...nestedFields,
+    ...body,
+    formName: body.formName ?? nestedFields.formName,
+    pageUrl: body.pageUrl ?? nestedFields.pageUrl,
+  } as Record<string, unknown>
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
 
@@ -27,7 +40,8 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}))
-    const { name, email, phone, message, deliveryLocation, pageUrl, formName, website } = body ?? {}
+    const payload = normalizePayload(body ?? {})
+    const { name, email, phone, message, deliveryLocation, pageUrl, formName, website } = payload
 
     // Honeypot
     if (website) {
@@ -51,14 +65,21 @@ Deno.serve(async (req) => {
     const subject = 'New website enquiry from Luxtile'
 
     const rows: Array<[string, string]> = [
-      ['Name', name],
-      ['Email', email],
-      ['Phone', phone],
-      ['Message', message],
+      ['Name', String(name)],
+      ['Email', String(email)],
+      ['Phone', String(phone)],
+      ['Message', String(message)],
     ]
-    if (deliveryLocation) rows.push(['Delivery Location', deliveryLocation])
-    if (formName) rows.push(['Form', formName])
-    rows.push(['Page URL', pageUrl || '(unknown)'])
+    if (deliveryLocation) rows.push(['Delivery Location', String(deliveryLocation)])
+
+    for (const [key, value] of Object.entries(payload)) {
+      if (['name', 'email', 'phone', 'message', 'deliveryLocation', 'pageUrl', 'formName', 'website', 'fields'].includes(key)) continue
+      if (value === undefined || value === null || value === '') continue
+      rows.push([key, typeof value === 'string' ? value : JSON.stringify(value)])
+    }
+
+    if (formName) rows.push(['Form', String(formName)])
+    rows.push(['Page URL', String(pageUrl || '(unknown)')])
     rows.push(['Submitted', submittedAt])
 
     const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n')

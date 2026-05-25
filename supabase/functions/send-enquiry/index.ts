@@ -2,7 +2,7 @@ import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 
 const GATEWAY_URL = 'https://connector-gateway.lovable.dev/resend'
 const TO_EMAIL = 'sales@luxtile.co.za'
-const FROM_EMAIL = 'Luxtile Website <onboarding@resend.dev>'
+const FROM_EMAIL = 'Luxtile Website <enquiries@send.luxtile.co.za>'
 
 function escapeHtml(s: string) {
   return String(s ?? '')

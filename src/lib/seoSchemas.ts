@@ -5,7 +5,7 @@ const SITE_URL = 'https://www.luxtile.co.za';
 
 export const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
+  '@type': ['Organization', 'LocalBusiness', 'HomeAndConstructionBusiness'],
   '@id': `${SITE_URL}/#organization`,
   name: 'Luxtile Installations',
   alternateName: 'Luxtile',

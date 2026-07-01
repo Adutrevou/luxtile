@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const SITE_URL = 'https://luxtile.co.za';
+const SITE_URL = 'https://www.luxtile.co.za';
 const DEFAULT_OG = `${SITE_URL}/og-image.jpg`;
 
 interface SeoProps {

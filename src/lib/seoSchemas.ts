@@ -1,11 +1,11 @@
 // Centralised JSON-LD schema generators for Luxtile Installations
 // Non-visual SEO additions only.
 
-const SITE_URL = 'https://luxtile.co.za';
+const SITE_URL = 'https://www.luxtile.co.za';
 
 export const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
+  '@type': ['Organization', 'LocalBusiness', 'HomeAndConstructionBusiness'],
   '@id': `${SITE_URL}/#organization`,
   name: 'Luxtile Installations',
   alternateName: 'Luxtile',

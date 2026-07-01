@@ -31,9 +31,12 @@ const DifferencePage = () => (
   <PageTransition>
     <Seo
       title="Why Choose Luxtile | Premium Tile Installers Johannesburg"
-      description="Why architects, developers and luxury homeowners choose Luxtile Installations: certified slab quality, large format expertise, nationwide delivery and specialist guidance."
-      keywords="best tile installers Johannesburg, large format slab specialists, premium tile installation Gauteng, expert porcelain slab installers"
-      jsonLd={breadcrumb([{ name: 'Home', path: '/' }, { name: 'Why Us', path: '/why-us' }])}
+      description="Discover why architects, developers and luxury homeowners choose Luxtile for premium porcelain slabs, expert guidance and large format installation."
+      keywords="best tile installers Johannesburg, large format slab specialists, premium tile installation Gauteng, luxury tile installation South Africa"
+      jsonLd={[
+        serviceSchema('Luxury Tile Installation', 'Specialist installation of luxury tiles and large format porcelain slabs for residential, hospitality and commercial projects in Johannesburg, Sandton and across South Africa.', '/why-us'),
+        breadcrumb([{ name: 'Home', path: '/' }, { name: 'Why Us', path: '/why-us' }]),
+      ]}
     />
     <section className="min-h-screen bg-surface-dark text-surface-dark-foreground pt-40 pb-28 section-padding">
       <SectionReveal>

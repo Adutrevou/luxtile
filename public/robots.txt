@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/
+Disallow: /unsubscribe
 
-Sitemap: https://luxtile.co.za/sitemap.xml
+Sitemap: https://www.luxtile.co.za/sitemap.xml

@@ -26,9 +26,9 @@ const Index = () => {
   return (
     <PageTransition>
       <Seo
-        title="Luxtile Installations | Large Format Porcelain Slab Installers Johannesburg"
-        description="Premium large format porcelain slab installation in Johannesburg, Sandton & across South Africa. Luxury tiling for homes, developers & architects. Get a free quote."
-        keywords="large format tile installation Johannesburg, porcelain slab installers South Africa, luxury tile installation Gauteng, tile installers Sandton, large slab tiles Johannesburg"
+        title="Large Format Porcelain Slab Installers Johannesburg | Luxtile"
+        description="Premium large format porcelain slab installation and luxury tile supply in Johannesburg, Sandton and across South Africa. Get expert guidance and a quote."
+        keywords="large format porcelain slabs Johannesburg, large format tile installers Johannesburg, porcelain slab installation Johannesburg, luxury tiles Johannesburg, premium porcelain slabs South Africa, porcelain slab supplier South Africa, Dekton slabs South Africa, Neolith slabs South Africa"
         jsonLd={[
           organizationSchema,
           websiteSchema,

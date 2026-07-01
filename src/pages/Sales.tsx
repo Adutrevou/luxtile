@@ -113,11 +113,11 @@ const SalesPage = () => {
   return (
     <PageTransition>
       <Seo
-        title="Direct Tile & Slab Sales South Africa | Luxtile Installations"
-        description="Buy premium large format porcelain slabs direct in South Africa. Best sellers, on-sale slabs and partner brands with fast quotes and nationwide delivery."
-        keywords="buy large format tiles South Africa, porcelain slabs for sale Johannesburg, slab tile prices Gauteng, direct slab sales"
+        title="Direct Porcelain Slab Sales South Africa | Luxtile"
+        description="Buy premium large format porcelain slabs directly from Luxtile, with nationwide supply, expert guidance and project support across South Africa."
+        keywords="porcelain slab supplier South Africa, buy large format tiles South Africa, porcelain slabs for sale Johannesburg, Dekton slabs South Africa, Neolith slabs South Africa, Infinity porcelain slabs South Africa, direct slab sales"
         jsonLd={[
-          serviceSchema('Porcelain Slab Direct Sales', 'Direct supply of premium large format porcelain slabs to South African homeowners, architects, developers and contractors.', '/sales'),
+          serviceSchema('Direct Porcelain Slab Sales', 'Direct supply of premium large format porcelain slabs to South African luxury homeowners, architects, designers, builders and developers.', '/sales'),
           breadcrumb([{ name: 'Home', path: '/' }, { name: 'Sales', path: '/sales' }]),
         ]}
       />

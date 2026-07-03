@@ -68,7 +68,8 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display text-xl md:text-2xl text-primary-foreground/80 italic mb-4"
+            className="text-xl md:text-2xl text-primary-foreground/80 italic mb-4"
+            style={{ fontFamily: "'Cormorant Garamond', serif" }}
           >
             Where Stone Meets Perfection
           </motion.p>

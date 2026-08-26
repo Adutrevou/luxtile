@@ -113,8 +113,9 @@ const SalesPage = () => {
   return (
     <PageTransition>
       <Seo
-        title="Direct Porcelain Slab Sales South Africa | Luxtile"
+        title="Direct Porcelain Slab Sales | Luxtile South Africa"
         description="Buy premium large format porcelain slabs directly from Luxtile, with nationwide supply, expert guidance and project support across South Africa."
+
         keywords="porcelain slab supplier South Africa, buy large format tiles South Africa, porcelain slabs for sale Johannesburg, Dekton slabs South Africa, Neolith slabs South Africa, Infinity porcelain slabs South Africa, direct slab sales"
         jsonLd={[
           serviceSchema('Direct Porcelain Slab Sales', 'Direct supply of premium large format porcelain slabs to South African luxury homeowners, architects, designers, builders and developers.', '/sales'),
@@ -124,7 +125,7 @@ const SalesPage = () => {
       <section className="pt-40 pb-20 section-padding">
         <SectionReveal>
           <p className="label-caps mb-4">Direct Sales</p>
-          <h1 className="heading-display text-foreground mb-6">Acquire Excellence</h1>
+          <h1 className="heading-display text-foreground mb-6">Direct Porcelain Slab Sales</h1>
           <p className="text-muted-foreground max-w-2xl text-lg mb-12">
             We're expanding to make our exceptional collections accessible directly to you — architects, designers, builders, and discerning homeowners — with seamless quoting, nationwide supply, and expert support.
           </p>

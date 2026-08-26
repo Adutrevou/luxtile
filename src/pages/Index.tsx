@@ -234,7 +234,24 @@ const Index = () => {
         </SectionReveal>
       </section>
 
+      {/* FAQ */}
+      <section className="section-padding py-28">
+        <SectionReveal>
+          <p className="label-caps mb-4">Questions</p>
+          <h2 className="heading-section text-foreground mb-16">Frequently Asked</h2>
+        </SectionReveal>
+        <div className="max-w-3xl space-y-10">
+          {homeFaqs.map((faq, i) => (
+            <SectionReveal key={faq.q} delay={i * 0.08}>
+              <h3 className="font-display text-xl mb-3">{faq.q}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{faq.a}</p>
+            </SectionReveal>
+          ))}
+        </div>
+      </section>
+
       <QuoteModal open={quoteOpen} onClose={() => setQuoteOpen(false)} />
+
     </PageTransition>
   );
 };

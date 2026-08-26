@@ -26,8 +26,9 @@ const Index = () => {
   return (
     <PageTransition>
       <Seo
-        title="Large Format Porcelain Slab Installers Johannesburg | Luxtile"
-        description="Premium large format porcelain slab installation and luxury tile supply in Johannesburg, Sandton and across South Africa. Get expert guidance and a quote."
+        title="Porcelain Slab Installers Johannesburg | Luxtile"
+        description="Premium large format porcelain slab installation and luxury tile supply in Johannesburg, Sandton and across South Africa."
+
         keywords="large format porcelain slabs Johannesburg, large format tile installers Johannesburg, porcelain slab installation Johannesburg, luxury tiles Johannesburg, premium porcelain slabs South Africa, porcelain slab supplier South Africa, Dekton slabs South Africa, Neolith slabs South Africa"
         jsonLd={[
           organizationSchema,
@@ -62,7 +63,7 @@ const Index = () => {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="heading-display text-primary-foreground mb-4"
           >
-            Luxtile Installations
+            Luxtile Installations — Premium Porcelain Slab Specialists
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -193,7 +194,7 @@ const Index = () => {
             to="/why-us"
             className="inline-flex items-center gap-2 text-accent text-sm tracking-[0.1em] uppercase font-medium hover:gap-4 transition-all"
           >
-            Learn More <ArrowRight size={16} />
+            Discover the Luxtile Difference <ArrowRight size={16} />
           </Link>
         </SectionReveal>
       </section>
@@ -205,16 +206,21 @@ const Index = () => {
           <h2 className="heading-section text-foreground mb-16">Spaces Transformed</h2>
         </SectionReveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-          {[inspKitchen, inspLiving, inspLobby].map((img, i) => (
+          {[
+            { img: inspKitchen, alt: "Luxury kitchen inspiration with large format porcelain slab surfaces" },
+            { img: inspLiving, alt: "Contemporary living room with porcelain slab feature wall" },
+            { img: inspLobby, alt: "Hotel lobby floor finished in dark porcelain slabs" },
+          ].map(({ img, alt }, i) => (
             <SectionReveal key={i} delay={i * 0.1}>
               <div className="aspect-[4/3] overflow-hidden">
                 <img
                   src={img}
-                  alt="Inspiration"
+                  alt={alt}
                   className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-1000 ease-in-out"
                   loading="lazy"
                 />
               </div>
+
             </SectionReveal>
           ))}
         </div>

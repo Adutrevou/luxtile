@@ -66,10 +66,11 @@ const ContactPage = () => {
           <SectionReveal>
             <p className="label-caps mb-4">Begin Your Journey</p>
             <h1 className="heading-display text-foreground mb-6">
-              Ready to Transform
+              Contact Luxtile
               <br />
-              Your Space?
+              Installations
             </h1>
+
             <p className="text-muted-foreground mb-12 max-w-md">
               Our consultants are ready to help you select the perfect slab for your vision. Fill in your details
               and we'll craft a tailored recommendation.

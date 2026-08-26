@@ -55,7 +55,7 @@ const ContactPage = () => {
   return (
     <PageTransition>
       <Seo
-        title="Contact Luxtile | Tile & Slab Quotes Johannesburg"
+        title="Contact Luxtile | Slab Quotes Johannesburg"
         description="Contact Luxtile Installations for premium large format porcelain slab quotes, tile installation, site visits and project guidance in Johannesburg."
         keywords="tile installer contact Johannesburg, request porcelain slab quote, slab installation consultation Gauteng, luxury tile quotes South Africa"
         jsonLd={[organizationSchema, breadcrumb([{ name: 'Home', path: '/' }, { name: 'Contact', path: '/contact' }])]}

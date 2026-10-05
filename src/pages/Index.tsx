@@ -38,7 +38,7 @@ const Index = () => {
         ]}
       />
       {/* Hero */}
-      <section className="relative h-screen min-h-[100svh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[100svh] py-32 flex items-center justify-center overflow-hidden">
         <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -55,7 +55,7 @@ const Index = () => {
             transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="label-caps mb-6 !text-primary-foreground/80"
           >
-            Premium Large Format Slabs
+            Luxtile Installations · Johannesburg
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -63,7 +63,7 @@ const Index = () => {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="heading-display text-primary-foreground mb-4"
           >
-            Luxtile Installations — Premium Porcelain Slab Specialists
+            Porcelain Slab Specialists
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -80,7 +80,7 @@ const Index = () => {
             transition={{ delay: 1.0, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="text-primary-foreground/70 text-sm md:text-base max-w-xl mx-auto mb-10 font-body"
           >
-            Extraordinary porcelain slab tiles crafted for spaces that demand nothing less than exceptional.
+            Premium large format porcelain slab supply and installation in Johannesburg, Sandton and across South Africa. Explore our collections or request a quote for your project.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
